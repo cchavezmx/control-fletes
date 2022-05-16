@@ -126,6 +126,7 @@ function Empresa({ empresa, documents, vehicles }){
             <ShareButton 
               id={selectedRow[0].id}
               type={validTypes[selectedRow[0].type]}
+              title={selectedRow[0].subject}
             />            
           </Box>
         )
