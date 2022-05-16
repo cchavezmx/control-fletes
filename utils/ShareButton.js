@@ -1,10 +1,10 @@
 import { Button } from '@mui/material'
 
-const ShareButton = ({ id, type }) => {
+const ShareButton = ({ id, type, title }) => {
   const shareData = {
-    title: "Flotilla",
-    text: 'Recurso de logistica',
-    url: `https://logistica-sage.vercel.app/flotilla/${id}/${type}`,
+    title,
+    text: 'Esta url es única y puedes consultarla las veces que necesites 😁',
+    url: `https://control-fletes.vercel.app/flotilla/${id}/${type}`,
   }
 
   const handleShare = async() => {
@@ -16,7 +16,7 @@ const ShareButton = ({ id, type }) => {
   }
   
   return <Button variant='contained' color="secondary" onClick={handleShare}>
-    Compartir
+    Enviar
   </Button>
 }
 
