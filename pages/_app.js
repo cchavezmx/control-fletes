@@ -6,6 +6,7 @@ import Layout from '../Components/Layout';
 import { SWRConfig } from 'swr'
 import { ToastContainer } from 'react-toastify';
 import { GlobalStateProvider } from '../context/GlobalContext';
+import { UserProvider } from '@auth0/nextjs-auth0';
 
 const theme = createTheme({
   typography: {
@@ -20,6 +21,7 @@ const fetcher = (...args) => fetch(...args).then(res => res.json())
 function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider theme={theme}>
+      <UserProvider>
       <GlobalStateProvider>
         <Layout>
         <ToastContainer />
@@ -28,6 +30,7 @@ function MyApp({ Component, pageProps }) {
           </SWRConfig>
         </Layout>
       </GlobalStateProvider>
+      </UserProvider>
     </ThemeProvider>
   )
 }
