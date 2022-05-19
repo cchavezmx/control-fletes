@@ -4,10 +4,10 @@ import TableFlotillas from '../Components/TableFlotillas'
 import NewDocument from '../Components/Modal/NewDocument';
 import PrevPDFModal from '../Components/Modal/PrevPDFModal';
 import { useRouter } from 'next/router'
-import Link from 'next/link'
-import NewDocumentIncomming from '../Components/Modal/NewDocumentIncomming';
+// import Link from 'next/link'
+// import NewDocumentIncomming from '../Components/Modal/NewDocumentIncomming';
 import dayjs from 'dayjs';
-import getPDF from '../utils/getPDF.js'
+// import getPDF from '../utils/getPDF.js'
 import { columnsDocumentosFlotillas as columns } from '../utils/columnsTables.js'
 import ShareButton from '../utils/ShareButton';
 
@@ -60,25 +60,6 @@ function Empresa({ empresa, documents, vehicles }){
     return [...traslados, ...fletes, ...rentas]
   }
 
-  // const folioCount = () => {
-  //   const traslado = documents.traslado.length !== 0 
-  //   ? documents.traslado.length
-  //   : 0
-
-  //   const flete = documents.fletes.length !== 0
-  //   ? documents.fletes.length
-  //   : 0
-
-  //   const renta = documents.rentas.length !== 0
-  //   ? documents.rentas.length
-  //   : 0    
-
-  //   return {
-  //     traslado,
-  //     flete,
-  //     renta
-  //   }
-  // }
 
   const [openNewModal, setOpenNewModal] = useState(false);
   const handledModal = (event) => setOpenNewModal(event)
@@ -172,13 +153,13 @@ function Empresa({ empresa, documents, vehicles }){
         />
       )
     }
-    <NewDocumentIncomming
+    {/* <NewDocumentIncomming
       listVehicles={vehicles}
       refreshData={refreshData}
       open={openNewModal}
       close={() => handledModal(false)}
       empresaId={documents._id}
-    />
+    /> */}
   </>
   )
 }
