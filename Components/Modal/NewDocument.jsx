@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useState, useMemo, useEffect } from 'react'
-import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, Typography } from '@mui/material'
+import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, Typography, FormControlLabel, Checkbox } from '@mui/material'
 import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
@@ -9,7 +9,6 @@ import NewVehicle from './NewVehicle';
 import NewPlan from './NewPlan';
 import { useGlobalState } from '../../context/GlobalContext'
 import EMPRESAS from '../../lib/empresas.json'
-
 
 const API = process.env.NEXT_PUBLIC_API
 
@@ -29,7 +28,7 @@ const flexColum = {
   flexDirection: 'column',
   alignItems: 'center',
   height: '100%',
-  width: '300px',
+  width: '450px',
   gap: '1rem',
   padding: '0.25rem',
 }
@@ -46,7 +45,8 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
   const dateRequest = watch('request_date')
   const dateDelivery = watch('delivery_date')
   const planWatchSelected = watch('plan')
-
+  const casetasWatch = watch('casetas')
+    
   // modal de nuevo vehiculo
   const [vehicleSelected, setVehicleSelected] = useState('')
   const [openNewVehicle, setOpenNewVehicle] = useState(false);
@@ -108,15 +108,14 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
     )
   }
 
-  // const nextFolio = useMemo(() => {
-  //   return folioCount[type] + 1
-  // }, [type])
-
+  const [checkbox, setCheckbox] = useState(false)
+  
   const handleClose = () => {
     close();
     reset();
     setType('');
     setVehicleSelected('');
+    setCheckbox(false);
   }
   
   const onSubmit = async(data) => {
@@ -159,6 +158,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
       handleClose()
     })
   }
+  
 
   return (
     <Drawer
@@ -190,9 +190,27 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
               <Box sx={{
                 overflow: '',
               }}>
-
-              </Box>                            
+              </Box>              
               { selectVehicles() }
+              <FormControl fullWidth>
+              <FormControlLabel
+                  control={<Checkbox
+                    checked={casetasWatch || checkbox} 
+                    onChange={() => {
+                      setCheckbox(!checkbox)
+                    }} 
+                    name="checkedA" />}
+                  label="Incluir casetas"
+                />
+              {
+                checkbox && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <TextField id="casetas" label="Costo total" {...register('casetas', { required: false })} sx={{ marginBottom: '10px' }} />
+                    <TextField label="TARJETA / BANCO" {...register('tarjeta_deposito', { required: false })} />
+                </Box>
+                )
+              }
+              </FormControl>
               {
                 vehicleSelected &&
                 <FormControl fullWidth>
@@ -217,20 +235,28 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
               }
               <FormControl fullWidth>
                 <InputLabel id="client">Cliente</InputLabel>
-              <Select
+                <Select
                 labelId="client"
                 label="Cliente"
                 id="client"                
                 {...register('client', { required: true })}
               >
                 {
-                  EMPRESAS
-                  .filter(item => item._id !== empresaId)
-                  .map(empresa => {
-                    return (
-                      <MenuItem key={empresa._id} value={empresa._id}>{empresa.name}</MenuItem>
-                    )
-                  })
+                  type === 'traslado' 
+                    ? EMPRESAS
+                    .filter(empresa => empresa._id === empresaId)
+                    .map(empresa => {
+                      return (
+                        <MenuItem key={empresa._id} value={empresa._id}>{empresa.name}</MenuItem>
+                      )
+                    })
+                    : EMPRESAS
+                      .filter(item => item._id !== empresaId)
+                      .map(empresa => {
+                        return (
+                          <MenuItem key={empresa._id} value={empresa._id}>{empresa.name}</MenuItem>
+                        )
+                      })
                 }
               </Select>
               </FormControl>   
@@ -301,7 +327,16 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 { ...register("kilometer_out", { required: false }) }
               />
               <TextField
-                label="Nivel de combustible"
+                label={`Subtotal ${type.toUpperCase()}`}
+                name="subtotal_travel"
+                id="subtotal_travel"
+                variant="outlined"
+                type="text"
+                fullWidth
+                { ...register("subtotal_travel", { required: true }) }
+              />
+              <TextField
+                label="Nivel de combustible %"
                 name="fuel_level"
                 id="fuel_level"
                 variant="outlined"

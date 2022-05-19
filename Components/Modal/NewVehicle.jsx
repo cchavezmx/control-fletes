@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 const API = process.env.NEXT_PUBLIC_API
 
 const style = {  
-  width: "20%",
+  width: "350px",
   height: "fit-content",
   position: 'absolute',  
   top: '50%',
