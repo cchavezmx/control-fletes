@@ -21,8 +21,8 @@ export default function TableFlotillas({ columns, rows, setSelectedRow }) {
       <DataGrid
         rows={rows}
         columns={columns}
-        pageSize={15}
-        rowsPerPageOptions={[15]}
+        pageSize={20}
+        rowsPerPageOptions={[20]}
         checkboxSelection
         onSelectionModelChange={handleRowClick}
       />

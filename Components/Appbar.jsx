@@ -15,7 +15,10 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
+import { useUser } from '@auth0/nextjs-auth0';
+import Image from 'next/image';
 import Link from 'next/link';
+import { Divider } from '@mui/material';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -58,6 +61,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+
+  const { user, isLoading } = useUser();
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -98,8 +104,9 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>{user.nickname}</MenuItem>
+      <Divider />
+      <MenuItem onClick={handleMenuClose}>Cerrar Sesión</MenuItem>
     </Menu>
   );
 
@@ -177,8 +184,8 @@ export default function PrimarySearchAppBar() {
             <Link href="/">
               Logistica
             </Link>
-          </Typography>
-          <Search>
+          </Typography>          
+          {/* <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -186,15 +193,15 @@ export default function PrimarySearchAppBar() {
               placeholder="Buscar por empresa"
               inputProps={{ 'aria-label': 'search' }}
             />
-          </Search>
+          </Search> */}
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+            {/* <IconButton size="large" aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="error">
                 <MailIcon />
               </Badge>
-            </IconButton>
-            <IconButton
+            </IconButton> */}
+            {/* <IconButton
               size="large"
               aria-label="show 17 new notifications"
               color="inherit"
@@ -202,7 +209,7 @@ export default function PrimarySearchAppBar() {
               <Badge badgeContent={17} color="error">
                 <NotificationsIcon />
               </Badge>
-            </IconButton>
+            </IconButton> */}
             <IconButton
               size="large"
               edge="end"
@@ -211,8 +218,20 @@ export default function PrimarySearchAppBar() {
               aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit"
-            >
-              <AccountCircle />
+            >              
+              {
+                user ? (                
+                  <Image
+                    src={user.picture}
+                    alt="profile"
+                    width={40}
+                    height={40}
+                    objectFit="cover"
+                    style={{ borderRadius: '9999px' }}
+                  />
+                )
+                : <AccountCircle />
+              }
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
