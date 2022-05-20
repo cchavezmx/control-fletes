@@ -9,9 +9,11 @@ function Dashboard(){
   return (
     <div>
       <h1>Empresas</h1>
-      <Container maxWidth="xl" sx={{
+      <Container maxWidth="lg" sx={{
         display: 'flex',
         flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        alignContent: 'flex-start',
         gap: '1rem',
       }}>
         {

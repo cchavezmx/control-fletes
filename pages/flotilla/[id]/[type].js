@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Typography, Box, Divider, Button } from '@mui/material'
+import { Typography, Box, Divider, Button, AppBar  } from '@mui/material'
+import { } from '@auth0/nextjs-auth0'
 const API = process.env.NEXT_PUBLIC_API;
 
 const PDFInvoice = ({ id, type }) => {
@@ -34,20 +35,22 @@ const PDFInvoice = ({ id, type }) => {
   }, [])
   
   return (
+  <>
+  <AppBar />
     <Box>
       {loading && <Typography variant="h5">Cargando...</Typography>}
       {!loading && 
         <iframe 
         src={pdfurl}
         width="100%"
-        height="800px"
+        height="1200px"
         title="PDF Preview"
         frameBorder="0"
         allowFullScreen            
       />
       }
-    </Box>
-
+    </Box>  
+  </>
   )
 
 }

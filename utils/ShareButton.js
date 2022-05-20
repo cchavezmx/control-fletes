@@ -1,9 +1,11 @@
 import { Button } from '@mui/material'
 
+const emoticones = ["🚀", "🥶", "😁", "🙈", "📷", "🍻", "🦜", "❤️"]
+
 const ShareButton = ({ id, type, title }) => {
   const shareData = {
     title,
-    text: 'Esta url es única y puedes consultarla las veces que necesites 😁',
+    text: `Esta url es única y puedes consultarla las veces que necesites ${emoticones[Math.floor(Math.random() * emoticones.length)]}`,
     url: `https://control-fletes.vercel.app/flotilla/${id}/${type}`,
   }
 
