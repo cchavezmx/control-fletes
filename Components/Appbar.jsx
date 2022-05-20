@@ -10,7 +10,7 @@ import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
+// import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -104,9 +104,11 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>{user.nickname}</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Neibor</MenuItem>
       <Divider />
-      <MenuItem onClick={handleMenuClose}>Cerrar Sesión</MenuItem>
+      <Link href="/api/auth/logout" passHref>
+        <MenuItem onClick={handleMenuClose}>Cerrar Sesión</MenuItem>
+      </Link>
     </Menu>
   );
 
@@ -220,7 +222,7 @@ export default function PrimarySearchAppBar() {
               color="inherit"
             >              
               {
-                user ? (                
+                user ? (
                   <Image
                     src={user.picture}
                     alt="profile"

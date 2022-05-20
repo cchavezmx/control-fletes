@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Box, Divider, Button } from '@mui/material'
+import { Typography, Box, Divider, Button, Container } from '@mui/material'
 import TableFlotillas from '../Components/TableFlotillas'
 import NewDocument from '../Components/Modal/NewDocument';
 import PrevPDFModal from '../Components/Modal/PrevPDFModal';
@@ -7,7 +7,6 @@ import { useRouter } from 'next/router'
 // import Link from 'next/link'
 // import NewDocumentIncomming from '../Components/Modal/NewDocumentIncomming';
 import dayjs from 'dayjs';
-// import getPDF from '../utils/getPDF.js'
 import { columnsDocumentosFlotillas as columns } from '../utils/columnsTables.js'
 import ShareButton from '../utils/ShareButton';
 
@@ -15,6 +14,15 @@ const validTypes = {
   'Traslado': 'traslado',
   'Flete': 'flete',
   'Renta': 'renta',
+}
+
+const formatDate = (date, time) => {
+  const formatDate = new Date(date).toUTCString()
+  if (!time) {
+    return dayjs(formatDate).add(1, 'day').format('DD/MM/YYYY')
+  } else {
+    return dayjs(formatDate).format('HH:mm a')
+  }
 }
 
 function Empresa({ empresa, documents, vehicles }){
@@ -27,8 +35,9 @@ function Empresa({ empresa, documents, vehicles }){
         ...document,
         id: document._id,
         type: 'Traslado',
-        request_date: dayjs(document.request_date).format('YYYY-MM-DD'),
-        delivery_date: dayjs(document.delivery_date).format('YYYY-MM-DD'),
+        request_date: formatDate(document.request_date),
+        delivery_date: formatDate(document.delivery_date),
+        createdAt: formatDate(document.createdAt, 'time'),
       }
     })
     : []
@@ -39,8 +48,9 @@ function Empresa({ empresa, documents, vehicles }){
         ...document,
         id: document._id,
         type: 'Flete',
-        request_date: dayjs(document.request_date).format('YYYY-MM-DD'),
-        delivery_date: dayjs(document.delivery_date).format('YYYY-MM-DD'),
+        request_date: formatDate(document.request_date),
+        delivery_date: formatDate(document.delivery_date),
+        createdAt: formatDate(document.createdAt, 'time'),
       }
     })
     : []
@@ -51,8 +61,9 @@ function Empresa({ empresa, documents, vehicles }){
         ...document,
         id: document._id,
         type: 'Renta',
-        request_date: dayjs(document.request_date).format('YYYY-MM-DD'),
-        delivery_date: dayjs(document.delivery_date).format('YYYY-MM-DD'),
+        request_date: formatDate(document.request_date),
+        delivery_date: formatDate(document.delivery_date),
+        createdAt: formatDate(document.createdAt, 'time'),
       }
     })
     : []
@@ -80,10 +91,24 @@ function Empresa({ empresa, documents, vehicles }){
 
 
   return (
-  <>
+  <Container sx={{ position: 'relative' }} maxWidth="xl">
     <Typography variant='h3' sx={{ margin: '2.5rem 0', fontWeight: '500' }}>      
       { empresa }      
-    </Typography>    
+    </Typography> 
+    <Button
+        sx={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          borderRadius: '9999px',
+        }}
+        variant="contained" 
+        color="primary"
+        size="large"
+        onClick={() => handledModal(true)}
+        >
+          Nuevo
+    </Button> 
     <Typography>
       Rentas, Traslados y Fletes
     </Typography>
@@ -112,9 +137,6 @@ function Empresa({ empresa, documents, vehicles }){
           </Box>
         )
       }
-      {
-        selectedRow.length > 1 && <Button variant="contained" color="primary">Descargar Excel</Button>
-      }
     </Box>
     <Divider />
     <Box>
@@ -129,13 +151,6 @@ function Empresa({ empresa, documents, vehicles }){
     <Box sx={{
       marginTop: '2.5rem',
     }}>
-      <Button 
-        variant="contained" 
-        color="primary"
-        onClick={() => handledModal(true)}
-        >
-          Nuevo
-        </Button>
     </Box>
     <NewDocument
       listVehicles={vehicles}
@@ -160,7 +175,7 @@ function Empresa({ empresa, documents, vehicles }){
       close={() => handledModal(false)}
       empresaId={documents._id}
     /> */}
-  </>
+  </Container>
   )
 }
 

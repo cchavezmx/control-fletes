@@ -21,6 +21,12 @@ const columnsDocumentosFlotillas = [
     type: 'date',
   },
   {
+    field: 'createdAt',
+    headerName: 'Hora de Solicitud',
+    width: 150,
+    sortable: true,
+  },
+  {
     field: 'delivery_date',
     headerName: 'Fecha Disperción',
     width: 150,
@@ -34,27 +40,20 @@ const columnsDocumentosFlotillas = [
   {
     field: 'vehicle',
     headerName: 'Vehiculo',
-    width: 200,
-  },
-  {
-    field: 'document_id',
-    headerName: 'Folio ADMINPAQ',
     width: 150,
-    sortable: false,
   },
-  {
-    field: 'project_id',
-    headerName: 'Folio Proyecto',
-    width: 150,
-    sortable: false,
-  },
+  // {
+  //   field: 'project_id',
+  //   headerName: 'Folio Proyecto',
+  //   width: 150,
+  //   sortable: false,
+  // },
   {
     field: 'route',
     headerName: 'Ruta',
-    width: 150,
+    width: 250,
     sortable: false,
   },
-
 ];
 
 export {
