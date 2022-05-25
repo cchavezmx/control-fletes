@@ -1,6 +1,6 @@
 import { Button } from '@mui/material'
 
-const emoticones = ["🚀", "🥶", "😁", "🙈", "📷", "🍻", "🦜", "❤️"]
+const emoticones = ["🚀", "🥶", "😁", "🙈", "📷", "🍻", "🦜", "❤️", "👽", "👾", "🐑", "🧶"]
 
 const ShareButton = ({ id, type, title }) => {
   const shareData = {

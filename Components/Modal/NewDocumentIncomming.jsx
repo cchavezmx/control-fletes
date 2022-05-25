@@ -18,8 +18,6 @@ const NewDocumentIncomming = (
   
     const { vertical, horizontal } = state
     const { lastDocumentsCreated } = useGlobalState();
-
-    console.log(lastDocumentsCreated, 'lastDocumentsCreated')
     const [openModalRelacionado, setOpenModalRelacionado] = useState(false);
 
     useEffect(() => {

@@ -104,7 +104,11 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Neibor</MenuItem>
+      <MenuItem onClick={handleMenuClose}>
+      <Typography>
+        Bienvenido: {user?.name}
+      </Typography>
+      </MenuItem>
       <Divider />
       <Link href="/api/auth/logout" passHref>
         <MenuItem onClick={handleMenuClose}>Cerrar Sesión</MenuItem>
