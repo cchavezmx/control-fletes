@@ -7,7 +7,6 @@ import { SWRConfig } from 'swr'
 import { ToastContainer } from 'react-toastify';
 import { GlobalStateProvider } from '../context/GlobalContext';
 import { UserProvider } from '@auth0/nextjs-auth0';
-import { esES } from '@mui/material/locale'
 
 const theme = createTheme({
   typography: {

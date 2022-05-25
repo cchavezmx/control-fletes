@@ -16,9 +16,6 @@ const ResponsiveAppBar = ({ children }) => {
   <>
     <Appbar />
     <Container maxWidth="xl">
-    <Typography>
-      Bienvenido: {user?.name}
-    </Typography>
       {children}
     </Container>
   </>

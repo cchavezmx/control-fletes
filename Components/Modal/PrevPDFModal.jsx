@@ -33,7 +33,6 @@ function PrevPDFModal({ open, close, modalPreview }) {
 
   // add cors to fetch
     const { id, type } = modalPreview
-    console.log(id, type, 'duaLipa')
     const [loading, setLoading] = useState(null)
     const [pdfPreview, setPdfPreview] = useState(null)
 
@@ -49,7 +48,6 @@ function PrevPDFModal({ open, close, modalPreview }) {
         .then(buffer => {
           const blob = new Blob([buffer], { type: 'application/pdf' })
           const URLpreview = URL.createObjectURL(blob)
-          console.log(URLpreview)
           setPdfPreview(URLpreview)
         })
         .finally(() =>  setLoading(false))

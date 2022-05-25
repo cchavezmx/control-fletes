@@ -4,11 +4,11 @@ import TableFlotillas from '../Components/TableFlotillas'
 import NewDocument from '../Components/Modal/NewDocument';
 import PrevPDFModal from '../Components/Modal/PrevPDFModal';
 import { useRouter } from 'next/router'
-// import Link from 'next/link'
 // import NewDocumentIncomming from '../Components/Modal/NewDocumentIncomming';
 import dayjs from 'dayjs';
 import { columnsDocumentosFlotillas as columns } from '../utils/columnsTables.js'
 import ShareButton from '../utils/ShareButton';
+import Link from 'next/link'
 
 const validTypes = {
   'Traslado': 'traslado',
@@ -133,10 +133,21 @@ function Empresa({ empresa, documents, vehicles }){
               id={selectedRow[0].id}
               type={validTypes[selectedRow[0].type]}
               title={selectedRow[0].subject}
-            />            
+            />  
+            { ' ' }
+            <Button
+              variant="contained"
+              color="warning">
+              <Link href={{
+                pathname: `/update/${selectedRow[0].id}`,
+                query: { type: selectedRow[0].type, currentEmpresa: empresa }
+              }}>
+                Modificar
+              </Link>
+            </Button>          
           </Box>
         )
-      }
+      }      
     </Box>
     <Divider />
     <Box>
@@ -180,6 +191,7 @@ function Empresa({ empresa, documents, vehicles }){
 }
 
 export async function getServerSideProps(context) {
+
   const API = process.env.NEXT_PUBLIC_API
   const { empresaId } = context.query
   const documents = await fetch(`${API}/flotilla/documentos/${empresaId}`)

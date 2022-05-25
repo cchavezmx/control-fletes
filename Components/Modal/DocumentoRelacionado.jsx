@@ -33,18 +33,13 @@ const flexColum = {
 
 
 const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicles = [], prevData }) => {
-  console.log({
-    empresaId, refreshData, listVehicles, prevData
-  })
-
-
+  
   const [type, setType] = useState('');
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     defaultValues: {
       ...prevData,
     }
-  });
-  console.log(errors, 'errors')
+  });  
   const [saveData, setSaveData] = useState(false)
 
   const dateRequest = watch('request_date')

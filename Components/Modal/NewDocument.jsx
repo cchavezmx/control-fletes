@@ -136,9 +136,9 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
       ...data,
         description: planSelected,
         vehicle: vehicleSelected,
+        // es la empresa que creo la salida
         bussiness_cost: empresaId,
       }
-    console.log(payload)
     saveLastDocuments([payload])
     await fetch(`${API}/flotilla/insert?type=${type}`, {
       method: 'POST',
