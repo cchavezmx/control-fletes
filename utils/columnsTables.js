@@ -42,18 +42,28 @@ const columnsDocumentosFlotillas = [
     headerName: 'Vehiculo',
     width: 150,
   },
-  // {
-  //   field: 'project_id',
-  //   headerName: 'Folio Proyecto',
-  //   width: 150,
-  //   sortable: false,
-  // },
   {
     field: 'route',
     headerName: 'Ruta',
     width: 250,
     sortable: false,
   },
+  {
+    field: 'recorrido_km',
+    headerName: 'Recorrido (Km)',
+    width: 150,
+    hide: true,
+  },
+  {
+    field: 'subtotal_travel',
+    headerName: 'Subtotal',
+    width: 100,
+  },
+  {
+    field: 'fuel_amount',
+    headerName: 'Carga de Gas $',
+    width: 150,
+  }
 ];
 
 export {
