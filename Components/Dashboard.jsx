@@ -19,6 +19,9 @@ function Dashboard(){
         {
           data && data.empresas.map((empresa) => <CardsEmpresa key={empresa._id} empresa={empresa} />)
         }
+        {
+          !data && <h2>Cargando Empresas...</h2>
+        }
       </Container>
     </div>
   );

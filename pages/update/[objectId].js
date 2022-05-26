@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, Typography, FormControlLabel, Checkbox } from '@mui/material'
+import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, Typography, FormControlLabel, Checkbox, Divider } from '@mui/material'
 import { useForm } from "react-hook-form"
 import dayjs from 'dayjs';
 import EMPRESAS from '../../lib/empresas.json'
@@ -225,6 +225,19 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
         }
       </Select>
       </FormControl>
+      {
+        currentModel.casetas && (
+        <>
+          <Divider />
+          <Typography variant='small' fullWidth>Información de casetas</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <TextField id="casetas" label="Costo total" {...register('casetas', { required: false })} sx={{ marginBottom: '10px' }} />
+            <TextField label="TARJETA / BANCO / NOMBRE" {...register('tarjeta_deposito', { required: false })} />
+        </Box>
+        <Divider />
+        </>
+        )
+      }
       <Box sx={{ display: 'flex', gap: "1.25rem", margin: '10px', justifyContent: 'center' }}>
         <Button
           variant="contained"
