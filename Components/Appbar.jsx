@@ -12,13 +12,18 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 // import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import HomeIcon from '@mui/icons-material/Home';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useUser } from '@auth0/nextjs-auth0';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Divider } from '@mui/material';
+import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemButton, ListItemText  } from '@mui/material';
+
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -36,29 +41,27 @@ const Search = styled('div')(({ theme }) => ({
   },
 }));
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
+const menuObject = [
+  {
+    name: "Editar Unidades",
+    icon: <DirectionsCarFilledIcon />,
+    link:"vehicles"
+  }, 
+  {
+    name: 'Editar Planes',
+    icon: <ModeEditIcon />,
+    link: 'plans',
+    hide: true
   },
-}));
+  {
+    name: 'Seguimiento',
+    icon: <GpsFixedIcon />,
+    link: 'flotilla',
+    hide: true
+  }
+  
+]
+
 
 export default function PrimarySearchAppBar() {
 
@@ -66,6 +69,8 @@ export default function PrimarySearchAppBar() {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+
+  const [openMenu, setOpenMenu] = React.useState(false);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -115,6 +120,50 @@ export default function PrimarySearchAppBar() {
       </Link>
     </Menu>
   );
+
+  const menuSecciones = (
+    <Drawer
+    anchor={'left'}
+    open={openMenu}
+    variant="temporary"
+    sx={{
+      width: '300px',
+    }}
+    onClose={() => setOpenMenu(false)}
+  >
+    <Divider />
+    <List>    
+        <ListItem button key={1}>
+          <Link href="/" passHref>
+           <ListItemButton>
+              <ListItemIcon>
+                  <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Home'} />
+            </ListItemButton>
+          </Link>
+        </ListItem> 
+      <Divider sx={{ marginTop: '2rem' }} />
+        {
+          menuObject.map((menu, index) => (
+            <ListItem button key={index}>
+              <Link href={menu.link} passHref>
+                <ListItemButton
+                  disabled={menu.hide}
+                >
+                  <ListItemIcon>
+                     {menu.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={menu.name} />
+                </ListItemButton>
+              </Link>
+            </ListItem> 
+          ))
+        }
+      <Divider />
+    </List>
+  </Drawer>
+  )
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = (
@@ -173,6 +222,7 @@ export default function PrimarySearchAppBar() {
       <AppBar position="static">
         <Toolbar>
           <IconButton
+            onClick={() => setOpenMenu(true)}
             size="large"
             edge="start"
             color="inherit"
@@ -256,6 +306,7 @@ export default function PrimarySearchAppBar() {
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
+      { menuSecciones }
     </Box>
   );
 }

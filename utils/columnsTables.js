@@ -63,6 +63,30 @@ const columnsDocumentosFlotillas = [
     field: 'fuel_amount',
     headerName: 'Carga de Gas $',
     width: 150,
+  },
+  {
+    field: 'casetas',
+    headerName: 'Casetas',
+    width: 150,
+    hide: true,
+  },
+  {
+    field: 'tarjeta_deposito',
+    headerName: 'Tarjeta de Depósito',
+    width: 150,
+    hide: true,
+  },
+  {
+    field: 'link_googlemaps',
+    headerName: 'Link Google Maps',
+    width: 150,
+    hide: true,    
+  },
+  {
+    field: 'fuel_level',
+    headerName: 'Nivel de Combustible %',
+    width: 150,
+    hide: true,
   }
 ];
 
