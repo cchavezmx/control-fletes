@@ -200,7 +200,9 @@ export async function getServerSideProps(context) {
 
   const vehicles = await fetch(`${API}/flotilla/vehicles`)
   .then(res => res.json())
-  .then(({ vehicles }) => vehicles)
+  .then(({ vehicles }) => {
+    return vehicles.filter(({ is_active }) => is_active === true)
+  })
 
   return {
     props: {

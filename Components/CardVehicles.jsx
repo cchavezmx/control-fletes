@@ -1,23 +1,44 @@
-import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { Box } from '@mui/material';
-
-const foto = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fmotos.espirituracer.com%2Fmotodeldia%2Fhonda-cg-125%2F&psig=AOvVaw3PNlMUkVaKi6e2-_aWZmiL&ust=1653811106870000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCKCCsM7cgfgCFQAAAAAdAAAAABAD'
+import { useState } from 'react';
+import { Card, Drawer, CardActions, CardContent, CardMedia, Button, Typography, Box } from '@mui/material';
+import EditVeichle from './Modal/EditVehicle';
+import PlanesDrawer from './Modal/PlanesDrawer';
+import dayjs from 'dayjs';
 
 export default function CardVehicles({ vehicle }) {
-  console.log(vehicle)
+  const [openEdit, setOpenEdit] = useState(false);
+  const onClose = () => setOpenEdit(false);
+  const isActive = vehicle.is_active ? '' : { opacity: '0.3', backgroundColor: '#a4b8c4' };
+
+  const getDateLoco = (date) => {
+    if(!date) {
+      return dayjs(new Date()).format('DD/MM/YYYY')
+    } else {
+      return dayjs(date).add(1, 'day').format('DD/MM/YYYY')
+    }
+  }
+
+  const [openMenu, setOpenMenu] = useState(false);
+
   return (
-    <Card sx={{ maxWidth: 345 }}>
+  <>
+  <Drawer
+    anchor={'right'}
+    open={openMenu}
+    variant="temporary"
+    sx={{
+      width: '450px',
+    }}
+    onClose={() => setOpenMenu(false)}
+  >
+  <PlanesDrawer id={vehicle.placas} name={vehicle.modelo} />
+  </Drawer>
+    <EditVeichle data={vehicle} open={openEdit} close={onClose} />
+    <Card sx={{ maxWidth: 345, ...isActive, boxShadow: 2 }}>
       <CardMedia
         component="img"
         alt="green iguana"
         height="140"
-        image="img/7325069314.png"
+        image={vehicle.picture ? vehicle.picture : 'img/7325069314.png'}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
@@ -27,20 +48,38 @@ export default function CardVehicles({ vehicle }) {
           display: 'flex',
           flexDirection: 'column',
         }}>
-          <Typography variant="" color="text.secondary">
+          <Typography variant="h6" color="text.secondary">
             Placas: {vehicle.placas}
           </Typography>
           <Typography variant="" color="text.secondary">
-            Ultima Salida: {'codi'}
+            { !vehicle.expiration_verify 
+              ? <small style={{ color: 'red' }}>Configura el vencimiento</small>  
+              : <span>Vencimiento Verificación: { getDateLoco(vehicle.expiration_verify) }</span>
+            }
           </Typography>
           <Typography variant="" color="text.secondary">
-            Ultimo Conductor: {'codi'}
+            { !vehicle.expiration_card 
+              ? <small style={{ color: 'red' }}>Configura el vencimiento</small>  
+              : <span>Vencimiento Tarjeta: { getDateLoco(vehicle.expiration_card) }</span>
+            }
           </Typography>
         </Box>
       </CardContent>
       <CardActions>
-        <Button size="small">Editar</Button>
+        <Button 
+          size="small"
+          onClick={() => setOpenEdit(true)}
+          > Editar
+        </Button>
+        <Button 
+          size="small"
+          onClick={() => setOpenMenu(true)}
+          > VER PLANES
+        </Button>
       </CardActions>
     </Card>
+  </>
   );
 }
+
+'https://itacatalgo.appspot.com.storage.googleapis.com//flotillas/af00482d-9b86-48bc-98e9-ede1138b34cb.jpeg'

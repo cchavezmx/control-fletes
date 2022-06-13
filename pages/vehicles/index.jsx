@@ -3,6 +3,7 @@ import CardVehicles from "../../Components/CardVehicles";
 
 const Vehicles = ({ vehicles}) => {
   return (
+  <>
     <Box
       sx={{
         display: "Grid",
@@ -16,6 +17,12 @@ const Vehicles = ({ vehicles}) => {
          vehicles.map(vehicle => <CardVehicles key={vehicle._id} vehicle={vehicle} />)
        }
     </Box>
+    <footer style={{
+      height: "5rem",
+    }}>
+
+    </footer>
+  </>
   );
 }
 
