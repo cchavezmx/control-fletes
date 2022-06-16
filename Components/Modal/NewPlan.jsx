@@ -2,22 +2,9 @@ import { useState } from 'react'
 import { Modal, Box, Typography, TextField, Button } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-
-
+import { modalStyle } from '../../utils/styles'
 const API = process.env.NEXT_PUBLIC_API
 
-const style = {  
-  width: "350px",
-  height: "fit-content",
-  position: 'absolute',  
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  bgcolor: 'background.paper',
-  borderRadius: '4px',
-  overflow: 'auto',
-  boxShadow: 24,  
-};
 
 const form = {
   padding: '2px', marginBottom: '20px'
@@ -73,7 +60,7 @@ const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
       onClose={close}
 
     >
-      <Box sx={{ ...style }} p={2}>
+      <Box sx={{ ...modalStyle }} p={2}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Typography variant="h6" sx={{ ...form }}>
             Crear Nuevo Plan

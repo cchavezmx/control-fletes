@@ -12,7 +12,7 @@ const columnsDocumentosFlotillas = [
   {
     field: 'type',
     headerName: 'Tipo Documento',
-    width: 200,
+    width: 150,
   },
   {
     field: 'request_date',
@@ -86,6 +86,12 @@ const columnsDocumentosFlotillas = [
     field: 'fuel_level',
     headerName: 'Nivel de Combustible %',
     width: 150,
+    hide: true,
+  },
+  {
+    field: 'isCancel_status',
+    headerName: 'Estatus',
+    width: 250,
     hide: true,
   }
 ];

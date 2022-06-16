@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Typography, Box, Divider, Button, Container } from '@mui/material'
 import TableFlotillas from '../Components/TableFlotillas'
 import NewDocument from '../Components/Modal/NewDocument';
 import PrevPDFModal from '../Components/Modal/PrevPDFModal';
 import { useRouter } from 'next/router'
 // import NewDocumentIncomming from '../Components/Modal/NewDocumentIncomming';
+import CancelModalDocument from '../Components/Modal/CancelModalDocument';
 import dayjs from 'dayjs';
 import { columnsDocumentosFlotillas as columns } from '../utils/columnsTables.js'
 import ShareButton from '../utils/ShareButton';
 import Link from 'next/link'
+import { useUser } from '@auth0/nextjs-auth0'
 
 const validTypes = {
   'Traslado': 'traslado',
@@ -90,6 +92,15 @@ function Empresa({ empresa, documents, vehicles }){
   }
 
 
+  const { user } = useUser()
+  console.log(user)
+
+  const useToggableRef = useRef();
+  const handleCancelModal = () => {
+    useToggableRef.current.showToggle()
+    
+  }
+
   return (
   <Container sx={{ position: 'relative' }} maxWidth="xl">
     <Typography variant='h3' sx={{ margin: '2.5rem 0', fontWeight: '500' }}>      
@@ -117,34 +128,55 @@ function Empresa({ empresa, documents, vehicles }){
       {
         selectedRow.length === 1 && (
           <Box>{ ' ' }
-            <Button 
-              onClick={() => {
-                handledPreviewDocument({
-                  event: true,
-                  id: selectedRow[0].id,
-                  type: selectedRow[0].type 
-                })
-              }}
-              variant="contained"
-              color="primary">
-                Vista Previa
-            </Button>{ ' ' }
-            <ShareButton 
-              id={selectedRow[0].id}
-              type={validTypes[selectedRow[0].type]}
-              title={selectedRow[0].subject}
-            />  
+            {
+              selectedRow[0]?.isCancel_status 
+                ? null
+                : (
+                <>
+                  <Button 
+                    onClick={() => {
+                      handledPreviewDocument({
+                        event: true,
+                        id: selectedRow[0].id,
+                        type: selectedRow[0].type 
+                      })
+                    }}
+                    variant="contained"
+                    color="primary">
+                      Vista Previa
+                  </Button>{ ' ' }
+                  <ShareButton 
+                    id={selectedRow[0].id}
+                    type={validTypes[selectedRow[0].type]}
+                    title={selectedRow[0].subject}
+                  />  
+                  { ' ' }
+                  <Button
+                    variant="contained"
+                    color="warning">
+                    <Link href={{
+                      pathname: `/update/${selectedRow[0].id}`,
+                      query: { type: selectedRow[0].type, currentEmpresa: empresa }
+                    }}>
+                      Modificar
+                    </Link>
+                  </Button>
+                </>
+                )
+            }
             { ' ' }
+          <CancelModalDocument 
+            ref={useToggableRef}
+            data={selectedRow[0]}
+            refreshData={refreshData}
+            >
             <Button
+              onClick={handleCancelModal}
               variant="contained"
-              color="warning">
-              <Link href={{
-                pathname: `/update/${selectedRow[0].id}`,
-                query: { type: selectedRow[0].type, currentEmpresa: empresa }
-              }}>
-                Modificar
-              </Link>
-            </Button>          
+              color="error">
+                { selectedRow[0]?.isCancel_status ? 'Ver motivo cancelación' : 'Cancelar documento' }
+            </Button>
+          </CancelModalDocument>
           </Box>
         )
       }      
