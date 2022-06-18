@@ -1,4 +1,5 @@
 import { DataGrid, GridToolbar, esES } from '@mui/x-data-grid';
+import { Box } from '@mui/material';
 
 
 export default function TableFlotillas({ columns, rows, setSelectedRow }) {
@@ -16,7 +17,17 @@ export default function TableFlotillas({ columns, rows, setSelectedRow }) {
   
   return (
   <>   
-    <div style={{ height:'70vh', width: '100%' }}>
+    <Box sx={{ 
+      height:'70vh', 
+      width: '100%',
+      '& .super-app-theme--Rejected': {
+        bgcolor: '#bdc3c7',
+        color: '#34495e',
+        '&:hover': {
+          bgcolor: '#bdc3c7'
+        },
+      },
+    }}>
       <DataGrid
         initialState={{
           sorting: {
@@ -33,8 +44,11 @@ export default function TableFlotillas({ columns, rows, setSelectedRow }) {
         components={{
           Toolbar: GridToolbar,
         }}
+        getRowClassName={({ row }) => {
+          return typeof row.isCancel_status === 'string' ? 'super-app-theme--Rejected' : ''
+        }}
       />
-    </div>
+    </Box>
   </>
   );
 }
