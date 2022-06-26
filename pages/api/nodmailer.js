@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const { url, text, title, subjects, message} = req.body;
   // async..await is not allowed in global scope, must use a wrapper
   async function sendmail() {
@@ -54,8 +54,7 @@ export default function handler(req, res) {
   
 
   try{
-    const email = sendmail();
-
+    const email = await sendmail();
     if (email.catch(err => err)) {
       console.log(email.catch(err => err));
       throw new Error(email.catch(err => err));
