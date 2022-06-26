@@ -1,16 +1,18 @@
-import { useState } from 'react'
-import { Button, Modal, Box, Typography, TextField, TextareaAutosize } from '@mui/material'
+import { useState, useEffect } from 'react'
+import { Button, Modal, Box, Typography, TextField, TextareaAutosize, Autocomplete, Chip } from '@mui/material'
 import { modalStyle, flexColum } from '../utils/styles'
 import { toast } from 'react-toastify'
 
 const emoticones = ["🚀", "🥶", "😁", "🙈", "📷", "🍻", "🦜", "❤️", "👽", "👾", "🐑", "🧶", "🏃🏻‍♂️🏃🏻‍♂️"]
+const emailList = process.env.NEXT_PUBLIC_GMAIL_LIST.split(',').sort()
 
 const ShareButton = ({ id, type, title }) => {
   
-  const [subjects, setSubjects] = useState('')
+  const [subjects, setSubjects] = useState([])
   const [message, setMessage] = useState('')
-  const [open, setOpen] = useState(false)
-
+  const [open, setOpen] = useState(false)  
+  const [fixedOptions, setFixedOptions] = useState([])
+  
   const shareData = {
     title,
     text: `El link es única y puedes consultarla las veces que necesites ${emoticones[Math.floor(Math.random() * emoticones.length)]}`,
@@ -34,20 +36,66 @@ const ShareButton = ({ id, type, title }) => {
       console.log(error)
     }
   }
+  
+  const handleChange = (event, newValue) => {   
+    setSubjects([
+      ...fixedOptions,
+      ...newValue.filter((option) => fixedOptions.indexOf(option) === -1),
+    ]);
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+    setSubjects([])
+    setMessage('')
+    setFixedOptions([])
+  }
+
+  useEffect(() => {
+    return () => {
+      handleClose()
+    }
+  }, [])
 
   const modal = (
     <Modal
       open={open}
-      onClose={() => setOpen(false)}
+      onClose={() => handleClose()}
     >
       <Box sx={{ ...modalStyle, width: '700px' }} p={2}>
         <Box sx={{ ...flexColum, width: '100%' }}>
         <Typography variant="h6">Compartir salida</Typography>
-          <TextField 
-            fullWidth
-            label="Añadadir remitentes separados por comas"
-            name="remitentes"
-            onChange={(e) => setSubjects(e.target.value)}
+          <Autocomplete
+            multiple={true}
+            fullWidth={true}
+            sx={{ margin: '1rem 0', width: '700px' }}
+            id="location-autocomplete"
+            value={subjects}
+            onChange={handleChange}
+            options={emailList}
+            getOptionLabel={(option) => option}
+            renderTags={(tagValue, getTagProps) =>
+              tagValue.map((option, index) => (
+                <Chip
+                  key={option}
+                  label={option}
+                  {...getTagProps({ index })}
+                  disabled={fixedOptions.indexOf(option) !== -1}
+                />
+              ))
+            }
+            style={{ width: '100%' }}
+            renderInput={(params) => (
+              <TextField
+                fullWidth={true}
+                {...params}
+                placeholder="Añade contactos"
+                sx={{
+                  '.MuiFormHelperText-root' : {
+                    fontSize: "0.92rem"
+                  }}}
+              />
+            )}
           />
           <TextareaAutosize
             aria-label="minimum height"
