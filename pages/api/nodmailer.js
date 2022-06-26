@@ -2,6 +2,8 @@ const nodemailer = require("nodemailer");
 
 export default async function handler(req, res) {
   const { url, text, title, subjects, message} = req.body;
+
+  console.log(subjects)
   // async..await is not allowed in global scope, must use a wrapper
   async function sendmail() {
   // Generate test SMTP service account from ethereal.email
@@ -19,22 +21,10 @@ export default async function handler(req, res) {
     secure: true,
   });
   
-  console.log({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.USER_GMAIL, // generated ethereal user
-      pass: process.env.USER_GMAIL_PASSWORD, // generated ethereal password
-    },
-    secure: true,
-  })
-
-
   // send mail with defined transport object
   await transporter.sendMail({
     from: process.env.USER_GMAIL, // sender address
-    to: subjects.split(",").toString(), // list of receivers
+    to: subjects.toString(), // list of receivers
     subject: title, // Subject line    
     html: `
     <h1>${title}</h1>
@@ -54,13 +44,8 @@ export default async function handler(req, res) {
   
 
   try{
-    const email = await sendmail();
-    if (email.catch(err => err)) {
-      console.log(email.catch(err => err));
-      throw new Error(email.catch(err => err));
-    }
-
-    res.status(200).json({ name: JSON.stringify(email) })
+    const email = await sendmail();    
+    res.status(200).json({ message: 'Correo enviado' });
   } catch(err){
     console.log(err)
     res.status(400).json({ error: err.message })
