@@ -51,12 +51,17 @@ export default function handler(req, res) {
   });
 
   }
-
-  sendmail().catch(console.error);
+  
 
   try{
-    sendmail();
-    res.status(200).json({ name: 'mail send' })
+    const email = sendmail();
+
+    if (email.catch(err => err)) {
+      console.log(email.catch(err => err));
+      throw new Error(email.catch(err => err));
+    }
+
+    res.status(200).json({ name: JSON.stringify(email) })
   } catch(err){
     console.log(err)
     res.status(400).json({ error: err.message })
