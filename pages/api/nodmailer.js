@@ -19,6 +19,18 @@ export default function handler(req, res) {
     secure: true,
   });
   
+  console.log({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // true for 465, false for other ports
+    auth: {
+      user: process.env.USER_GMAIL, // generated ethereal user
+      pass: process.env.USER_GMAIL_PASSWORD, // generated ethereal password
+    },
+    secure: true,
+  })
+
+
   // send mail with defined transport object
   await transporter.sendMail({
     from: process.env.USER_GMAIL, // sender address
