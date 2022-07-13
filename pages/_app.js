@@ -49,8 +49,9 @@ function MyApp({ Component, pageProps }) {
 
 
 MyApp.getInitialProps = async (appContext) => {
-  const env = process.env.NODE_ENV
-  const pageProps = {
+  let pageProps = {}
+  const env = process.env.VERCEL_ENV
+  pageProps = {
     user: {
       name: 'Carlos Chavez',
       email: 'cchavezmx@outlook.com'
