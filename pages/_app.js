@@ -18,13 +18,14 @@ const theme = createTheme({
 
 const fetcher = (...args) => fetch(...args).then(res => res.json())
 
-function MyApp({ Component, pageProps, props }) {
-  console.log('MyApp', props)
+function MyApp({ Component, pageProps }) {
+  console.log('MyApp', process.env.NODE_ENV, pageProps)
+  const { user } = pageProps
   const invalidRoutes = ['flete', 'renta', 'traslado']
   if (!invalidRoutes.includes(pageProps.type)) {
     return (
       <ThemeProvider theme={theme}>
-        <UserProvider>
+        <UserProvider user={user}>
         <GlobalStateProvider>
           <Layout>
           <ToastContainer />
@@ -46,11 +47,20 @@ function MyApp({ Component, pageProps, props }) {
 }
 
 
-export async function getServerSideProps(context) {
-  return {
-    props: {
-      env: process.env.NEXT_PUBLIC_VERCEL_ENV,
-    }, // will be passed to the page component as props
+
+MyApp.getInitialProps = async (appContext) => {
+  const env = process.env.NODE_ENV
+  const pageProps = {
+    user: {
+      name: 'John Doe',
+      email: 'cchavezmx@outlook.com'
+    }, 
+    env,
   }
+
+  return pageProps
+
 }
+
+
 export default MyApp
