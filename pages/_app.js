@@ -51,12 +51,14 @@ function MyApp({ Component, pageProps }) {
 MyApp.getInitialProps = async (appContext) => {
   let pageProps = {}
   const env = process.env.VERCEL_ENV
-  pageProps = {
-    user: {
-      name: 'Carlos Chavez',
-      email: 'cchavezmx@outlook.com'
-    }, 
-    env,
+  if (env === 'preview') {
+    pageProps = {
+      user: {
+        name: 'Carlos Chavez',
+        email: 'cchavezmx@outlook.com'
+      }, 
+      env,
+    }
   }
 
   return { pageProps }
