@@ -58,7 +58,7 @@ MyApp.getInitialProps = async (appContext) => {
     env,
   }
 
-  return pageProps
+  return { pageProps }
 
 }
 
