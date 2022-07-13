@@ -18,8 +18,8 @@ const theme = createTheme({
 
 const fetcher = (...args) => fetch(...args).then(res => res.json())
 
-function MyApp({ Component, pageProps }) {
-  console.log('MyApp', process.env.VERCEL_ENV)
+function MyApp({ Component, pageProps, props }) {
+  console.log('MyApp', props)
   const invalidRoutes = ['flete', 'renta', 'traslado']
   if (!invalidRoutes.includes(pageProps.type)) {
     return (
@@ -43,6 +43,14 @@ function MyApp({ Component, pageProps }) {
       </ThemeProvider>
     )
   }
-} 
+}
 
+
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      env: process.env.NEXT_PUBLIC_VERCEL_ENV,
+    }, // will be passed to the page component as props
+  }
+}
 export default MyApp
