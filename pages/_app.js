@@ -19,6 +19,7 @@ const theme = createTheme({
 const fetcher = (...args) => fetch(...args).then(res => res.json())
 
 function MyApp({ Component, pageProps }) {
+  console.log('MyApp', process.env.VERCEL_ENV)
   const invalidRoutes = ['flete', 'renta', 'traslado']
   if (!invalidRoutes.includes(pageProps.type)) {
     return (
