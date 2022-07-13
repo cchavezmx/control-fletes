@@ -52,7 +52,7 @@ MyApp.getInitialProps = async (appContext) => {
   const env = process.env.NODE_ENV
   const pageProps = {
     user: {
-      name: 'John Doe',
+      name: 'Carlos Chavez',
       email: 'cchavezmx@outlook.com'
     }, 
     env,
