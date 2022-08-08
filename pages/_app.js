@@ -1,24 +1,24 @@
 import 'dayjs/locale/es-mx'
 import '../styles/globals.css'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 import { createTheme, ThemeProvider } from '@mui/material'
-import Layout from '../Components/Layout';
+import Layout from '../Components/Layout'
 import { SWRConfig } from 'swr'
-import { ToastContainer } from 'react-toastify';
-import { GlobalStateProvider } from '../context/GlobalContext';
-import { UserProvider } from '@auth0/nextjs-auth0';
+import { ToastContainer } from 'react-toastify'
+import { GlobalStateProvider } from '../context/GlobalContext'
+import { UserProvider } from '@auth0/nextjs-auth0'
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'Raleway, Arial',
+    fontFamily: 'Raleway, Arial'
   },
-  palette: {}, 
-  overrides: {},
-});
+  palette: {},
+  overrides: {}
+})
 
 const fetcher = (...args) => fetch(...args).then(res => res.json())
 
-function MyApp({ Component, pageProps }) {
+function MyApp ({ Component, pageProps }) {
   console.log('MyApp', process.env.NODE_ENV, pageProps)
   const { user } = pageProps
   const invalidRoutes = ['flete', 'renta', 'traslado']
@@ -29,7 +29,7 @@ function MyApp({ Component, pageProps }) {
         <GlobalStateProvider>
           <Layout>
           <ToastContainer />
-            <SWRConfig value={{ provider: () => new Map, fetcher }}>
+            <SWRConfig value={{ provider: () => new Map(), fetcher }}>
               <Component {...pageProps} />
             </SWRConfig>
           </Layout>
@@ -39,14 +39,12 @@ function MyApp({ Component, pageProps }) {
     )
   } else {
     return (
-      <ThemeProvider theme={theme}>                    
-        <Component {...pageProps} />            
+      <ThemeProvider theme={theme}>
+        <Component {...pageProps} />
       </ThemeProvider>
     )
   }
 }
-
-
 
 MyApp.getInitialProps = async (appContext) => {
   let pageProps = {}
@@ -56,14 +54,12 @@ MyApp.getInitialProps = async (appContext) => {
       user: {
         name: 'Carlos Chavez',
         email: 'cchavezmx@outlook.com'
-      }, 
-      env,
+      },
+      env
     }
   }
 
   return { pageProps }
-
 }
-
 
 export default MyApp

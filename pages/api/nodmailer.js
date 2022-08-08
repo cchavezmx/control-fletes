@@ -1,32 +1,31 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer')
 
-export default async function handler(req, res) {
-  const { url, text, title, subjects, message} = req.body;
+export default async function handler (req, res) {
+  const { url, text, title, subjects, message } = req.body
 
   console.log(subjects)
   // async..await is not allowed in global scope, must use a wrapper
-  async function sendmail() {
+  async function sendmail () {
   // Generate test SMTP service account from ethereal.email
   // Only needed if you don't have a real mail account for testing
 
-  // create reusable transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.USER_GMAIL, // generated ethereal user
-      pass: process.env.USER_GMAIL_PASSWORD, // generated ethereal password
-    },
-    secure: true,
-  });
-  
-  // send mail with defined transport object
-  await transporter.sendMail({
-    from: process.env.USER_GMAIL, // sender address
-    to: subjects.toString(), // list of receivers
-    subject: title, // Subject line    
-    html: `
+    // create reusable transporter object using the default SMTP transport
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: process.env.USER_GMAIL, // generated ethereal user
+        pass: process.env.USER_GMAIL_PASSWORD // generated ethereal password
+      }
+    })
+
+    // send mail with defined transport object
+    await transporter.sendMail({
+      from: process.env.USER_GMAIL, // sender address
+      to: subjects.toString(), // list of receivers
+      subject: title, // Subject line
+      html: `
     <h1>${title}</h1>
     <div>
     <p style="papadding: 10px 0; font-size: 1.23rem">${message}</p>
@@ -37,16 +36,14 @@ export default async function handler(req, res) {
     </a>
     <p style="papadding: 10px 0; font-size: 1rem">${text}</p>
     </div>
-    `, // html body
-  });
-
+    ` // html body
+    })
   }
-  
 
-  try{
-    const email = await sendmail();    
-    res.status(200).json({ message: 'Correo enviado' });
-  } catch(err){
+  try {
+    await sendmail()
+    res.status(200).json({ message: 'Correo enviado' })
+  } catch (err) {
     console.log(err)
     res.status(400).json({ error: err.message })
   }

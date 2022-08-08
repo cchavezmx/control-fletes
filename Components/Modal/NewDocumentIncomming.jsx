@@ -1,49 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 import {
   Snackbar,
-  Alert,
+  Alert
 } from '@mui/material'
-import { useGlobalState } from '../../context/GlobalContext';
-import DocumentoRelacionado from './DocumentoRelacionado';
+import { useGlobalState } from '../../context/GlobalContext'
+import DocumentoRelacionado from './DocumentoRelacionado'
 
 const NewDocumentIncomming = (
   { empresaId, refreshData, listVehicles = [] }
 ) => {
-
   const [state, setState] = useState({
     open: false,
     vertical: 'top',
-    horizontal: 'right',
+    horizontal: 'right'
   })
-  
-    const { vertical, horizontal } = state
-    const { lastDocumentsCreated } = useGlobalState();
-    const [openModalRelacionado, setOpenModalRelacionado] = useState(false);
 
-    useEffect(() => {
-      if (lastDocumentsCreated.length > 0) {
-        setState((prevState) => {
-          return { ...prevState, open: true }
-        })
-      }
+  const { vertical, horizontal } = state
+  const { lastDocumentsCreated } = useGlobalState()
+  const [openModalRelacionado, setOpenModalRelacionado] = useState(false)
 
-      setTimeout(() => {
-        setState((prevState) => {
-          return { ...prevState, open: false }
-        })
-      }, 8000)
+  useEffect(() => {
+    if (lastDocumentsCreated.length > 0) {
+      setState((prevState) => {
+        return { ...prevState, open: true }
+      })
+    }
 
-      return () => {
-        clearTimeout()
-      }
+    setTimeout(() => {
+      setState((prevState) => {
+        return { ...prevState, open: false }
+      })
+    }, 8000)
 
-    }, [lastDocumentsCreated])
+    return () => {
+      clearTimeout()
+    }
+  }, [lastDocumentsCreated])
 
-    return (
+  return (
     <>
       <Snackbar
         sx={{
-          cursor: 'pointer',
+          cursor: 'pointer'
         }}
         onClick={() => setOpenModalRelacionado(true)}
         anchorOrigin={{ vertical, horizontal }}
@@ -53,7 +51,7 @@ const NewDocumentIncomming = (
       >
        <Alert severity="info">Acabas de generar un documento, deseas ocupar los datos</Alert>
       </Snackbar>
-      <DocumentoRelacionado 
+      <DocumentoRelacionado
         listVehicles={listVehicles}
         refreshData={refreshData}
         open={openModalRelacionado}
@@ -62,7 +60,7 @@ const NewDocumentIncomming = (
         prevData={lastDocumentsCreated[0]}
       />
     </>
-    )
+  )
 }
 
 export default NewDocumentIncomming
