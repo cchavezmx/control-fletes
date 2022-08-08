@@ -1,52 +1,48 @@
-import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-// import SearchIcon from '@mui/icons-material/Search';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import HomeIcon from '@mui/icons-material/Home';
-import MailIcon from '@mui/icons-material/Mail';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import MoreIcon from '@mui/icons-material/MoreVert';
-import { useUser } from '@auth0/nextjs-auth0';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemButton, ListItemText  } from '@mui/material';
+import * as React from 'react'
+import AppBar from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import Toolbar from '@mui/material/Toolbar'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import Badge from '@mui/material/Badge'
+import MenuItem from '@mui/material/MenuItem'
+import Menu from '@mui/material/Menu'
+import MenuIcon from '@mui/icons-material/Menu'
+import AccountCircle from '@mui/icons-material/AccountCircle'
+import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled'
+import ModeEditIcon from '@mui/icons-material/ModeEdit'
+import GpsFixedIcon from '@mui/icons-material/GpsFixed'
+import HomeIcon from '@mui/icons-material/Home'
+import MailIcon from '@mui/icons-material/Mail'
+import NotificationsIcon from '@mui/icons-material/Notifications'
+import MoreIcon from '@mui/icons-material/MoreVert'
+import { useUser } from '@auth0/nextjs-auth0'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemButton, ListItemText } from '@mui/material'
 
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
-}));
+// const Search = styled('div')(({ theme }) => ({
+//   position: 'relative',
+//   borderRadius: theme.shape.borderRadius,
+//   backgroundColor: alpha(theme.palette.common.white, 0.15),
+//   '&:hover': {
+//     backgroundColor: alpha(theme.palette.common.white, 0.25)
+//   },
+//   marginRight: theme.spacing(2),
+//   marginLeft: 0,
+//   width: '100%',
+//   [theme.breakpoints.up('sm')]: {
+//     marginLeft: theme.spacing(3),
+//     width: 'auto'
+//   }
+// }))
 
 const menuObject = [
   {
-    name: "Editar Unidades",
+    name: 'Editar Unidades',
     icon: <DirectionsCarFilledIcon />,
-    link:"vehicles"
-  }, 
+    link: 'vehicles'
+  },
   {
     name: 'Editar Planes',
     icon: <ModeEditIcon />,
@@ -59,52 +55,50 @@ const menuObject = [
     link: 'flotilla',
     hide: true
   }
-  
+
 ]
 
+export default function PrimarySearchAppBar () {
+  const { user } = useUser()
 
-export default function PrimarySearchAppBar() {
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
 
-  const { user, isLoading } = useUser();
+  const [openMenu, setOpenMenu] = React.useState(false)
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
-  const [openMenu, setOpenMenu] = React.useState(false);
-
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMenuOpen = Boolean(anchorEl)
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
 
   const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
+    setMobileMoreAnchorEl(null)
+  }
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
+    setAnchorEl(null)
+    handleMobileMenuClose()
+  }
 
   const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
+    setMobileMoreAnchorEl(event.currentTarget)
+  }
 
-  const menuId = 'primary-search-account-menu';
+  const menuId = 'primary-search-account-menu'
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{
         vertical: 'top',
-        horizontal: 'right',
+        horizontal: 'right'
       }}
       id={menuId}
       keepMounted
       transformOrigin={{
         vertical: 'top',
-        horizontal: 'right',
+        horizontal: 'right'
       }}
       open={isMenuOpen}
       onClose={handleMenuClose}
@@ -119,7 +113,7 @@ export default function PrimarySearchAppBar() {
         <MenuItem onClick={handleMenuClose}>Cerrar Sesión</MenuItem>
       </Link>
     </Menu>
-  );
+  )
 
   const menuSecciones = (
     <Drawer
@@ -127,12 +121,12 @@ export default function PrimarySearchAppBar() {
     open={openMenu}
     variant="temporary"
     sx={{
-      width: '300px',
+      width: '300px'
     }}
     onClose={() => setOpenMenu(false)}
   >
     <Divider />
-    <List>    
+    <List>
         <ListItem button key={1}>
           <Link href="/" passHref>
            <ListItemButton>
@@ -142,7 +136,7 @@ export default function PrimarySearchAppBar() {
               <ListItemText primary={'Home'} />
             </ListItemButton>
           </Link>
-        </ListItem> 
+        </ListItem>
       <Divider sx={{ marginTop: '2rem' }} />
         {
           menuObject.map((menu, index) => (
@@ -157,7 +151,7 @@ export default function PrimarySearchAppBar() {
                   <ListItemText primary={menu.name} />
                 </ListItemButton>
               </Link>
-            </ListItem> 
+            </ListItem>
           ))
         }
       <Divider />
@@ -165,19 +159,19 @@ export default function PrimarySearchAppBar() {
   </Drawer>
   )
 
-  const mobileMenuId = 'primary-search-account-menu-mobile';
+  const mobileMenuId = 'primary-search-account-menu-mobile'
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
       anchorOrigin={{
         vertical: 'top',
-        horizontal: 'right',
+        horizontal: 'right'
       }}
       id={mobileMenuId}
       keepMounted
       transformOrigin={{
         vertical: 'top',
-        horizontal: 'right',
+        horizontal: 'right'
       }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
@@ -215,7 +209,7 @@ export default function PrimarySearchAppBar() {
         <p>Profile</p>
       </MenuItem>
     </Menu>
-  );
+  )
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -240,7 +234,7 @@ export default function PrimarySearchAppBar() {
             <Link href="/">
               Logistica
             </Link>
-          </Typography>          
+          </Typography>
           {/* <Search>
             <SearchIconWrapper>
               <SearchIcon />
@@ -274,9 +268,10 @@ export default function PrimarySearchAppBar() {
               aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit"
-            >              
+            >
               {
-                user ? (
+                user
+                  ? (
                   <Image
                     src={user.picture}
                     alt="profile"
@@ -285,8 +280,8 @@ export default function PrimarySearchAppBar() {
                     objectFit="cover"
                     style={{ borderRadius: '9999px' }}
                   />
-                )
-                : <AccountCircle />
+                    )
+                  : <AccountCircle />
               }
             </IconButton>
           </Box>
@@ -308,5 +303,5 @@ export default function PrimarySearchAppBar() {
       {renderMenu}
       { menuSecciones }
     </Box>
-  );
+  )
 }

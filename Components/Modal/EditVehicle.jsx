@@ -16,26 +16,25 @@ const API = process.env.NEXT_PUBLIC_API
 // añadir funcion para guadar fecha de verificacion
 
 const EditVehicles = (props) => {
-
   const {
     open,
     close,
     data
   } = props
 
-  const { register, handleSubmit, reset, watch } = useForm({ defaultValues: {...data } })
+  const { register, handleSubmit, watch } = useForm({ defaultValues: { ...data } })
 
   const dateExpCard = watch('expiration_card')
   const dateExpVeriy = watch('expiration_verify')
-  
+
   const getDateLoco = (date) => {
-    if(!date) {
+    if (!date) {
       return dayjs(new Date()).format('YYYY-MM-DD')
     } else {
       return dayjs(date).format('YYYY-MM-DD')
     }
   }
-  
+
   const router = useRouter()
   const refreshData = () => {
     router.replace(router.asPath)
@@ -43,12 +42,11 @@ const EditVehicles = (props) => {
 
   const [isActive, setIsActive] = useState(data.is_active)
 
-  const fetchData = async ({ picture, ...payload}) => {    
-
+  const fetchData = async ({ _picture, ...payload }) => {
     await fetch(`${API}/flotilla/vehiculo/update`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',        
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         ...payload,
@@ -58,21 +56,19 @@ const EditVehicles = (props) => {
 
       })
     })
-    .then((res) => res.json())
-    .then((res) => {
-      console.log(res.message)
-        if (res){
-        toast.success('Actualizado')
-        refreshData()
-        close()
-      }
-    })
-    .catch(() =>  console.log('error'))
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res.message)
+        if (res) {
+          toast.success('Actualizado')
+          refreshData()
+          close()
+        }
+      })
+      .catch(() => console.log('error'))
   }
-  
 
   const handledFormSubmit = async (data) => {
-
     if (data.picture[0].type) {
       console.log('picture', data.picture, data.picture[0]?.type)
 
@@ -91,20 +87,18 @@ const EditVehicles = (props) => {
         body: formatDataImg,
         redirect: 'follow'
       })
-      .then(res => res.json())
-      .then(res => {
-        console.log(res)
-        if (res.message === 'Archivo subido con exito') {
-          fetchData(data)
-        } else {
-          toast.error('Error al subir imagen')
-        }
-      })
-
+        .then(res => res.json())
+        .then(res => {
+          console.log(res)
+          if (res.message === 'Archivo subido con exito') {
+            fetchData(data)
+          } else {
+            toast.error('Error al subir imagen')
+          }
+        })
     } else {
       fetchData(data)
     }
-    
   }
 
   return (
@@ -131,7 +125,7 @@ const EditVehicles = (props) => {
               fullWidth
               {...register('modelo', { required: true })}
             />
-            <TextField 
+            <TextField
               label="picture"
               id="picture"
               variant="outlined"
@@ -142,9 +136,9 @@ const EditVehicles = (props) => {
           <Box sx={{
             width: '100%',
             backgroundColor: !data.expiration_card ? '#f5f5f5' : null,
-            padding: '0.5rem 0',
+            padding: '0.5rem 0'
           }}>
-            <TextField 
+            <TextField
               label="Vencimiento Tarjeta"
               id="expiration_card"
               variant="outlined"
@@ -158,9 +152,9 @@ const EditVehicles = (props) => {
           <Box sx={{
             width: '100%',
             backgroundColor: !data.expiration_card ? '#f5f5f5' : null,
-            padding: '0.5rem 0',
+            padding: '0.5rem 0'
           }}>
-            <TextField 
+            <TextField
               label="Vencimiento verificación"
               id="expiration_verify"
               variant="outlined"
@@ -172,13 +166,13 @@ const EditVehicles = (props) => {
             { !data.expiration_verify && <small style={{ color: 'red' }}>Configura el vencimiento</small> }
           </Box>
             <FormControlLabel
-            control={<Checkbox defaultChecked={!isActive}  onChange={() => setIsActive(!isActive)} />} 
+            control={<Checkbox defaultChecked={!isActive} onChange={() => setIsActive(!isActive)} />}
             label="Desactivar vehiculo"
             />
           </Box>
           <Box sx={{ ...flexRow, width: '100%', padding: '20px', flexDirection: 'row' }}>
             <Button type='submit' variant="contained" color="secondary">Guardar</Button>
-            <Button 
+            <Button
               variant="contained"
               color="primary"
               onClick={() => close()}
@@ -189,6 +183,5 @@ const EditVehicles = (props) => {
     </Modal>
   )
 }
-
 
 export default EditVehicles

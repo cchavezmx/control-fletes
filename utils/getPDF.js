@@ -5,7 +5,7 @@ const pdfCreator = ({ id, type }) => {
   // preview pdf blob data
   fetch(`${API}/flotilla/plan/print/${id}?type=${type.trim().toLowerCase()}`, {
     headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
+    method: 'POST'
   }).then(res => {
     return res
       .arrayBuffer()

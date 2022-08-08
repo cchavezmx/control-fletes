@@ -1,27 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useState, useMemo, useEffect } from 'react'
-import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, Typography, FormControlLabel, Checkbox } from '@mui/material'
-import dayjs from 'dayjs';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-import NewVehicle from './NewVehicle';
-import NewPlan from './NewPlan';
+import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, FormControlLabel, Checkbox } from '@mui/material'
+import dayjs from 'dayjs'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import NewVehicle from './NewVehicle'
+import NewPlan from './NewPlan'
 import { useGlobalState } from '../../context/GlobalContext'
 import EMPRESAS from '../../lib/empresas.json'
 
 const API = process.env.NEXT_PUBLIC_API
 
-const style = {  
-  width: "100%",
-  height: "100%",
+const style = {
+  width: '100%',
+  height: '100%',
   bgcolor: 'background.paper',
   borderRadius: '4px',
   overflow: 'auto',
-  boxShadow: 24,    pt: 2,
+  boxShadow: 24,
+  pt: 2,
   px: 4,
-  pb: 3,
-};
+  pb: 3
+}
 
 const flexColum = {
   display: 'flex',
@@ -30,59 +31,57 @@ const flexColum = {
   height: '100%',
   width: '450px',
   gap: '1rem',
-  padding: '0.25rem',
+  padding: '0.25rem'
 }
 
-
 const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] }) => {
-
   const { saveLastDocuments } = useGlobalState()
 
-  const [type, setType] = useState('');
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  const [type, setType] = useState('')
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm()
   const [saveData, setSaveData] = useState(false)
 
   const dateRequest = watch('request_date')
   const dateDelivery = watch('delivery_date')
   const planWatchSelected = watch('plan')
   const casetasWatch = watch('casetas')
-    
+
   // modal de nuevo vehiculo
   const [vehicleSelected, setVehicleSelected] = useState('')
-  const [openNewVehicle, setOpenNewVehicle] = useState(false);
+  const [openNewVehicle, setOpenNewVehicle] = useState(false)
   const handledNewVehicle = (event) => setOpenNewVehicle(event)
 
   const getVehicleBySlug = async (slug) => {
     const response = await fetch(`${API}/flotilla/planes/slug/${slug}`)
-    .then(res => res.json())
-    .then(({ planes }) => planes)
+      .then(res => res.json())
+      .then(({ planes }) => planes)
 
     return response
   }
-  
+
   const [planByVehicle, setPlanByVehicle] = useState([])
   // almacena los planes por vehiculo seleccionado
   useEffect(() => {
     if (vehicleSelected) {
       getVehicleBySlug(vehicleSelected)
-      .then(planes => {
-        setPlanByVehicle(planes)
-      })
+        .then(planes => {
+          setPlanByVehicle(planes)
+        })
     }
   }, [vehicleSelected])
 
   const getIdVehicle = useMemo(() => {
     if (vehicleSelected) {
       const vehicle = listVehicles?.find(item => item.placas === vehicleSelected)
-      return vehicle?._id    
+      return vehicle?._id
     }
-    }, [vehicleSelected])
-  
+  }, [vehicleSelected])
+
   const [newPlan, setNewPlan] = useState(false)
   const handledNewPlan = (event) => setNewPlan(event)
 
   const selectVehicles = () => {
-    return(
+    return (
       <FormControl fullWidth>
         <InputLabel id="newVehicle">Lista de unidades</InputLabel>
         <Select
@@ -95,7 +94,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
             setVehicleSelected(e.target.value)
           }}
         >
-          <MenuItem onClick={() => handledNewVehicle(true)} value="" >            
+          <MenuItem onClick={() => handledNewVehicle(true)} value="" >
           🚛<em>Agregar nueva unidad</em>
           </MenuItem>
           {
@@ -109,23 +108,22 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
   }
 
   const [checkbox, setCheckbox] = useState(false)
-  
-  const handleClose = () => {
-    close();
-    reset();
-    setType('');
-    setVehicleSelected('');
-    setCheckbox(false);
-  }
-  
-  const onSubmit = async(data) => {
 
-    if(!vehicleSelected) {
+  const handleClose = () => {
+    close()
+    reset()
+    setType('')
+    setVehicleSelected('')
+    setCheckbox(false)
+  }
+
+  const onSubmit = async (data) => {
+    if (!vehicleSelected) {
       toast.error('Selecciona un vehiculo')
       return
     }
 
-    if(!type){
+    if (!type) {
       toast.info('Selecciona un tipo de documento')
       return
     }
@@ -134,11 +132,11 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
     const planSelected = planByVehicle.find(item => item._id === planWatchSelected)
     const payload = {
       ...data,
-        description: planSelected,
-        vehicle: vehicleSelected,
-        // es la empresa que creo la salida
-        bussiness_cost: empresaId,
-      }
+      description: planSelected,
+      vehicle: vehicleSelected,
+      // es la empresa que creo la salida
+      bussiness_cost: empresaId
+    }
     saveLastDocuments([payload])
     await fetch(`${API}/flotilla/insert?type=${type}`, {
       method: 'POST',
@@ -147,19 +145,18 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
       },
       body: JSON.stringify(payload)
     })
-    .then(res => res.json())
-    .catch(err => {
-      toast.error(err.message)
-      setSaveData(false)
-    })
-    .finally(res => {
-      toast.success('Documento guardado')
-      setSaveData(false)
-      refreshData()
-      handleClose()
-    })
+      .then(res => res.json())
+      .catch(err => {
+        toast.error(err.message)
+        setSaveData(false)
+      })
+      .finally(res => {
+        toast.success('Documento guardado')
+        setSaveData(false)
+        refreshData()
+        handleClose()
+      })
   }
-  
 
   return (
     <Drawer
@@ -167,9 +164,9 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
       onClose={handleClose}
       anchor="right"
     >
-        <Box sx={{ ...style }}> 
+        <Box sx={{ ...style }}>
           <form style={{
-            paddingBottom: '1rem',
+            paddingBottom: '1rem'
           }}
             onSubmit={handleSubmit(onSubmit)}
           >
@@ -189,17 +186,17 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 </Select>
               </FormControl>
               <Box sx={{
-                overflow: '',
+                overflow: ''
               }}>
-              </Box>              
+              </Box>
               { selectVehicles() }
               <FormControl fullWidth>
               <FormControlLabel
                   control={<Checkbox
-                    checked={casetasWatch || checkbox} 
+                    checked={casetasWatch || checkbox}
                     onChange={() => {
                       setCheckbox(!checkbox)
-                    }} 
+                    }}
                     name="checkedA" />}
                   label="Incluir casetas"
                 />
@@ -218,7 +215,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 <InputLabel id="type">Elije tu plan</InputLabel>
                 <Select
                   labelId="plan"
-                  id="plan"                  
+                  id="plan"
                   fullWidth
                   label="Elije tu plan"
                   {...register('plan', { required: true })}
@@ -228,10 +225,10 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                   </MenuItem>
                   {
                     planByVehicle.length > 0
-                    ? planByVehicle.map(plan => <MenuItem key={plan._id} value={plan._id}>{`${plan.planName} - $${plan.planPrice} PESOS`}</MenuItem>)
-                    : <MenuItem value="">No hay planes</MenuItem>
+                      ? planByVehicle.map(plan => <MenuItem key={plan._id} value={plan._id}>{`${plan.planName} - $${plan.planPrice} PESOS`}</MenuItem>)
+                      : <MenuItem value="">No hay planes</MenuItem>
                   }
-                </Select>                
+                </Select>
               </FormControl>
               }
               <FormControl fullWidth>
@@ -239,18 +236,18 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 <Select
                 labelId="client"
                 label="Cliente"
-                id="client"                
+                id="client"
                 {...register('client', { required: true })}
               >
                 {
-                  type === 'traslado' 
+                  type === 'traslado'
                     ? EMPRESAS
-                    .filter(empresa => empresa._id === empresaId)
-                    .map(empresa => {
-                      return (
+                      .filter(empresa => empresa._id === empresaId)
+                      .map(empresa => {
+                        return (
                         <MenuItem key={empresa._id} value={empresa._id}>{empresa.name}</MenuItem>
-                      )
-                    })
+                        )
+                      })
                     : EMPRESAS
                       .filter(item => item._id !== empresaId)
                       .map(empresa => {
@@ -260,7 +257,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                       })
                 }
               </Select>
-              </FormControl>   
+              </FormControl>
               <TextField
                 label="Asunto del documento"
                 name="subject"
@@ -278,7 +275,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 fullWidth
                 type="date"
                 value={dateRequest ? dayjs().format(dateRequest) : dayjs().format('YYYY-MM-DD')}
-                { ...register("request_date", { required: true }) }
+                { ...register('request_date', { required: true }) }
               />
               { errors.request_date && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
               <TextField
@@ -289,7 +286,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="filled"
                 fullWidth
                 type="date"
-                { ...register("delivery_date", { required: true }) }
+                { ...register('delivery_date', { required: true }) }
               />
               { errors.delivery_date && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
               <TextField
@@ -298,7 +295,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 id="driver"
                 variant="outlined"
                 fullWidth
-                { ...register("driver", { required: true }) }
+                { ...register('driver', { required: true }) }
               />
               { errors.driver && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
               <TextField
@@ -307,7 +304,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 id="route"
                 variant="outlined"
                 fullWidth
-                { ...register("route", { required: true }) }
+                { ...register('route', { required: true }) }
               />
               { errors.route && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
               <TextField
@@ -316,7 +313,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 id="recorrido_km"
                 variant="outlined"
                 fullWidth
-                { ...register("recorrido_km", { required: false }) }
+                { ...register('recorrido_km', { required: false }) }
               />
               <TextField
                 label="Kilometraje de salida"
@@ -325,7 +322,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 type="number"
                 fullWidth
-                { ...register("kilometer_out", { required: false }) }
+                { ...register('kilometer_out', { required: false }) }
               />
               <TextField
                 label={`Subtotal ${type.toUpperCase()}`}
@@ -334,7 +331,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 type="text"
                 fullWidth
-                { ...register("subtotal_travel", { required: true }) }
+                { ...register('subtotal_travel', { required: true }) }
               />
               <TextField
                 label="Nivel de combustible %"
@@ -343,7 +340,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 type="number"
                 fullWidth
-                { ...register("fuel_level", { required: false }) }
+                { ...register('fuel_level', { required: false }) }
               />
               <TextField
                 label="Salida de almacén (ADMIN/COMERCIAL)"
@@ -352,7 +349,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 type="text"
                 fullWidth
-                { ...register("document_id", { required: false }) }
+                { ...register('document_id', { required: false }) }
               />
               <TextField
                 label="Folio proyecto"
@@ -361,7 +358,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 type="text"
                 fullWidth
-                { ...register("project_id", { required: false }) }
+                { ...register('project_id', { required: false }) }
               />
               <TextField
                 label="Número de tarjeta de combustible"
@@ -369,7 +366,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 id="fuel_card"
                 variant="outlined"
                 fullWidth
-                { ...register("fuel_card", { required: false }) }
+                { ...register('fuel_card', { required: false }) }
               />
               <TextField
                 label="Carga de combustible"
@@ -378,7 +375,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 type="text"
                 fullWidth
-                { ...register("fuel_amount", { required: false }) }
+                { ...register('fuel_amount', { required: false }) }
               />
               <TextField
                 maxRows={4}
@@ -388,10 +385,10 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                 variant="outlined"
                 fullWidth
                 type="text"
-                { ...register("link_googlemaps", { required: false }) }
-              />            
+                { ...register('link_googlemaps', { required: false }) }
+              />
             </Box>
-            <Box sx={{ display: 'flex', gap: "1.25rem", margin: '10px', justifyContent: 'center' }}>
+            <Box sx={{ display: 'flex', gap: '1.25rem', margin: '10px', justifyContent: 'center' }}>
                 <Button
                   variant="contained"
                   width="100%"
@@ -412,9 +409,9 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
         </Box>
         <NewVehicle
           open={openNewVehicle}
-          close={handledNewVehicle} 
+          close={handledNewVehicle}
           empresaId={empresaId}
-          chivato={refreshData} 
+          chivato={refreshData}
         />
         <NewPlan
           open={newPlan}
@@ -423,8 +420,8 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
           setPlanByVehicle={setPlanByVehicle}
         />
     </Drawer>
-    
+
   )
 }
 
-export default NewDocument;
+export default NewDocument

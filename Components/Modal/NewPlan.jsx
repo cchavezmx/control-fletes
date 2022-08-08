@@ -5,7 +5,6 @@ import { toast } from 'react-toastify'
 import { modalStyle } from '../../utils/styles'
 const API = process.env.NEXT_PUBLIC_API
 
-
 const form = {
   padding: '2px', marginBottom: '20px'
 }
@@ -13,12 +12,12 @@ const form = {
 const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
   // setPlanByVehicle hace un update del array de todos los planes que tiene el vehiculo
 
-  const { handleSubmit, register, reset } = useForm();
+  const { handleSubmit, register, reset } = useForm()
   const [saveData, setSaveData] = useState(false)
 
   const onSubmit = async (data) => {
     setSaveData(true)
-    try{
+    try {
       await fetch(`${API}/flotilla/plan/insert`, {
         method: 'POST',
         body: JSON.stringify({
@@ -29,30 +28,27 @@ const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
           'Content-Type': 'application/json'
         }
       })
-      .then(res => res.json())
-      .then((response) => {
-        if(response?.message?.name === 'MongoError'){
-          throw new Error("El nombre del plan ya existe")
-        } 
+        .then(res => res.json())
+        .then((response) => {
+          if (response?.message?.name === 'MongoError') {
+            throw new Error('El nombre del plan ya existe')
+          }
 
-        toast.success('Vehiculo guardado')
-        setSaveData(false)
-        close() 
-        reset()
-        setPlanByVehicle(response.planes)
-
-      })      
-
-    }catch(error){
+          toast.success('Vehiculo guardado')
+          setSaveData(false)
+          close()
+          reset()
+          setPlanByVehicle(response.planes)
+        })
+    } catch (error) {
       toast.error(error.message)
     }
   }
 
   const onClose = () => {
-    close();
-    reset();
+    close()
+    reset()
   }
-
 
   return (
     <Modal
@@ -81,4 +77,4 @@ const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
   )
 }
 
-export default NewPlan;
+export default NewPlan

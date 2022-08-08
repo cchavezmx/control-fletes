@@ -3,34 +3,32 @@ import { Modal, Box, Typography, TextField, Button } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
-
 const API = process.env.NEXT_PUBLIC_API
 
-const style = {  
-  width: "350px",
-  height: "fit-content",
-  position: 'absolute',  
+const style = {
+  width: '350px',
+  height: 'fit-content',
+  position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   borderRadius: '4px',
   overflow: 'auto',
-  boxShadow: 24,  
-};
+  boxShadow: 24
+}
 
 const form = {
   padding: '2px', marginBottom: '20px'
 }
 
 const NewVehicle = ({ open, close, chivato, empresaId }) => {
-
-  const { handleSubmit, register, reset } = useForm();
+  const { handleSubmit, register, reset } = useForm()
   const [saveData, setSaveData] = useState(false)
 
   const onSubmit = async (data) => {
     setSaveData(true)
-    try{
+    try {
       await fetch(`${API}/flotilla/vehiculo/insert`, {
         method: 'POST',
         body: JSON.stringify({
@@ -41,30 +39,27 @@ const NewVehicle = ({ open, close, chivato, empresaId }) => {
           'Content-Type': 'application/json'
         }
       })
-      .then(res => res.json())
-      .then(({ message }) => {
-        if(message.name === 'MongoError'){
-          throw new Error("Las placas ya existen")
-        } 
+        .then(res => res.json())
+        .then(({ message }) => {
+          if (message.name === 'MongoError') {
+            throw new Error('Las placas ya existen')
+          }
 
-        toast.success('Vehiculo guardado')
-        setSaveData(false)
-        close() 
-        reset()
-        chivato()
-
-      })      
-
-    }catch(error){
+          toast.success('Vehiculo guardado')
+          setSaveData(false)
+          close()
+          reset()
+          chivato()
+        })
+    } catch (error) {
       toast.error(error.message)
     }
   }
 
   const onClose = () => {
-    close();
-    reset();
+    close()
+    reset()
   }
-
 
   return (
     <Modal
@@ -92,4 +87,4 @@ const NewVehicle = ({ open, close, chivato, empresaId }) => {
   )
 }
 
-export default NewVehicle;
+export default NewVehicle

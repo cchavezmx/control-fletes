@@ -1,34 +1,34 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from 'react'
 
-const context = createContext();
-const Provider = context.Provider;
+const context = createContext()
+const Provider = context.Provider
 
 const GlobalStateProvider = ({ children }) => {
-  const [lastDocumentsCreated, setLastDocumentsCreated] = useState([]);
+  const [lastDocumentsCreated, setLastDocumentsCreated] = useState([])
 
   const hydrateLastDocuments = () => {
-    const lastDocuments = localStorage.getItem("lastDocuments");
+    const lastDocuments = localStorage.getItem('lastDocuments')
     if (lastDocuments) {
-      setLastDocumentsCreated(JSON.parse(lastDocuments));
+      setLastDocumentsCreated(JSON.parse(lastDocuments))
     }
   }
 
- const saveLastDocuments = (documents) => {
-   setLastDocumentsCreated((prev) => {
-     return [...prev, ...documents];
-   })
-    localStorage.setItem("lastDocuments", JSON.stringify(documents));
- }
+  const saveLastDocuments = (documents) => {
+    setLastDocumentsCreated((prev) => {
+      return [...prev, ...documents]
+    })
+    localStorage.setItem('lastDocuments', JSON.stringify(documents))
+  }
 
   useEffect(() => {
-    hydrateLastDocuments();
+    hydrateLastDocuments()
   }, [])
 
   return (
     <Provider
       value={{
         lastDocumentsCreated,
-        saveLastDocuments,
+        saveLastDocuments
       }}
     >
       { children }
@@ -36,9 +36,8 @@ const GlobalStateProvider = ({ children }) => {
   )
 }
 
-function useGlobalState() {
-  return useContext(context);
+function useGlobalState () {
+  return useContext(context)
 }
 
-
-export { GlobalStateProvider, useGlobalState };
+export { GlobalStateProvider, useGlobalState }
