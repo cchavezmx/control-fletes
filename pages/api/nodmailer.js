@@ -2,8 +2,6 @@ const nodemailer = require('nodemailer')
 
 export default async function handler (req, res) {
   const { url, text, title, subjects, message } = req.body
-
-  console.log(subjects)
   // async..await is not allowed in global scope, must use a wrapper
   async function sendmail () {
   // Generate test SMTP service account from ethereal.email
@@ -44,7 +42,6 @@ export default async function handler (req, res) {
     await sendmail()
     res.status(200).json({ message: 'Correo enviado' })
   } catch (err) {
-    console.log(err)
     res.status(400).json({ error: err.message })
   }
 }

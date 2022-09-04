@@ -30,7 +30,7 @@ export default function CardVehicles ({ vehicle }) {
     }}
     onClose={() => setOpenMenu(false)}
   >
-  <PlanesDrawer id={vehicle.placas} name={vehicle.modelo} />
+  <PlanesDrawer id={vehicle.placas} name={vehicle.modelo} closeDrawer={() => setOpenMenu(false)} />
   </Drawer>
     <EditVeichle data={vehicle} open={openEdit} close={onClose} />
     <Card sx={{ maxWidth: 345, ...isActive, boxShadow: 2 }}>
