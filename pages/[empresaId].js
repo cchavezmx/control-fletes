@@ -5,13 +5,11 @@ import TableFlotillas from '../Components/TableFlotillas'
 import NewDocument from '../Components/Modal/NewDocument'
 import PrevPDFModal from '../Components/Modal/PrevPDFModal'
 import { useRouter } from 'next/router'
-// import NewDocumentIncomming from '../Components/Modal/NewDocumentIncomming';
 import CancelModalDocument from '../Components/Modal/CancelModalDocument'
 import dayjs from 'dayjs'
 import { columnsDocumentosFlotillas as columns } from '../utils/columnsTables.js'
 import ShareButton from '../utils/ShareButton'
 import Link from 'next/link'
-import { useUser } from '@auth0/nextjs-auth0'
 
 const validTypes = {
   Traslado: 'traslado',
@@ -89,9 +87,6 @@ function Empresa ({ empresa, documents, vehicles }) {
       type
     })
   }
-
-  const { user } = useUser()
-  console.log(user)
 
   const useToggableRef = useRef()
   const handleCancelModal = () => {
@@ -208,13 +203,6 @@ function Empresa ({ empresa, documents, vehicles }) {
         />
       )
     }
-    {/* <NewDocumentIncomming
-      listVehicles={vehicles}
-      refreshData={refreshData}
-      open={openNewModal}
-      close={() => handledModal(false)}
-      empresaId={documents._id}
-    /> */}
   </Container>
   )
 }

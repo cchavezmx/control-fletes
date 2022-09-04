@@ -10,7 +10,6 @@ import Menu from '@mui/material/Menu'
 import MenuIcon from '@mui/icons-material/Menu'
 import AccountCircle from '@mui/icons-material/AccountCircle'
 import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled'
-import ModeEditIcon from '@mui/icons-material/ModeEdit'
 import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import HomeIcon from '@mui/icons-material/Home'
 import MailIcon from '@mui/icons-material/Mail'
@@ -42,12 +41,6 @@ const menuObject = [
     name: 'Editar Unidades',
     icon: <DirectionsCarFilledIcon />,
     link: 'vehicles'
-  },
-  {
-    name: 'Editar Planes',
-    icon: <ModeEditIcon />,
-    link: 'plans',
-    hide: true
   },
   {
     name: 'Seguimiento',

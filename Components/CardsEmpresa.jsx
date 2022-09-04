@@ -9,7 +9,9 @@ import Link from 'next/link'
 export default function CardsEmpresa ({ empresa }) {
   const { name } = empresa
   return (
-    <Card>
+    <Card
+      sx={{ backgroundColor: '#f5f5f5' }}
+    >
       <CardContent>
         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
           Grupo Intecsa

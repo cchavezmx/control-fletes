@@ -17,8 +17,6 @@ const CancelModalDocument = forwardRef(({ data, refreshData, children }, ref) =>
     }
   })
 
-  console.log(data)
-
   const updateOrderSubmit = async (e) => {
     e.preventDefault()
     await fetch(`${API}/flotilla/update/${data._id}?type=${data.type.toLowerCase()}`, {

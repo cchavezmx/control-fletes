@@ -58,7 +58,6 @@ const EditVehicles = (props) => {
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res.message)
         if (res) {
           toast.success('Actualizado')
           refreshData()
@@ -70,8 +69,6 @@ const EditVehicles = (props) => {
 
   const handledFormSubmit = async (data) => {
     if (data.picture[0].type) {
-      console.log('picture', data.picture, data.picture[0]?.type)
-
       const format = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
       if (!format.includes(data.picture[0]?.type)) {
         toast.error('Formato de imagen no valido')
@@ -89,7 +86,6 @@ const EditVehicles = (props) => {
       })
         .then(res => res.json())
         .then(res => {
-          console.log(res)
           if (res.message === 'Archivo subido con exito') {
             fetchData(data)
           } else {
@@ -126,7 +122,6 @@ const EditVehicles = (props) => {
               {...register('modelo', { required: true })}
             />
             <TextField
-              label="picture"
               id="picture"
               variant="outlined"
               type="file"

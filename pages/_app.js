@@ -10,7 +10,8 @@ import { UserProvider } from '@auth0/nextjs-auth0'
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'Raleway, Arial'
+    fontFamily: 'Barlow, Arial',
+    fontSize: 16
   },
   palette: {},
   overrides: {}
@@ -19,7 +20,6 @@ const theme = createTheme({
 const fetcher = (...args) => fetch(...args).then(res => res.json())
 
 function MyApp ({ Component, pageProps }) {
-  console.log('MyApp', process.env.NODE_ENV, pageProps)
   const { user } = pageProps
   const invalidRoutes = ['flete', 'renta', 'traslado']
   if (!invalidRoutes.includes(pageProps.type)) {
