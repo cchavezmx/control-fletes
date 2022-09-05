@@ -53,6 +53,7 @@ const menuObject = [
 
 export default function PrimarySearchAppBar () {
   const { user } = useUser()
+  console.log('🚀 ~ file: Appbar.jsx ~ line 56 ~ PrimarySearchAppBar ~ user', user)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
@@ -262,20 +263,20 @@ export default function PrimarySearchAppBar () {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <Image
-                src={user?.picture}
-                alt="profile"
-                width={40}
-                height={40}
-                objectFit="cover"
-                style={{ borderRadius: '9999px' }}
-              />
-              {/* {
-                user
+              {
+                user?.picture
                   ? (
+                  <Image
+                    src={user.picture}
+                    alt="profile"
+                    width={40}
+                    height={40}
+                    objectFit="cover"
+                    style={{ borderRadius: '9999px' }}
+                  />
                     )
                   : <AccountCircle />
-              } */}
+              }
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
