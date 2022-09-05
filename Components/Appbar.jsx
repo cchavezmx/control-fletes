@@ -53,6 +53,7 @@ const menuObject = [
 
 export default function PrimarySearchAppBar () {
   const { user } = useUser()
+  console.log('🚀 ~ file: Appbar.jsx ~ line 56 ~ PrimarySearchAppBar ~ user', user)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
@@ -263,7 +264,7 @@ export default function PrimarySearchAppBar () {
               color="inherit"
             >
               {
-                user
+                user?.picture
                   ? (
                   <Image
                     src={user.picture}
