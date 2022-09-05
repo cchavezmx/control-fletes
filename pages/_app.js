@@ -21,6 +21,7 @@ const fetcher = (...args) => fetch(...args).then(res => res.json())
 
 function MyApp ({ Component, pageProps }) {
   const { user } = pageProps
+  console.log('🚀 ~ file: _app.js ~ line 24 ~ MyApp ~ user', user)
   const invalidRoutes = ['flete', 'renta', 'traslado']
   if (!invalidRoutes.includes(pageProps.type)) {
     return (

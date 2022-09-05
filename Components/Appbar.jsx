@@ -262,20 +262,20 @@ export default function PrimarySearchAppBar () {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              {
+              <Image
+                src={user?.picture}
+                alt="profile"
+                width={40}
+                height={40}
+                objectFit="cover"
+                style={{ borderRadius: '9999px' }}
+              />
+              {/* {
                 user
                   ? (
-                  <Image
-                    src={user.picture}
-                    alt="profile"
-                    width={40}
-                    height={40}
-                    objectFit="cover"
-                    style={{ borderRadius: '9999px' }}
-                  />
                     )
                   : <AccountCircle />
-              }
+              } */}
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
