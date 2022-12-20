@@ -15,6 +15,7 @@ import HomeIcon from '@mui/icons-material/Home'
 import MailIcon from '@mui/icons-material/Mail'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import MoreIcon from '@mui/icons-material/MoreVert'
+import SettingsIcon from '@mui/icons-material/Settings'
 import { useUser } from '@auth0/nextjs-auth0'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -43,12 +44,16 @@ const menuObject = [
     link: 'vehicles'
   },
   {
+    name: 'ITA-Utils',
+    icon: <SettingsIcon />,
+    link: 'ita-utils'
+  },
+  {
     name: 'Seguimiento',
     icon: <GpsFixedIcon />,
     link: 'flotilla',
     hide: true
   }
-
 ]
 
 export default function PrimarySearchAppBar () {
