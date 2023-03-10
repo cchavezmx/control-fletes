@@ -1,0 +1,290 @@
+[
+  {
+    "equipo": "Equipo de Escritorio Dell Vostro",
+    "mante": "Verificación de configuración de BIOS y actualización de firmware",
+    "dateRecepcion": "07/01/2023",
+    "dateSalida": "07/01/2023",
+    "serie": "A09400",
+    "": ""
+  },
+  {
+    "equipo": "Alienware",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "07/01/2023",
+    "dateSalida": "07/01/2023",
+    "serie": "G8V01S2",
+    "": ""
+  },
+  {
+    "equipo": "Alienware",
+    "mante": "Actualización de BIOS y firmware",
+    "dateRecepcion": "09/03/2023",
+    "dateSalida": "09/03/2023",
+    "serie": "G8V01S2",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Revisión y reemplazo de componentes dañados",
+    "dateRecepcion": "26/01/2023",
+    "dateSalida": "26/01/2023",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Actualización de controladores de hardware",
+    "dateRecepcion": "12/01/2023",
+    "dateSalida": "26/03/2023",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Revisión y reemplazo de ventiladores",
+    "dateRecepcion": "26/02/2023",
+    "dateSalida": "10/03/2023",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Limpieza interna y externa del equipo",
+    "dateRecepcion": "12/02/2023",
+    "dateSalida": "26/02/2023",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Servidor Dell PowerEdge",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "29/01/2023",
+    "dateSalida": "12/02/2023",
+    "serie": "4DX0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Realización de respaldo de datos y cambio de batería",
+    "dateRecepcion": "15/01/2023",
+    "dateSalida": "29/01/2023",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Cambio de disco duro y reinstalación de sistema operativo",
+    "dateRecepcion": "01/01/2023",
+    "dateSalida": "15/01/2023",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Servidor Dell PowerEdge",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "17/12/2022",
+    "dateSalida": "31/12/2022",
+    "serie": "4DX0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Reemplazo de disco duro y reinstalación de sistema operativo",
+    "dateRecepcion": "03/12/2022",
+    "dateSalida": "17/12/2022",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Limpieza interna y externa del equipo",
+    "dateRecepcion": "19/11/2022",
+    "dateSalida": "03/12/2022",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "05/11/2022",
+    "dateSalida": "19/11/2022",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Cambio de ventilador",
+    "dateRecepcion": "22/10/2022",
+    "dateSalida": "05/11/2022",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Equipo de Escritorio Dell Optiplex",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "08/10/2022",
+    "dateSalida": "22/10/2022",
+    "serie": "HWD0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Laptop Dell XPS",
+    "mante": "Verificación de actualizaciones de seguridad y limpieza de registro de sistema",
+    "dateRecepcion": "24/09/2022",
+    "dateSalida": "08/10/2022",
+    "serie": "G25QB42",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Limpieza interna y externa del equipo",
+    "dateRecepcion": "10/09/2022",
+    "dateSalida": "24/09/2022",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Laptop Dell Latitude",
+    "mante": "Verificación de actualizaciones de seguridad y limpieza de registro de sistema",
+    "dateRecepcion": "27/08/2022",
+    "dateSalida": "10/09/2022",
+    "serie": "D8L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Laptop Lenovo",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "13/08/2022",
+    "dateSalida": "27/08/2022",
+    "serie": "G24TB42",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Limpieza interna y externa del equipo",
+    "dateRecepcion": "30/07/2022",
+    "dateSalida": "13/08/2022",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Alienware",
+    "mante": "Verificación de configuración de BIOS y limpieza de ventiladores",
+    "dateRecepcion": "16/07/2022",
+    "dateSalida": "30/07/2022",
+    "serie": "G8V01S2",
+    "": ""
+  },
+  {
+    "equipo": "Laptop Lenovo",
+    "mante": "Actualización de controladores de hardware",
+    "dateRecepcion": "02/07/2022",
+    "dateSalida": "16/07/2022",
+    "serie": "G24TB42",
+    "": ""
+  },
+  {
+    "equipo": "Laptops Dell",
+    "mante": "Revisión y reemplazo de batería",
+    "dateRecepcion": "18/06/2022",
+    "dateSalida": "02/07/2022",
+    "serie": "G25RB42",
+    "": ""
+  },
+  {
+    "equipo": "Servidor Dell PowerEdge",
+    "mante": "Verificación de configuración de BIOS y actualización de firmware",
+    "dateRecepcion": "04/06/2022",
+    "dateSalida": "18/06/2022",
+    "serie": "4DX0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Alienware",
+    "mante": "Realización de respaldo de datos",
+    "dateRecepcion": "21/05/2022",
+    "dateSalida": "04/06/2022",
+    "serie": "G8V01S2",
+    "": ""
+  },
+  {
+    "equipo": "Alienware",
+    "mante": "Análisis y eliminación de software no deseado",
+    "dateRecepcion": "07/05/2022",
+    "dateSalida": "21/05/2022",
+    "serie": "G8V01S2",
+    "": ""
+  },
+  {
+    "equipo": "Alienware",
+    "mante": "Actualización de controladores de hardware",
+    "dateRecepcion": "23/04/2022",
+    "dateSalida": "07/05/2022",
+    "serie": "G8V01S2",
+    "": ""
+  },
+  {
+    "equipo": "Dell Presario 3040",
+    "mante": "Realización de respaldo de datos",
+    "dateRecepcion": "09/04/2022",
+    "dateSalida": "23/04/2022",
+    "serie": "49L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Equipo de Escritorio Dell Vostro",
+    "mante": "Verificación de configuración de BIOS y actualización de firmware",
+    "dateRecepcion": "26/03/2022",
+    "dateSalida": "09/04/2022",
+    "serie": "A09400",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Cambio de pasta térmica y limpieza de ventiladores",
+    "dateRecepcion": "12/03/2022",
+    "dateSalida": "26/03/2022",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Laptop Dell Latitude",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "26/02/2022",
+    "dateSalida": "12/03/2022",
+    "serie": "D8L0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Servidor Dell PowerEdge",
+    "mante": "Verificación de configuración de BIOS y actualización de firmware",
+    "dateRecepcion": "12/02/2022",
+    "dateSalida": "26/02/2022",
+    "serie": "4DX0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Verificación de temperatura y limpieza de ventiladores",
+    "dateRecepcion": "29/01/2022",
+    "dateSalida": "12/02/2022",
+    "serie": "7BL0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Equipo de Escritorio Dell Optiplex",
+    "mante": "Verificación de actualizaciones de seguridad y limpieza de registro de sistema",
+    "dateRecepcion": "15/01/2022",
+    "dateSalida": "29/01/2022",
+    "serie": "HWD0XS2",
+    "": ""
+  },
+  {
+    "equipo": "Dell 3050",
+    "mante": "Revisión y reemplazo de batería",
+    "dateRecepcion": "01/01/2022",
+    "dateSalida": "15/01/2022",
+    "serie": "7BL0XS2",
+    "": ""
+  }
+]

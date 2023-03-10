@@ -10,6 +10,7 @@ import Menu from '@mui/material/Menu'
 import MenuIcon from '@mui/icons-material/Menu'
 import AccountCircle from '@mui/icons-material/AccountCircle'
 import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled'
+import LaptopChromebookIcon from '@mui/icons-material/LaptopChromebook'
 import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import HomeIcon from '@mui/icons-material/Home'
 import MailIcon from '@mui/icons-material/Mail'
@@ -20,6 +21,7 @@ import { useUser } from '@auth0/nextjs-auth0'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemButton, ListItemText } from '@mui/material'
+import { useRouter } from 'next/router'
 
 // const Search = styled('div')(({ theme }) => ({
 //   position: 'relative',
@@ -59,6 +61,9 @@ const menuObject = [
 export default function PrimarySearchAppBar () {
   const { user } = useUser()
   console.log('🚀 ~ file: Appbar.jsx ~ line 56 ~ PrimarySearchAppBar ~ user', user)
+  const router = useRouter()
+  console.log('🚀 ~ file: Appbar.jsx ~ line 58 ~ PrimarySearchAppBar ~ router', router)
+  const { pathname } = router
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
@@ -154,6 +159,16 @@ export default function PrimarySearchAppBar () {
           ))
         }
       <Divider />
+      <ListItem>
+        <Link href="mantenimiento" passHref>
+          <ListItemButton>
+            <ListItemIcon>
+              <LaptopChromebookIcon />
+          </ListItemIcon>
+            <ListItemText primary={'Mantenimiento'} />
+          </ListItemButton>
+        </Link>
+      </ListItem>
     </List>
   </Drawer>
   )
@@ -212,7 +227,9 @@ export default function PrimarySearchAppBar () {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="static" color='secondary' sx={{
+        backgroundColor: pathname === '/mantenimiento' ? '#461e59' : '#3f51b5'
+      }}>
         <Toolbar>
           <IconButton
             onClick={() => setOpenMenu(true)}
@@ -231,7 +248,7 @@ export default function PrimarySearchAppBar () {
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
             <Link href="/">
-              Logistica
+              { pathname === '/mantenimiento' ? 'Control Sistemas y Comunicaciones' : 'Logistica'}
             </Link>
           </Typography>
           {/* <Search>
