@@ -64,6 +64,7 @@ export default function PrimarySearchAppBar () {
   const router = useRouter()
   console.log('🚀 ~ file: Appbar.jsx ~ line 58 ~ PrimarySearchAppBar ~ router', router)
   const { pathname } = router
+  console.log('🚀 ~ file: Appbar.jsx:67 ~ PrimarySearchAppBar ~ pathname:', pathname)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
@@ -144,7 +145,7 @@ export default function PrimarySearchAppBar () {
       <Divider sx={{ marginTop: '2rem' }} />
         {
           menuObject.map((menu, index) => (
-            <ListItem button key={index}>
+            <ListItem key={index}>
               <Link href={menu.link} passHref>
                 <ListItemButton
                   disabled={menu.hide}
@@ -226,10 +227,6 @@ export default function PrimarySearchAppBar () {
   )
 
   const namesTitle = () => {
-    if (pathname === '/') {
-      return 'Logistica'
-    }
-
     if (pathname === '/mantenimiento') {
       return 'Control Sistemas y Comunicaciones'
     }
@@ -237,13 +234,11 @@ export default function PrimarySearchAppBar () {
     if (pathname === '/inventarioti') {
       return 'Inventario TI'
     }
+
+    return 'Logistica'
   }
 
   const colorsTitle = () => {
-    if (pathname === '/') {
-      return '#3f51b5'
-    }
-
     if (pathname === '/mantenimiento') {
       return '#461e59'
     }
@@ -251,6 +246,8 @@ export default function PrimarySearchAppBar () {
     if (pathname === '/inventarioti') {
       return '#FF8C00'
     }
+
+    return '#3f51b5'
   }
 
   return (
@@ -275,8 +272,8 @@ export default function PrimarySearchAppBar () {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            <Link href="/">
-              { namesTitle() }
+            <Link passHref href="/">
+              <a>{ namesTitle() }</a>
             </Link>
           </Typography>
           {/* <Search>

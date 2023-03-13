@@ -27,10 +27,22 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
         }}>
           {columnTitle}
         </Typography>
-        <section
-          style={{
+        <Box
+          sx={{
             overflowY: 'auto',
-            height: '60vh'
+            height: '60vh',
+            '&::-webkit-scrollbar': {
+              width: 10,
+              height: 10
+            },
+            '&::-webkit-scrollbar-track': {
+              // backgroundColor: 'orange'
+              backgroundColor: 'rgba(0, 0, 0, 0.1)'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              borderRadius: 2
+            }
           }}
         >
           {data.map((item, index) => {
@@ -70,7 +82,7 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
             </Card>
             )
           })}
-        </section>
+        </Box>
       </Box>
     </>
   )

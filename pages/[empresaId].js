@@ -146,7 +146,7 @@ function Empresa ({ empresa, documents, vehicles }) {
                   <Button
                     variant="contained"
                     color="warning">
-                    <Link href={{
+                    <Link passHref href={{
                       pathname: `/update/${selectedRow[0].id}`,
                       query: { type: selectedRow[0].type, currentEmpresa: empresa }
                     }}>

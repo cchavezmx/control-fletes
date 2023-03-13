@@ -21,7 +21,7 @@ const MenuSistemas = ({ menu, itprincipal }) => {
               backgroundColor: `${menu.color}`
             }}
           >
-            <Link href={menu.link} color='#fff' underline='none'>
+            <Link passHref href={menu.link} color='#fff' underline='none'>
               {menu.name}
             </Link>
           </Button>
