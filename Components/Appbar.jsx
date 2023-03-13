@@ -165,7 +165,7 @@ export default function PrimarySearchAppBar () {
             <ListItemIcon>
               <LaptopChromebookIcon />
           </ListItemIcon>
-            <ListItemText primary={'Mantenimiento'} />
+            <ListItemText primary={'Sistemas'} />
           </ListItemButton>
         </Link>
       </ListItem>
@@ -225,10 +225,38 @@ export default function PrimarySearchAppBar () {
     </Menu>
   )
 
+  const namesTitle = () => {
+    if (pathname === '/') {
+      return 'Logistica'
+    }
+
+    if (pathname === '/mantenimiento') {
+      return 'Control Sistemas y Comunicaciones'
+    }
+
+    if (pathname === '/inventarioti') {
+      return 'Inventario TI'
+    }
+  }
+
+  const colorsTitle = () => {
+    if (pathname === '/') {
+      return '#3f51b5'
+    }
+
+    if (pathname === '/mantenimiento') {
+      return '#461e59'
+    }
+
+    if (pathname === '/inventarioti') {
+      return '#FF8C00'
+    }
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" color='secondary' sx={{
-        backgroundColor: pathname === '/mantenimiento' ? '#461e59' : '#3f51b5'
+        backgroundColor: colorsTitle()
       }}>
         <Toolbar>
           <IconButton
@@ -248,7 +276,7 @@ export default function PrimarySearchAppBar () {
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
             <Link href="/">
-              { pathname === '/mantenimiento' ? 'Control Sistemas y Comunicaciones' : 'Logistica'}
+              { namesTitle() }
             </Link>
           </Typography>
           {/* <Search>
