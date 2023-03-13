@@ -64,6 +64,7 @@ export default function PrimarySearchAppBar () {
   const router = useRouter()
   console.log('🚀 ~ file: Appbar.jsx ~ line 58 ~ PrimarySearchAppBar ~ router', router)
   const { pathname } = router
+  console.log('🚀 ~ file: Appbar.jsx:67 ~ PrimarySearchAppBar ~ pathname:', pathname)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
@@ -144,7 +145,7 @@ export default function PrimarySearchAppBar () {
       <Divider sx={{ marginTop: '2rem' }} />
         {
           menuObject.map((menu, index) => (
-            <ListItem button key={index}>
+            <ListItem key={index}>
               <Link href={menu.link} passHref>
                 <ListItemButton
                   disabled={menu.hide}
@@ -165,7 +166,7 @@ export default function PrimarySearchAppBar () {
             <ListItemIcon>
               <LaptopChromebookIcon />
           </ListItemIcon>
-            <ListItemText primary={'Mantenimiento'} />
+            <ListItemText primary={'Sistemas'} />
           </ListItemButton>
         </Link>
       </ListItem>
@@ -225,10 +226,34 @@ export default function PrimarySearchAppBar () {
     </Menu>
   )
 
+  const namesTitle = () => {
+    if (pathname === '/mantenimiento') {
+      return 'Control Sistemas y Comunicaciones'
+    }
+
+    if (pathname === '/inventarioti') {
+      return 'Inventario TI'
+    }
+
+    return 'Logistica'
+  }
+
+  const colorsTitle = () => {
+    if (pathname === '/mantenimiento') {
+      return '#461e59'
+    }
+
+    if (pathname === '/inventarioti') {
+      return '#FF8C00'
+    }
+
+    return '#3f51b5'
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" color='secondary' sx={{
-        backgroundColor: pathname === '/mantenimiento' ? '#461e59' : '#3f51b5'
+        backgroundColor: colorsTitle()
       }}>
         <Toolbar>
           <IconButton
@@ -247,8 +272,8 @@ export default function PrimarySearchAppBar () {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            <Link href="/">
-              { pathname === '/mantenimiento' ? 'Control Sistemas y Comunicaciones' : 'Logistica'}
+            <Link passHref href="/">
+              <a>{ namesTitle() }</a>
             </Link>
           </Typography>
           {/* <Search>

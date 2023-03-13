@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&display=swap");
 
 html,
 body {
@@ -27,6 +27,26 @@ a {
   font-family: Raleway;
   src: url(../assets/fonts/Raleway-Black.ttf);
   font-weight: bold;
+}
 
+.select-filtro-sistemas {
+  width: 180px;
+  margin: 10px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0 10px;
+  font-family: Raleway;
+  font-size: 14px;
+  color: #000;
+  background: #fff;
+  margin-bottom: 10px;
+}
 
+.select-filtro-sistemas option {
+  font-family: Raleway;
+  font-size: 14px;
+  color: #000;
+  background: #fff;
+  margin: 10px;
 }
