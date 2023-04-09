@@ -91,13 +91,12 @@ const NuevoEquipoInventario = () => {
         console.log('res', res)
         if (res.message) {
           console.log('success')
-          reset()
           setUrl(null)
+          reset()
+          toggleDrawer()
+          router.replace(router.asPath)
         }
       })
-    reset()
-    toggleDrawer()
-    router.replace(router.asPath)
   }
 
   const enumTypes = ['PC', 'Laptop', 'Impresora', 'Monitor', 'Otro']
@@ -293,7 +292,7 @@ const NuevoEquipoInventario = () => {
             }
             {
               url && (
-                <Alert severity="success">Upload done</Alert>
+                <Alert severity="success">Carga terminada</Alert>
               )
             }
           </Box>
