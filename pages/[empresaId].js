@@ -1,15 +1,15 @@
 /* eslint-disable camelcase */
 import React, { useState, useRef } from 'react'
 import { Typography, Box, Divider, Button, Container } from '@mui/material'
-import TableFlotillas from '../Components/TableFlotillas'
 import NewDocument from '../Components/Modal/NewDocument'
 import PrevPDFModal from '../Components/Modal/PrevPDFModal'
 import { useRouter } from 'next/router'
 import CancelModalDocument from '../Components/Modal/CancelModalDocument'
-import dayjs from 'dayjs'
 import { columnsDocumentosFlotillas as columns } from '../utils/columnsTables.js'
 import ShareButton from '../utils/ShareButton'
 import Link from 'next/link'
+import TabPanel from '../Components/TabPanel'
+import getRowData from '../utils/getRowData'
 
 const validTypes = {
   Traslado: 'traslado',
@@ -17,66 +17,16 @@ const validTypes = {
   Renta: 'renta'
 }
 
-const formatDate = (date, time) => {
-  const formatDate = new Date(date).toUTCString()
-  if (!time) {
-    return dayjs(formatDate).add(1, 'day').format('DD/MM/YYYY')
-  } else {
-    return dayjs(formatDate).format('HH:mm a')
-  }
-}
-
 function Empresa ({ empresa, documents, vehicles }) {
   const [selectedRow, setSelectedRow] = useState([])
-  const getRowData = () => {
-    const traslados = documents.traslado !== 0
-      ? documents.traslado.map(document => {
-        return {
-          ...document,
-          id: document._id,
-          type: 'Traslado',
-          request_date: formatDate(document.request_date),
-          delivery_date: formatDate(document.delivery_date),
-          createdAt: formatDate(document.createdAt, 'time')
-        }
-      })
-      : []
-
-    const fletes = documents.fletes.length !== 0
-      ? documents.fletes.map(document => {
-        return {
-          ...document,
-          id: document._id,
-          type: 'Flete',
-          request_date: formatDate(document.request_date),
-          delivery_date: formatDate(document.delivery_date),
-          createdAt: formatDate(document.createdAt, 'time')
-        }
-      })
-      : []
-
-    const rentas = documents.rentas.length !== 0
-      ? documents.rentas.map(document => {
-        return {
-          ...document,
-          id: document._id,
-          type: 'Renta',
-          request_date: formatDate(document.request_date),
-          delivery_date: formatDate(document.delivery_date),
-          createdAt: formatDate(document.createdAt, 'time')
-        }
-      })
-      : []
-
-    return [...traslados, ...fletes, ...rentas]
-  }
 
   const [openNewModal, setOpenNewModal] = useState(false)
   const handledModal = (event) => setOpenNewModal(event)
 
   const router = useRouter()
+  const { empresaId } = router.query
   const refreshData = () => {
-    router.replace(router.asPath)
+    router.replace(empresaId)
   }
 
   const [modalPreview, setModalPreview] = useState(false)
@@ -175,11 +125,12 @@ function Empresa ({ empresa, documents, vehicles }) {
     </Box>
     <Divider />
     <Box>
-      <TableFlotillas
+      <TabPanel
         documents={documents}
-        rows={getRowData()}
+        rows={getRowData({ documents })}
         columns={columns}
         setSelectedRow={setSelectedRow}
+        refreshData={refreshData}
       />
     </Box>
     <Divider />
@@ -209,8 +160,8 @@ function Empresa ({ empresa, documents, vehicles }) {
 
 export async function getServerSideProps (context) {
   const API = process.env.NEXT_PUBLIC_API
-  const { empresaId } = context.query
-  const documents = await fetch(`${API}/flotilla/documentos/${empresaId}`)
+  const { empresaId, type } = context.query
+  const documents = await fetch(`${API}/flotilla/documentos/${empresaId}?type=${type}`)
     .then(res => res.json())
     .then(({ documents }) => documents[0])
 

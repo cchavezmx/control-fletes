@@ -42,8 +42,8 @@ export default function TableFlotillas ({ columns, rows, setSelectedRow }) {
         components={{
           Toolbar: GridToolbar
         }}
-        getRowClassName={({ row }) => {
-          return typeof row.isCancel_status === 'string' ? 'super-app-theme--Rejected' : ''
+        getRowClassName={(params) => {
+          return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'red'
         }}
       />
     </Box>

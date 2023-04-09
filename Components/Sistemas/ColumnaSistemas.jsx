@@ -1,6 +1,7 @@
 import { Box, Card, Stack, TextField, Typography } from '@mui/material'
+import NuevoEquipoInventario from './NuevoEquipoInventario'
 
-const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
+const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
   const colorCard = {
     radioscelulares: '#3f51b5',
     Impresoras: '#f50057',
@@ -27,6 +28,7 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
         }}>
           {columnTitle}
         </Typography>
+        <NuevoEquipoInventario />
         <Box
           sx={{
             overflowY: 'auto',
@@ -46,7 +48,6 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
           }}
         >
           {data.map((item, index) => {
-            console.log('🚀 ~ file: index.jsx:14 ~ {fakeData.map ~ item:', item)
             return (
             <Card key={index} sx={{
               width: '100%',
@@ -56,16 +57,15 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
               borderLeft: `5px solid ${colorCard[slug]}`
 
             }}>
-              <Box>
+              <Box sx={{ cursor: 'pointer' }} onClick={() => setCurrent(item._id)}>
                 <Stack direction="row">
                   <Typography variant="body1" marginBottom={1} fontSize={26} >
-                    { item.equipo }
+                    { `${item.marca} ${item.modelo}` }
                   </Typography>
                   <Typography variant="body1" fontWeight="bold" marginLeft={1}>
                     {item.serie}
                   </Typography>
                 </Stack>
-                {/* <p>{item.mante}</p> */}
                 <Typography variant="body2" sx={{
                   color: '#3f51b5',
                   fontWeight: 'bold',
@@ -74,9 +74,17 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx }) => {
                 }}>
                   {item.mante}
                 </Typography>
-                <Stack direction="row" gap="10px">
-                  <p><span style={{ fontWeight: 'bold' }}>Fecha Entrada:</span> {item.dateRecepcion}</p>
-                  <p><span style={{ fontWeight: 'bold' }}>Fecha Salida:</span> {item.dateSalida}</p>
+                <Stack direction="row" gap="10px" justifyContent="space-between">
+                  <small>
+                    <Typography variant="body2" >
+                      { item.ubicacion }
+                    </Typography>
+                  </small>
+                  <small>
+                    <Typography variant="body2" sx={{ fontWeight: 'bold' }} >
+                    { item?.type }
+                    </Typography>
+                  </small>
                 </Stack>
               </Box>
             </Card>

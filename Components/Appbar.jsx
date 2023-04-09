@@ -60,11 +60,8 @@ const menuObject = [
 
 export default function PrimarySearchAppBar () {
   const { user } = useUser()
-  console.log('🚀 ~ file: Appbar.jsx ~ line 56 ~ PrimarySearchAppBar ~ user', user)
   const router = useRouter()
-  console.log('🚀 ~ file: Appbar.jsx ~ line 58 ~ PrimarySearchAppBar ~ router', router)
   const { pathname } = router
-  console.log('🚀 ~ file: Appbar.jsx:67 ~ PrimarySearchAppBar ~ pathname:', pathname)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)

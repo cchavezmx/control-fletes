@@ -208,7 +208,6 @@ const PlanesDrawer = ({ id, name, closeDrawer }) => {
 
   const [loading, setLoading] = useState(true)
   const [planes, setPlanes] = useState([])
-  console.log('🚀 ~ file: PlanesDrawer.js ~ line 188 ~ PlanesDrawer ~ planes', planes)
   const getVehicleBySlug = async (slug) => {
     await fetch(`${API}/flotilla/planes/slug/${slug}`)
       .then(res => res.json())
