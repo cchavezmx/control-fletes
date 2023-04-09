@@ -50,3 +50,13 @@ a {
   background: #fff;
   margin: 10px;
 }
+
+.even {
+  background-color: #f2f2f2;
+}
+
+.prevImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}

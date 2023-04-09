@@ -49,7 +49,6 @@ export const getUrlByName = async (name) => {
 export const addFile = async (file, name) => {
   const blob = new Blob([file], { type: 'application/pdf' })
   return uploadBytes(ref(storage, `/${name}`), blob).then(async (snapshot) => {
-    console.log('🚀 ~ file: client.js:53 ~ returnuploadBytes ~ snapshot', snapshot)
     const varriables = {
       catalogo: {
         url: await getUrlByName(name),
