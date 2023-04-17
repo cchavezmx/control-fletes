@@ -1,21 +1,14 @@
-import { useMemo } from 'react'
+
 import { Box, Button, Card, Stack, Typography } from '@mui/material'
 import Image from 'next/image'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import useSWR from 'swr'
+import UserAssignamets from './UserAssignamets'
 // fakes datas
 
 const EquipoDetail = ({ id }) => {
   const API = process.env.NEXT_PUBLIC_API
   const { data } = useSWR(`${API}/inventarioIT/find?equipo=${id}`)
-
-  const lastUsuario = useMemo(() => {
-    if (data?.equipo?.usuariosequipos?.length > 0) {
-      return data.equipo.usuariosequipos[data.equipo.usuariosequipos.length - 1]
-    }
-
-    return null
-  }, [data])
 
   if (!data) return <p>Loading...</p>
   if (!id) {
@@ -94,9 +87,9 @@ const EquipoDetail = ({ id }) => {
         <Stack padding={1} sx={{
           textAlign: 'left'
         }}>
-          <Typography variant="h6">
-            Usuario Asigando: <span style={{ color: '#3f51b5' }}>{ lastUsuario && lastUsuario.nombre }</span>
-          </Typography>
+          <Stack direction="row">
+            <UserAssignamets equipo={data} />
+          </Stack>
           <Typography variant="h6">
             Ubicación: <span style={{ color: '#3f51b5' }}>{
               data?.equipo?.ubicacion

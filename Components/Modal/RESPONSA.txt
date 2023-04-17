@@ -1,0 +1,80 @@
+
+import { useRef, useState } from 'react'
+
+const responsa = () => {
+  const [urlFile, setUrlFile] = useState('')
+  const [uploadFile, setUploadFile] = useState(null)
+  const onChange = (e) => {
+    const [file] = e.target.files
+    if (file?.type !== 'application/pdf') {
+      toast.error('Solo se permiten archivos PDF')
+      return
+    }
+
+    setUploadFile(true)
+    const formdata = new FormData()
+    formdata.append('formData', file)
+
+    const URL = `${API}/firebase-upload`
+    const requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow'
+    }
+    fetch(URL, requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        setUrlFile(result)
+        setUploadFile(false)
+      })
+  }
+
+  const responsivaInputRef = useRef(null)
+  const handledLabelAction = () => {
+    responsivaInputRef.current.click()
+  }
+
+  const [error, setError] = useState({})
+  console.log('🚀 ~ file: AssignUserModal.jsx:58 ~ AssignUserModal ~ error:', error)
+  const onSubmit = (e) => {
+    e.preventDefault()
+    console.log(e.target.formData)
+    const data = new FormData(e.target)
+    const formData = Object.fromEntries(data)
+    formData.responsiva = urlFile.url
+
+    const schema = z.object({
+      nombre: z.string().nonempty('Este campo es requerido'),
+      unidad: z.string().nonempty('Este campo es requerido'),
+      responsiva: z.string().nonempty('Necesita subir una responsiva en formato PDF')
+    })
+
+    const isValid = schema.safeParse(formData)
+    if (!isValid.success) {
+      Object.entries(isValid.error.issues).forEach(([key, value]) => {
+        setError(prev => ({ ...prev, [value.path[0]]: value.message }))
+      })
+      return
+    }
+
+    const id = equipo.equipo._id
+    const URL = `${API}/inventarioIT/assign?equipo=${id}`
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+      redirect: 'follow'
+    }
+
+    fetch(URL, requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        console.log({ result })
+        setUploadFile(false)
+        setOpen(false)
+        setUrlFile('')
+        mutate(`${API}/inventarioIT/find?equipo=${id}`)
+        toast.success('Usuario asignado correctamente')
+      })
+  }
+}
