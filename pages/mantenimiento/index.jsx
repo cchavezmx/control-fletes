@@ -5,19 +5,19 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import MenuSistemas from '../../Components/MenuSistemas'
 import ColumnaSistemas from '../../Components/Sistemas/ColumnaSistemas'
 // fakes datas
-import fakeData from './csvjson.json'
-import fakeImpre from './mante_impre.json'
-import fakeObras from './obra_equipos.json'
+// import fakeData from './csvjson.json'
+// import fakeImpre from './mante_impre.json'
+// import fakeObras from './obra_equipos.json'
+
+import useSWR from 'swr'
+
+const API = process.env.NEXT_PUBLIC_API
 
 const Mantenimiento = () => {
+  const { data, error } = useSWR(`${API}/inventarioIT/lastassignments`)
+  console.log('🚀 ~ file: index.jsx:19 ~ Mantenimiento ~ data:', data)
+
   const menu = [
-    {
-      id: 1,
-      name: 'Nueva Salida',
-      icon: <AddCircleIcon />,
-      link: '',
-      color: '#FF8C00'
-    },
     {
       id: 2,
       name: 'Inventario de equipos',
@@ -40,33 +40,36 @@ const Mantenimiento = () => {
       flexDirection: 'column'
     }}>
     <Typography variant='h5' sx={{ margin: '1rem 0' }}>
-      Equipos en obra
+      Equipos activos en obra
     </Typography>
     <MenuSistemas menu={menu} itprincipal />
     <Box sx={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      backgroundColor: '#f9f9f9'
+      gridTemplateColumns: 'repeat(3, 1fr)'
 
     }}>
       {/* columna Mantenimiento */}
-      <ColumnaSistemas
-        data={fakeData}
-        slug="radioscelulares"
-        columnTitle="Radios y Celulares"
-      />
+      {
+        data && (
+          <ColumnaSistemas
+            data={data.equipos}
+            slug="radioscelulares"
+            columnTitle="Radios y Celulares"
+          />
+        )
+      }
       {/* columna Impresoras */}
-      <ColumnaSistemas
+      {/* <ColumnaSistemas
         data={fakeImpre}
         slug="Impresoras"
         columnTitle="Impresoras"
-      />
+      /> */}
       {/* columna Obras */}
-      <ColumnaSistemas
+      {/* <ColumnaSistemas
         data={fakeObras}
         slug="Obras"
         columnTitle="Computadoras"
-      />
+      /> */}
     </Box>
     </Box>
   )

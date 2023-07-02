@@ -43,7 +43,7 @@ const CreateSalidaTI = ({ equipo }) => {
     const requestAssing = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: user, unidad: obra }),
+      body: JSON.stringify({ nombre: user, unidad: obra, equipoid: id }),
       redirect: 'follow'
     }
 

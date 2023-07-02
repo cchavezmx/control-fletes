@@ -1,6 +1,10 @@
 import { Stack, Button, Link } from '@mui/material'
+import NuevoEquipoInventario from '../Sistemas/NuevoEquipoInventario'
+import { useRouter } from 'next/router'
 
 const MenuSistemas = ({ menu, itprincipal }) => {
+  const { pathname } = useRouter()
+
   return (
     <Stack direction="row" sx={{
       justifyContent: 'flex-start',
@@ -8,7 +12,11 @@ const MenuSistemas = ({ menu, itprincipal }) => {
       marginTop: '1rem',
       gap: '10px'
     }}>
-
+    {
+      pathname === '/inventarioti' && (
+        <NuevoEquipoInventario />
+      )
+    }
      {
        menu.map(menu => {
          return (

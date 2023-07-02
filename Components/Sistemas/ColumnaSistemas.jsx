@@ -1,7 +1,7 @@
 import { Box, Card, Stack, TextField, Typography } from '@mui/material'
-import NuevoEquipoInventario from './NuevoEquipoInventario'
 
 const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
+  console.log('🚀 ~ file: ColumnaSistemas.jsx:5 ~ ColumnaSistemas ~ data:', data)
   const colorCard = {
     radioscelulares: '#3f51b5',
     Impresoras: '#f50057',
@@ -15,11 +15,12 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
         backgroundColor: '#f9f9f9',
         padding: '10px',
         marginTop: '10px',
+        border: '1px solid #ccc',
         ...sx
       }}>
-        <TextField type="text" placeholder="Buscar equipo" sx={{
+        {/* <TextField type="text" placeholder="Buscar equipo" sx={{
           width: '100%'
-        }} />
+        }} /> */}
         <Typography variant="h5" component="h1" sx={{
           margin: '10px 0',
           backgroundColor: `${colorCard[slug]}`,
@@ -28,7 +29,6 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
         }}>
           {columnTitle}
         </Typography>
-        <NuevoEquipoInventario />
         <Box
           sx={{
             overflowY: 'auto',
@@ -48,6 +48,7 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
           }}
         >
           {data.map((item, index) => {
+            console.log('🚀 ~ file: ColumnaSistemas.jsx:52 ~ {data.map ~ item:', item)
             return (
             <Card key={index} sx={{
               width: '100%',
@@ -60,10 +61,10 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
               <Box sx={{ cursor: 'pointer' }} onClick={() => setCurrent(item._id)}>
                 <Stack direction="row">
                   <Typography variant="body1" marginBottom={1} fontSize={26} >
-                    { `${item.marca} ${item.modelo}` }
+                    {item?.nombre} - {item?.equipo?.type}
                   </Typography>
                   <Typography variant="body1" fontWeight="bold" marginLeft={1}>
-                    {item.serie}
+                    {item?.equipo?.serie}
                   </Typography>
                 </Stack>
                 <Typography variant="body2" sx={{
@@ -72,12 +73,12 @@ const ColumnaSistemas = ({ data, columnTitle, slug, sx, setCurrent }) => {
                   fontSize: '1.5rem'
 
                 }}>
-                  {item.mante}
+                  { `${item?.equipo?.marca} ${item?.equipo?.modelo}` }
                 </Typography>
                 <Stack direction="row" gap="10px" justifyContent="space-between">
                   <small>
                     <Typography variant="body2" >
-                      { item.ubicacion }
+                      { item?.unidad }
                     </Typography>
                   </small>
                   <small>
