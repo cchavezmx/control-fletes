@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useState, useMemo, useEffect } from 'react'
-import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, FormControlLabel, Checkbox } from '@mui/material'
+import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button, FormControlLabel, Checkbox, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -49,13 +49,20 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
   // modal de nuevo vehiculo
   const [vehicleSelected, setVehicleSelected] = useState('')
   const [openNewVehicle, setOpenNewVehicle] = useState(false)
+  const [folios, setFolios] = useState([])
   const handledNewVehicle = (event) => setOpenNewVehicle(event)
+
+  const getFoliosByEmpresa = async (empresaId) => {
+    const response = await fetch(`${API}/folios/${empresaId}`)
+      .then(res => res.json())
+      .then(({ message }) => message)
+    return response
+  }
 
   const getVehicleBySlug = async (slug) => {
     const response = await fetch(`${API}/flotilla/planes/slug/${slug}`)
       .then(res => res.json())
       .then(({ planes }) => planes)
-
     return response
   }
 
@@ -69,6 +76,13 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
         })
     }
   }, [vehicleSelected])
+
+  useEffect(() => {
+    getFoliosByEmpresa(empresaId)
+      .then(folios => {
+        setFolios(folios)
+      })
+  }, [empresaId])
 
   const getIdVehicle = useMemo(() => {
     if (vehicleSelected) {
@@ -170,9 +184,13 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
           }}
             onSubmit={handleSubmit(onSubmit)}
           >
+            <Typography variant='h5' mb={2}>
+              { `Consecutivo: ${folios[`${type}s`] + 1 || 0}` }
+            </Typography>
             <Box sx={{ ...flexColum }}>
               <FormControl fullWidth>
                 <InputLabel id="type">Tipo de documento</InputLabel>
+
                 <Select
                   labelId="type"
                   id="type"
