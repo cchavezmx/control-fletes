@@ -18,6 +18,8 @@ const validTypes = {
 }
 
 function Empresa ({ empresa, documents, vehicles }) {
+  console.log(process.env.NEXT_PUBLIC_VERCEL_URL, 'process.env.NEXT_PUBLIC_VERCEL_URL')
+
   const [selectedRow, setSelectedRow] = useState([])
 
   const [openNewModal, setOpenNewModal] = useState(false)
