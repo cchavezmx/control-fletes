@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "626e223ffe9887654db63c37"
+  },
+  "name": "Instalaciones Tecnológicas Aplicadas",
+  "slug": "ita"
+},
+{
+  "_id": {
+    "$oid": "626e2324fe9887654db63c3a"
+  },
+  "name": "Canalizaciòn y Soporteria",
+  "slug": "csm"
+},
+{
+  "_id": {
+    "$oid": "626e2305fe9887654db63c39"
+  },
+  "name": "Instalaciones y Técnica",
+  "slug": "ite"
+},
+{
+  "_id": {
+    "$oid": "626e22ebfe9887654db63c38"
+  },
+  "name": "Inmobiliaria Eguel",
+  "slug": "eguel"
+},
+{
+  "_id": {
+    "$oid": "62a75bab9ec0343efa92406e"
+  },
+  "name": "Inmobiliaria del Reino",
+  "slug": "reino"
+},
+{
+  "_id": {
+    "$oid": "62a75bbf9ec0343efa92406f"
+  },
+  "name": "Iglesia del 3er día",
+  "slug": "I3D"
+}]

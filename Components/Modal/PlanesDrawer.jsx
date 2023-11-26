@@ -221,6 +221,9 @@ const PlanesDrawer = ({ id, name, closeDrawer }) => {
 
   const openUpdateModal = (id) => {
     const currentPlan = planes.find(({ _id }) => _id === id)
+    if (!currentPlan) {
+      setPlanes([])
+    }
     setOpenEdit({
       open: true,
       data: currentPlan
@@ -239,14 +242,14 @@ const PlanesDrawer = ({ id, name, closeDrawer }) => {
         { name }
       </Typography>
       { loading ? <div>Loading...</div> : null }
-      { !loading && planes.length === 0 &&
+      { !loading && planes?.length === 0 &&
       (
         <Typography variant="h6" marginTop={'20px'}>
           No hay planes disponibles
         </Typography>
       )}
       {
-        !loading && planes.length > 0 && (
+        !loading && planes?.length > 0 && (
           planes.map(plane => {
             return (
               <Card key={plane._id}

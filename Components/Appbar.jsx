@@ -22,6 +22,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemButton, ListItemText } from '@mui/material'
 import { useRouter } from 'next/router'
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 
 // const Search = styled('div')(({ theme }) => ({
 //   position: 'relative',
@@ -44,6 +45,11 @@ const menuObject = [
     name: 'Editar Unidades',
     icon: <DirectionsCarFilledIcon />,
     link: 'vehicles'
+  },
+  {
+    name: 'Unidades (BETA)',
+    icon: <LocalShippingIcon />,
+    link: 'newvehicleslist'
   },
   {
     name: 'ITA-Utils',

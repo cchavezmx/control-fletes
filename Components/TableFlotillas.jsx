@@ -34,6 +34,7 @@ export default function TableFlotillas ({ columns, rows, setSelectedRow }) {
         }}
         localeText={esES.components.MuiDataGrid.defaultProps.localeText}
         rows={rows}
+        disableRowSelectionOnClick
         columns={columns}
         pageSize={20}
         rowsPerPageOptions={[20]}

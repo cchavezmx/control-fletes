@@ -5,6 +5,7 @@ import PlanesDrawer from './Modal/PlanesDrawer'
 import dayjs from 'dayjs'
 
 export default function CardVehicles ({ vehicle }) {
+  console.log('🚀 ~ file: CardVehicles.jsx:8 ~ CardVehicles ~ vehicle:', vehicle)
   const [openEdit, setOpenEdit] = useState(false)
   const onClose = () => setOpenEdit(false)
   const isActive = vehicle.is_active ? '' : { opacity: '0.3', backgroundColor: '#a4b8c4' }
@@ -67,14 +68,25 @@ export default function CardVehicles ({ vehicle }) {
       </CardContent>
       <CardActions>
         <Button
+          variant="contained"
+          color="primary"
           size="small"
           onClick={() => setOpenEdit(true)}
           > Editar
         </Button>
         <Button
+          variant="contained"
+          color='secondary'
           size="small"
           onClick={() => setOpenMenu(true)}
           > VER PLANES
+        </Button>
+        <Button
+          variant="contained"
+          color='warning'
+          size="small"
+          onClick={() => setOpenMenu(true)}
+          > DOCUMENTOS
         </Button>
       </CardActions>
     </Card>
