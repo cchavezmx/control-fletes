@@ -27,7 +27,7 @@ function NewPlateModal ({ open, onClose, handledNewVehicle }) {
         <Divider sx={{ marginBottom: 2 }} />
         <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <TextField
-            label="Añadir nuevo vehiculo"
+            label="Añadir la placa del vehiculo"
             id="placas"
             variant="outlined"
             placeholder='ABC-1234'
