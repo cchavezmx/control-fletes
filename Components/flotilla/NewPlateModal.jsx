@@ -4,8 +4,18 @@ import { modalStyle } from '../../utils/styles'
 
 function NewPlateModal ({ open, onClose, handledNewVehicle }) {
   const [plate, setPlate] = useState('')
-  const handleSubmit = () => {
-    handledNewVehicle({ placas: plate, picture: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' })
+  const [loading, setLoading] = useState(false)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      await handledNewVehicle({ placas: plate, picture: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' })
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+      onClose()
+    }
   }
 
   useEffect(() => {
@@ -38,7 +48,7 @@ function NewPlateModal ({ open, onClose, handledNewVehicle }) {
           />
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color='error' onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" type="submit">Añadir nuevo</Button>
+            <Button variant="contained" type="submit" disabled={loading}>Añadir nuevo</Button>
           </Stack>
         </Box>
         </form>

@@ -48,7 +48,7 @@ export default function TableDocuments ({ data: rows }) {
   const [openModalPlate, setOpenModalPlate] = useState(false)
   const handledNewVehicle = useCallback(async (params) => {
     const schemaValidation = z.object({
-      placas: z.string().min(6, 'Tienes que ingresar una placa valida')
+      placas: z.string().min(3, 'Tienes que ingresar una placa valida')
     })
 
     const validation = schemaValidation.safeParse(params)
