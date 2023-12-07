@@ -9,7 +9,7 @@ function NewPlateModal ({ open, onClose, handledNewVehicle }) {
     e.preventDefault()
     try {
       setLoading(true)
-      await handledNewVehicle({ placas: plate, picture: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' })
+      await handledNewVehicle({ placas: plate.trim(), picture: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' })
     } catch (error) {
       console.log(error)
     } finally {
