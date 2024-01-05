@@ -200,18 +200,15 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                   justifyContent: 'space-between',
                   gap: '1rem'
                 }}>
-                    <Button variant='outlined' onClick={() => handledNewVehicle(true)} value="" >
-                      🚛<em>Agregar nueva unidad</em>
-                    </Button>
-                    <FormControlLabel
-                      control={<Checkbox
-                        checked={casetasWatch || checkbox}
-                        onChange={() => {
-                          setCheckbox(!checkbox)
-                        }}
-                        name="checkedA" />}
-                      label="Incluir casetas"
-                    />
+                  <FormControlLabel
+                    control={<Checkbox
+                      checked={casetasWatch || checkbox}
+                      onChange={() => {
+                        setCheckbox(!checkbox)
+                      }}
+                      name="checkedA" />}
+                    label="Incluir casetas"
+                  />
                 </Box>
               {
                 checkbox && (
@@ -237,7 +234,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                   ✖️<em>Agregar nuevo plan</em>
                   </MenuItem>
                   {
-                    planByVehicle.length > 0
+                    planByVehicle?.length > 0
                       ? planByVehicle.map(plan => <MenuItem key={plan._id} value={plan._id}>{`${plan.planName} - $${plan.planPrice} PESOS`}</MenuItem>)
                       : <MenuItem value="">No hay planes</MenuItem>
                   }

@@ -10,7 +10,11 @@ export default function VehiclesSelector ({ vehicleSelected, listVehicles, setVe
       <Autocomplete
         id="VehiclesSelector"
         freeSolo
-        onChange={(e, value) => setVehicleSelected(value)}
+        onChange={(e, value) => {
+          if (!value) return setVehicleSelected('')
+          const [placas] = value.split(' ')
+          return setVehicleSelected(placas.trim())
+        }}
         options={listVehicles.map((v) => `${v.placas} - ${v.modelo}`)}
         renderInput={(params) => <TextField {...params} label="Lista de Unidades" />}
       />
