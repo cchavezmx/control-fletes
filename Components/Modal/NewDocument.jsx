@@ -9,6 +9,7 @@ import NewVehicle from './NewVehicle'
 import NewPlan from './NewPlan'
 import { useGlobalState } from '../../context/GlobalContext'
 import EMPRESAS from '../../lib/empresas.json'
+import VehiclesSelector from '../../Components/VehiclesSelector'
 
 const API = process.env.NEXT_PUBLIC_API
 
@@ -97,26 +98,11 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
   const selectVehicles = () => {
     return (
       <FormControl fullWidth>
-        <InputLabel id="newVehicle">Lista de unidades</InputLabel>
-        <Select
-          label="Lista de unidades"
-          labelId="newVehicle"
-          value={vehicleSelected}
-          id="newVehicle"
-          fullWidth
-          onChange={(e) => {
-            setVehicleSelected(e.target.value)
-          }}
-        >
-          <MenuItem onClick={() => handledNewVehicle(true)} value="" >
-          🚛<em>Agregar nueva unidad</em>
-          </MenuItem>
-          {
-            listVehicles.map(vehicle => (
-              <MenuItem key={vehicle._id} value={vehicle.placas}>{`${vehicle.placas} - ${vehicle.modelo}`}</MenuItem>
-            ))
-          }
-      </Select>
+        <VehiclesSelector
+          vehicleSelected={vehicleSelected}
+          setVehicleSelected={setVehicleSelected}
+          listVehicles={listVehicles}
+        />
     </FormControl>
     )
   }
@@ -209,15 +195,21 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
               </Box>
               { selectVehicles() }
               <FormControl fullWidth>
-              <FormControlLabel
-                  control={<Checkbox
-                    checked={casetasWatch || checkbox}
-                    onChange={() => {
-                      setCheckbox(!checkbox)
-                    }}
-                    name="checkedA" />}
-                  label="Incluir casetas"
-                />
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '1rem'
+                }}>
+                  <FormControlLabel
+                    control={<Checkbox
+                      checked={casetasWatch || checkbox}
+                      onChange={() => {
+                        setCheckbox(!checkbox)
+                      }}
+                      name="checkedA" />}
+                    label="Incluir casetas"
+                  />
+                </Box>
               {
                 checkbox && (
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -242,7 +234,7 @@ const NewDocument = ({ open, close, empresaId, refreshData, listVehicles = [] })
                   ✖️<em>Agregar nuevo plan</em>
                   </MenuItem>
                   {
-                    planByVehicle.length > 0
+                    planByVehicle?.length > 0
                       ? planByVehicle.map(plan => <MenuItem key={plan._id} value={plan._id}>{`${plan.planName} - $${plan.planPrice} PESOS`}</MenuItem>)
                       : <MenuItem value="">No hay planes</MenuItem>
                   }
