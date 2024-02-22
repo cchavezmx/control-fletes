@@ -43,6 +43,11 @@ const columnsDocumentosFlotillas = [
     width: 150
   },
   {
+    field: 'modelo',
+    headerName: 'Modelo',
+    width: 150
+  },
+  {
     field: 'route',
     headerName: 'Ruta',
     width: 250,

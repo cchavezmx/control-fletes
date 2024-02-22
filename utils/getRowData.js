@@ -11,14 +11,15 @@ const formatDate = (date, time) => {
 
 const getRowData = ({ documents }) => {
   const traslados = documents.traslado !== 0
-    ? documents.traslado.map(document => {
+    ? documents.traslados.map(document => {
       return {
         ...document,
         id: document._id,
         type: 'Traslado',
         request_date: formatDate(document.request_date),
         delivery_date: formatDate(document.delivery_date),
-        createdAt: formatDate(document.createdAt, 'time')
+        createdAt: formatDate(document.createdAt, 'time'),
+        modelo: document?.vehicle_info?.modelo
       }
     })
     : []
@@ -31,7 +32,8 @@ const getRowData = ({ documents }) => {
         type: 'Flete',
         request_date: formatDate(document.request_date),
         delivery_date: formatDate(document.delivery_date),
-        createdAt: formatDate(document.createdAt, 'time')
+        createdAt: formatDate(document.createdAt, 'time'),
+        modelo: document?.vehicle_info?.modelo
       }
     })
     : []
@@ -44,7 +46,8 @@ const getRowData = ({ documents }) => {
         type: 'Renta',
         request_date: formatDate(document.request_date),
         delivery_date: formatDate(document.delivery_date),
-        createdAt: formatDate(document.createdAt, 'time')
+        createdAt: formatDate(document.createdAt, 'time'),
+        modelo: document?.vehicle_info?.modelo
       }
     })
     : []
