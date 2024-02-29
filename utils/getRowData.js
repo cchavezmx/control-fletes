@@ -11,7 +11,7 @@ const formatDate = (date, time) => {
 
 const getRowData = ({ documents }) => {
   const traslados = documents.traslado !== 0
-    ? documents.traslados.map(document => {
+    ? documents.traslado.map(document => {
       return {
         ...document,
         id: document._id,
