@@ -1,4 +1,4 @@
-import FormularioPaqueteria from './Form'
+import FormularioPaqueteria from '../../Components/paqueteria/Form'
 import { Typography } from '@mui/material'
 
 export default function Index () {
