@@ -5,7 +5,7 @@ export default function Index () {
   return (
     <div>
       <Typography variant="h4" align="center" gutterBottom>
-        Formulario de Paquetería
+        Formulario de Paquetería Grupo Intecsa
       </Typography>
       <FormularioPaqueteria />
     </div>
