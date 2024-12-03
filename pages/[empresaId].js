@@ -18,10 +18,7 @@ const validTypes = {
 }
 
 function Empresa ({ empresa, documents, vehicles }) {
-  console.log(process.env.NEXT_PUBLIC_VERCEL_URL, 'process.env.NEXT_PUBLIC_VERCEL_URL')
-
   const [selectedRow, setSelectedRow] = useState([])
-
   const [openNewModal, setOpenNewModal] = useState(false)
   const handledModal = (event) => setOpenNewModal(event)
 
@@ -46,11 +43,11 @@ function Empresa ({ empresa, documents, vehicles }) {
   }
 
   return (
-  <Container sx={{ position: 'relative' }} maxWidth="xl">
-    <Typography variant='h3' sx={{ margin: '2.5rem 0', fontWeight: '500' }}>
-      { empresa }
-    </Typography>
-    <Button
+    <Container sx={{ position: 'relative' }} maxWidth="xl">
+      <Typography variant="h3" sx={{ margin: '2.5rem 0', fontWeight: '500' }}>
+        {empresa}
+      </Typography>
+      <Button
         sx={{
           position: 'absolute',
           top: '1rem',
@@ -61,114 +58,116 @@ function Empresa ({ empresa, documents, vehicles }) {
         color="primary"
         size="large"
         onClick={() => handledModal(true)}
-        >
-          Nuevo
-    </Button>
-    <Typography>
-      Rentas, Traslados y Fletes
-    </Typography>
-    <Divider />
-    <Box sx={{ height: '80px', display: 'flex', alignItems: 'center' }}>
-      {
-        selectedRow.length === 1 && (
-          <Box>{ ' ' }
-            {
-              selectedRow[0]?.isCancel_status
-                ? null
-                : (
-                <>
-                  <Button
-                    onClick={() => {
-                      handledPreviewDocument({
-                        event: true,
-                        id: selectedRow[0].id,
-                        type: selectedRow[0].type
-                      })
-                    }}
-                    variant="contained"
-                    color="primary">
-                      Vista Previa
-                  </Button>{ ' ' }
-                  <ShareButton
-                    id={selectedRow[0].id}
-                    type={validTypes[selectedRow[0].type]}
-                    title={selectedRow[0].subject}
-                  />
-                  { ' ' }
-                  <Button
-                    variant="contained"
-                    color="warning">
-                    <Link passHref href={{
+      >
+        Nuevo
+      </Button>
+      <Typography>Rentas, Traslados y Fletes</Typography>
+      <Divider />
+      <Box sx={{ height: '80px', display: 'flex', alignItems: 'center' }}>
+        {selectedRow.length === 1 && (
+          <Box>
+            {' '}
+            {selectedRow[0]?.isCancel_status
+              ? null
+              : (
+              <>
+                <Button
+                  onClick={() => {
+                    handledPreviewDocument({
+                      event: true,
+                      id: selectedRow[0].id,
+                      type: selectedRow[0].type
+                    })
+                  }}
+                  variant="contained"
+                  color="primary"
+                >
+                  Vista Previa
+                </Button>{' '}
+                <ShareButton
+                  id={selectedRow[0].id}
+                  type={validTypes[selectedRow[0].type]}
+                  title={selectedRow[0].subject}
+                />{' '}
+                <Button variant="contained" color="warning">
+                  <Link
+                    passHref
+                    href={{
                       pathname: `/update/${selectedRow[0].id}`,
-                      query: { type: selectedRow[0].type, currentEmpresa: empresa }
-                    }}>
-                      Modificar
-                    </Link>
-                  </Button>
-                </>
-                  )
-            }
-            { ' ' }
-          <CancelModalDocument
-            ref={useToggableRef}
-            data={selectedRow[0]}
-            refreshData={refreshData}
+                      query: {
+                        type: selectedRow[0].type,
+                        currentEmpresa: empresa
+                      }
+                    }}
+                  >
+                    Modificar
+                  </Link>
+                </Button>
+              </>
+                )}{' '}
+            <CancelModalDocument
+              ref={useToggableRef}
+              data={selectedRow[0]}
+              refreshData={refreshData}
             >
-            <Button
-              onClick={handleCancelModal}
-              variant="contained"
-              color="error">
-                { selectedRow[0]?.isCancel_status ? 'Ver motivo cancelación' : 'Cancelar documento' }
-            </Button>
-          </CancelModalDocument>
+              <Button
+                onClick={handleCancelModal}
+                variant="contained"
+                color="error"
+              >
+                {selectedRow[0]?.isCancel_status
+                  ? 'Ver motivo cancelación'
+                  : 'Cancelar documento'}
+              </Button>
+            </CancelModalDocument>
           </Box>
-        )
-      }
-    </Box>
-    <Divider />
-    <Box>
-      <TabPanel
-        documents={documents}
-        rows={getRowData({ documents })}
-        columns={columns}
-        setSelectedRow={setSelectedRow}
+        )}
+      </Box>
+      <Divider />
+      <Box>
+        <TabPanel
+          documents={documents}
+          rows={getRowData({ documents })}
+          columns={columns}
+          setSelectedRow={setSelectedRow}
+          refreshData={refreshData}
+        />
+      </Box>
+      <Divider />
+      <Box
+        sx={{
+          marginTop: '2.5rem'
+        }}
+      ></Box>
+      <NewDocument
+        listVehicles={vehicles}
         refreshData={refreshData}
+        open={openNewModal}
+        close={() => handledModal(false)}
+        empresaId={documents._id}
       />
-    </Box>
-    <Divider />
-    <Box sx={{
-      marginTop: '2.5rem'
-    }}>
-    </Box>
-    <NewDocument
-      listVehicles={vehicles}
-      refreshData={refreshData}
-      open={openNewModal}
-      close={() => handledModal(false)}
-      empresaId={documents._id}
-    />
-    {
-      modalPreview.open && (
+      {modalPreview.open && (
         <PrevPDFModal
           open={modalPreview.open}
           close={() => handledPreviewDocument({ event: false })}
           modalPreview={modalPreview}
         />
-      )
-    }
-  </Container>
+      )}
+    </Container>
   )
 }
 
 export async function getServerSideProps (context) {
   const API = process.env.NEXT_PUBLIC_API
   const { empresaId, type } = context.query
-  const documents = await fetch(`${API}/flotilla/documentos/${empresaId}?type=${type}`)
-    .then(res => res.json())
+  const documents = await fetch(
+    `${API}/flotilla/documentos/${empresaId}?type=${type}`
+  )
+    .then((res) => res.json())
     .then(({ documents }) => documents[0])
 
   const vehicles = await fetch(`${API}/flotilla/vehicles`)
-    .then(res => res.json())
+    .then((res) => res.json())
     .then(({ vehicles }) => {
       return vehicles.filter(({ is_active }) => is_active === true)
     })

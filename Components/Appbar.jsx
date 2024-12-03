@@ -20,9 +20,18 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import { useUser } from '@auth0/nextjs-auth0'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Divider, Drawer, List, ListItem, ListItemIcon, ListItemButton, ListItemText } from '@mui/material'
+import {
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemButton,
+  ListItemText
+} from '@mui/material'
 import { useRouter } from 'next/router'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox'
 
 // const Search = styled('div')(({ theme }) => ({
 //   position: 'relative',
@@ -112,9 +121,7 @@ export default function PrimarySearchAppBar () {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>
-      <Typography>
-        Bienvenido: {user?.name}
-      </Typography>
+        <Typography>Bienvenido: {user?.name}</Typography>
       </MenuItem>
       <Divider />
       <Link href="/api/auth/logout" passHref>
@@ -125,56 +132,60 @@ export default function PrimarySearchAppBar () {
 
   const menuSecciones = (
     <Drawer
-    anchor={'left'}
-    open={openMenu}
-    variant="temporary"
-    sx={{
-      width: '300px'
-    }}
-    onClose={() => setOpenMenu(false)}
-  >
-    <Divider />
-    <List>
+      anchor={'left'}
+      open={openMenu}
+      variant="temporary"
+      sx={{
+        width: '300px'
+      }}
+      onClose={() => setOpenMenu(false)}
+    >
+      <Divider />
+      <List>
         <ListItem button key={1}>
           <Link href="/" passHref>
-           <ListItemButton>
+            <ListItemButton>
               <ListItemIcon>
-                  <HomeIcon />
+                <HomeIcon />
               </ListItemIcon>
               <ListItemText primary={'Home'} />
             </ListItemButton>
           </Link>
         </ListItem>
-      <Divider sx={{ marginTop: '2rem' }} />
-        {
-          menuObject.map((menu, index) => (
-            <ListItem key={index}>
-              <Link href={menu.link} passHref>
-                <ListItemButton
-                  disabled={menu.hide}
-                >
-                  <ListItemIcon>
-                     {menu.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={menu.name} />
-                </ListItemButton>
-              </Link>
-            </ListItem>
-          ))
-        }
-      <Divider />
-      <ListItem>
-        <Link href="mantenimiento" passHref>
-          <ListItemButton>
-            <ListItemIcon>
-              <LaptopChromebookIcon />
-          </ListItemIcon>
-            <ListItemText primary={'Sistemas'} />
-          </ListItemButton>
-        </Link>
-      </ListItem>
-    </List>
-  </Drawer>
+        <Divider sx={{ marginTop: '2rem' }} />
+        {menuObject.map((menu, index) => (
+          <ListItem key={index}>
+            <Link href={menu.link} passHref>
+              <ListItemButton disabled={menu.hide}>
+                <ListItemIcon>{menu.icon}</ListItemIcon>
+                <ListItemText primary={menu.name} />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+        ))}
+        <Divider />
+        <ListItem>
+          <Link href="mantenimiento" passHref>
+            <ListItemButton>
+              <ListItemIcon>
+                <LaptopChromebookIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Sistemas'} />
+            </ListItemButton>
+          </Link>
+        </ListItem>
+        <ListItem>
+          <Link href="shipping" passHref>
+            <ListItemButton>
+              <ListItemIcon>
+                <MarkunreadMailboxIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Paqueteria'} />
+            </ListItemButton>
+          </Link>
+        </ListItem>
+      </List>
+    </Drawer>
   )
 
   const mobileMenuId = 'primary-search-account-menu-mobile'
@@ -255,9 +266,13 @@ export default function PrimarySearchAppBar () {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color='secondary' sx={{
-        backgroundColor: colorsTitle()
-      }}>
+      <AppBar
+        position="static"
+        color="secondary"
+        sx={{
+          backgroundColor: colorsTitle()
+        }}
+      >
         <Toolbar>
           <IconButton
             onClick={() => setOpenMenu(true)}
@@ -276,7 +291,7 @@ export default function PrimarySearchAppBar () {
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
             <Link passHref href="/">
-              <a>{ namesTitle() }</a>
+              <a>{namesTitle()}</a>
             </Link>
           </Typography>
           {/* <Search>
@@ -313,20 +328,20 @@ export default function PrimarySearchAppBar () {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              {
-                user?.picture
-                  ? (
-                  <Image
-                    src={user.picture}
-                    alt="profile"
-                    width={40}
-                    height={40}
-                    objectFit="cover"
-                    style={{ borderRadius: '9999px' }}
-                  />
-                    )
-                  : <AccountCircle />
-              }
+              {user?.picture
+                ? (
+                <Image
+                  src={user.picture}
+                  alt="profile"
+                  width={40}
+                  height={40}
+                  objectFit="cover"
+                  style={{ borderRadius: '9999px' }}
+                />
+                  )
+                : (
+                <AccountCircle />
+                  )}
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
@@ -345,7 +360,7 @@ export default function PrimarySearchAppBar () {
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
-      { menuSecciones }
+      {menuSecciones}
     </Box>
   )
 }

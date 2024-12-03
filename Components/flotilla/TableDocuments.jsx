@@ -25,55 +25,63 @@ export default function TableDocuments ({ data: rows }) {
 
   const { user } = useUser()
   const router = useRouter()
-  const handledUpdate = useCallback(async (params) => {
-    console.log({ params }, 'UPDATE')
-    await fetch(`${API}/flotilla/vehiculo/update`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ ...params, last_user_mod: user.name })
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res) {
-          toast.success('Actualizado')
-          router.replace(router.asPath)
-          close()
-        }
+  const handledUpdate = useCallback(
+    async (params) => {
+      await fetch(`${API}/flotilla/vehiculo/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ...params, last_user_mod: user.name })
       })
-      .catch(() => console.log('error'))
-  }, [router, user])
+        .then((res) => res.json())
+        .then((res) => {
+          if (res) {
+            toast.success('Actualizado')
+            router.replace(router.asPath)
+            close()
+          }
+        })
+        .catch(() => console.log('error'))
+    },
+    [router, user]
+  )
 
   const [openModalPlate, setOpenModalPlate] = useState(false)
-  const handledNewVehicle = useCallback(async (params) => {
-    const schemaValidation = z.object({
-      placas: z.string().min(3, 'Tienes que ingresar una placa valida')
-    })
-
-    const validation = schemaValidation.safeParse(params)
-    if (!validation.success) {
-      return toast.error(validation.error.errors[0].message)
-    }
-    await fetch(`${API}/flotilla/vehiculo/insert`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ ...params, last_user_mod: user.name })
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res) {
-          toast.success('Actualizado')
-          router.replace(router.asPath)
-          close()
-        }
+  const handledNewVehicle = useCallback(
+    async (params) => {
+      const schemaValidation = z.object({
+        placas: z.string().min(3, 'Tienes que ingresar una placa valida')
       })
-      .catch(() => console.log('error'))
-  }, [router, user])
 
-  const [openVehicleModal, setOpenVehicleModal] = useState({ midal: false, data: {} })
+      const validation = schemaValidation.safeParse(params)
+      if (!validation.success) {
+        return toast.error(validation.error.errors[0].message)
+      }
+      await fetch(`${API}/flotilla/vehiculo/insert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ...params, last_user_mod: user.name })
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res) {
+            toast.success('Actualizado')
+            router.replace(router.asPath)
+            close()
+          }
+        })
+        .catch(() => console.log('error'))
+    },
+    [router, user]
+  )
+
+  const [openVehicleModal, setOpenVehicleModal] = useState({
+    midal: false,
+    data: {}
+  })
   const openModalIMG = (params) => {
     setOpenVehicleModal({
       modal: true,
@@ -96,20 +104,20 @@ export default function TableDocuments ({ data: rows }) {
       editable: true,
       renderCell: (params) => {
         return (
-            <div>
-              <img
-                src={params.row.picture}
-                onClick={() => openModalIMG(params)}
-                alt="img"
-                className='img-fluid-vehicle'
-                style={{
-                  width: '100px',
-                  height: '100px',
-                  objectFit: 'scale-down',
-                  objectPosition: 'center'
-                }}
-              />
-            </div>
+          <div>
+            <img
+              src={params.row.picture}
+              onClick={() => openModalIMG(params)}
+              alt="img"
+              className="img-fluid-vehicle"
+              style={{
+                width: '100px',
+                height: '100px',
+                objectFit: 'scale-down',
+                objectPosition: 'center'
+              }}
+            />
+          </div>
         )
       }
     },
@@ -172,9 +180,11 @@ export default function TableDocuments ({ data: rows }) {
             labelId="bussiness_cost"
             id="bussiness_cost"
             sx={{ width: '100%' }}
-            defaultValue={Object.values(bussiness_cost_json).find((item) => {
-              return item._id.$oid === params.row.bussiness_cost
-            })?._id.$oid || ''}
+            defaultValue={
+              Object.values(bussiness_cost_json).find((item) => {
+                return item._id.$oid === params.row.bussiness_cost
+              })?._id.$oid || ''
+            }
             label="Centro de Costo"
             onChange={(e) => {
               handledUpdate({
@@ -183,10 +193,9 @@ export default function TableDocuments ({ data: rows }) {
               })
             }}
           >
-            { bussiness_cost_json.map((item) => {
+            {bussiness_cost_json.map((item) => {
               return (
-                <MenuItem
-                key={item._id.$oid} value={item._id.$oid}>
+                <MenuItem key={item._id.$oid} value={item._id.$oid}>
                   {item.slug.toUpperCase()}
                 </MenuItem>
               )
@@ -230,7 +239,7 @@ export default function TableDocuments ({ data: rows }) {
             day={params.row.expiration_card}
             handledUpdate={handledUpdate}
             id={params.row.id}
-            type='expiration_card'
+            type="expiration_card"
           />
         )
       }
@@ -246,7 +255,7 @@ export default function TableDocuments ({ data: rows }) {
             day={params.row.expiration_verify}
             handledUpdate={handledUpdate}
             id={params.row.id}
-            type='expiration_verify'
+            type="expiration_verify"
           />
         )
       }
@@ -262,7 +271,7 @@ export default function TableDocuments ({ data: rows }) {
             day={params.row.expiration_seguro}
             handledUpdate={handledUpdate}
             id={params.row.id}
-            type='expiration_seguro'
+            type="expiration_seguro"
           />
         )
       }
@@ -293,18 +302,21 @@ export default function TableDocuments ({ data: rows }) {
 
   return (
     <Box sx={{ height: '70vh', width: '100%' }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        padding: '10px 0',
-        gap: '10px'
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          padding: '10px 0',
+          gap: '10px'
+        }}
+      >
         <Button
-          variant='contained'
-          color='success'
+          variant="contained"
+          color="success"
           onClick={() => setOpenModalPlate(true)}
-          endIcon={<LocalShippingIcon />}>
-            Añadir
+          endIcon={<LocalShippingIcon />}
+        >
+          Añadir
         </Button>
       </Box>
       <Divider sx={{ marginBottom: '50px' }} />

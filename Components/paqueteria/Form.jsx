@@ -17,6 +17,11 @@ const schemaForm = z.object({
   empresaEnvio: z.string().min(3)
 })
 
+const validPostalCode = (value) => {
+  const regex = /\b\d{5}\b/
+  return regex.test(value)
+}
+
 const FormularioConAutocomplete = () => {
   const { control, handleSubmit, setValue } = useForm()
   const [address, setAddress] = useState('')
@@ -52,6 +57,13 @@ const FormularioConAutocomplete = () => {
   const onSubmit = async (data) => {
     setError({})
     const result = schemaForm.safeParse(data)
+    console.log(result)
+    if (!validPostalCode(data.direccion)) {
+      toast.error(
+        'Parece que la dirección no cuenta con un código postal válido'
+      )
+      return
+    }
     if (!result.success) {
       toast.error('Error en los datos enviados')
       Object.entries(result.error).forEach(([key, value]) => {
