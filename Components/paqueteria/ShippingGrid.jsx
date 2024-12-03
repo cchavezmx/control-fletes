@@ -1,5 +1,5 @@
 import React from 'react'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGrid, GridToolbar, esES } from '@mui/x-data-grid'
 import DatePickerValue from '../flotilla/DatePickerValue'
 import Chip from '@mui/material/Chip'
 import bussines from '../../utils/catalogov2.bussinesses.json'
@@ -157,6 +157,8 @@ const columns = [
   { field: 'direccion', headerName: 'Dirección', width: 750 },
   { field: 'contacto', headerName: 'Contacto', width: 300 },
   { field: 'numeroContacto', headerName: 'Número de Contacto', width: 200 },
+  { field: 'contacto_recibe', headerName: 'Remitente', width: 300 },
+  { field: 'numeroContacto_recibe', headerName: 'Númnero de Remitente', width: 200 },
   {
     field: 'empresaEnvio',
     headerName: 'Centro de Costo',
@@ -173,6 +175,10 @@ export default function ShippingGrid ({ data = [] }) {
     <div style={{ height: 600, width: '100%', marginTop: 30 }}>
       <DataGrid
         processRowUpdate={handledUpdate}
+        localeText={esES.components.MuiDataGrid.defaultProps.localeText}
+        components={{
+          Toolbar: GridToolbar
+        }}
         rows={rows}
         columns={columns}
         pageSize={30}

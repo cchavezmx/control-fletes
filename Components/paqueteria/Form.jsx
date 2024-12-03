@@ -14,7 +14,9 @@ const schemaForm = z.object({
   direccion: z.string().min(3),
   contacto: z.string().min(3),
   numeroContacto: z.string().min(3),
-  empresaEnvio: z.string().min(3)
+  empresaEnvio: z.string().min(3),
+  contacto_recibe: z.string().min(3),
+  numeroContacto_recibe: z.string().min(3)
 })
 
 const validPostalCode = (value) => {
@@ -57,13 +59,6 @@ const FormularioConAutocomplete = () => {
   const onSubmit = async (data) => {
     setError({})
     const result = schemaForm.safeParse(data)
-    console.log(result)
-    if (!validPostalCode(data.direccion)) {
-      toast.error(
-        'Parece que la dirección no cuenta con un código postal válido'
-      )
-      return
-    }
     if (!result.success) {
       toast.error('Error en los datos enviados')
       Object.entries(result.error).forEach(([key, value]) => {
@@ -75,6 +70,14 @@ const FormularioConAutocomplete = () => {
       })
       return
     }
+
+    if (!validPostalCode(data.direccion)) {
+      toast.error(
+        'Parece que la dirección no está bien escrita, por favor verifica que contenga calle y número'
+      )
+      return
+    }
+
     const doc = await saveData(data)
     setIdResponse(doc.success_id)
     // Limpiar formulario
@@ -84,6 +87,8 @@ const FormularioConAutocomplete = () => {
     setValue('contacto', '')
     setValue('numeroContacto', '')
     setValue('empresaEnvio', '')
+    setValue('contacto_recibe', '')
+    setValue('numeroContacto_recibe', '')
     setAddress('')
   }
 
@@ -186,6 +191,7 @@ const FormularioConAutocomplete = () => {
                   error: true,
                   helperText: error.direccion
                 })}
+                label="Dirección"
                 value={address} // Sincroniza el valor del autocompletado
                 style={{ display: 'none' }}
               />
@@ -201,7 +207,7 @@ const FormularioConAutocomplete = () => {
               <TextField
                 {...field}
                 error={error.contacto}
-                label="Nombre de Contacto"
+                label="Nombre del que envía"
                 variant="outlined"
                 fullWidth
                 margin="normal"
@@ -216,14 +222,44 @@ const FormularioConAutocomplete = () => {
               <TextField
                 {...field}
                 error={error.numeroContacto}
-                label="Número de Contacto"
+                label="Número del que envía"
                 variant="outlined"
                 fullWidth
                 margin="normal"
               />
             )}
           />
-
+          {/* Otros campos */}
+          <Controller
+            name="contacto_recibe"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <TextField
+                {...field}
+                error={error.contacto_recibe}
+                label="Nombre del que recibe"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+              />
+            )}
+          />
+          <Controller
+            name="numeroContacto_recibe"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <TextField
+                {...field}
+                error={error.numeroContacto_recibe}
+                label="Número del que recibe"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+              />
+            )}
+          />
           {/* Empresa que envía */}
           <Controller
             name="empresaEnvio"
