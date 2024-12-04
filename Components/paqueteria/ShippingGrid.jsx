@@ -86,7 +86,7 @@ const handledUpdate = async (params) => {
     .catch(() => console.log('error'))
 }
 
-const getProyecto = (params) => {
+function getProyecto (params) {
   const bussinesName = bussines.find(
     (b) => b._id.$oid === params.row.empresaEnvio
   )
