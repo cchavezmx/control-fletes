@@ -43,6 +43,8 @@ const shippingFollowing = (params) => {
 }
 
 const generateInvoice = async (data) => {
+  data.createdAt = formatDate(data.createdAt)
+  data.empresaEnvio = getProyecto({ row: data })
   fetch('api/paqueteria', {
     method: 'POST',
     headers: {
