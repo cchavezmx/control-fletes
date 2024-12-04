@@ -44,7 +44,6 @@ const shippingFollowing = (params) => {
 
 const generateInvoice = async (data) => {
   data.createdAt = formatDate(data.createdAt)
-  data.empresaEnvio = getProyecto({ row: data })
   fetch('api/paqueteria', {
     method: 'POST',
     headers: {
@@ -86,11 +85,11 @@ const handledUpdate = async (params) => {
     .catch(() => console.log('error'))
 }
 
-function getProyecto (params) {
+function getProyecto (empresaEnvio) {
   const bussinesName = bussines.find(
-    (b) => b._id.$oid === params.row.empresaEnvio
+    (b) => b._id.$oid === empresaEnvio
   )
-  return bussinesName?.name.toUpperCase() || 'No'
+  return bussinesName?.name?.toUpperCase() || 'No'
 }
 
 const columns = [
@@ -204,15 +203,13 @@ const columns = [
   {
     field: 'empresaEnvio',
     headerName: 'Centro de Costo',
-    width: 350,
-    getCellValue: (params) => getProyecto(params),
-    renderCell: (params) => getProyecto(params)
+    width: 350
   }
 ]
 
 export default function ShippingGrid ({ data = [] }) {
   const { user } = useUser()
-  const rows = data.map((row) => ({ ...row, lastUpdate: user.name })) || []
+  const rows = data.map((row) => ({ ...row, lastUpdate: user.name, empresaEnvio: getProyecto(row.empresaEnvio) })) || []
   return (
     <div style={{ height: 600, width: '100%', marginTop: 30 }}>
       <DataGrid
