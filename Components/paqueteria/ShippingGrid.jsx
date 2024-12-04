@@ -2,6 +2,7 @@ import React from 'react'
 import { DataGrid, GridToolbar, esES } from '@mui/x-data-grid'
 import DatePickerValue from '../flotilla/DatePickerValue'
 import Chip from '@mui/material/Chip'
+import Button from '@mui/material/Button'
 import bussines from '../../utils/catalogov2.bussinesses.json'
 import { toast } from 'react-toastify'
 import { useUser } from '@auth0/nextjs-auth0'
@@ -39,6 +40,30 @@ const shippingFollowing = (params) => {
       <Chip label={label} color={color} />
     </a>
   )
+}
+
+const generateInvoice = async (data) => {
+  fetch('api/paqueteria', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    redirect: 'follow',
+    body: JSON.stringify({ ...data })
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('Error al generar el PDF')
+      }
+      return res.blob() // Convertir la respuesta a un blob
+    })
+    .then((blob) => {
+      const pdfURL = window.URL.createObjectURL(blob)
+      window.open(pdfURL, '_blank')
+    })
+    .catch((error) => {
+      console.error('Error:', error)
+    })
 }
 
 const handledUpdate = async (params) => {
@@ -96,6 +121,17 @@ const columns = [
         />
       )
     }
+  },
+  {
+    field: 'print',
+    headerName: '🖨️',
+    width: 100,
+    headerAlign: 'center',
+    renderCell: (params) => (
+      <Button variant="outlined" onClick={() => generateInvoice(params.row)}>
+        Imprimir
+      </Button>
+    )
   },
   {
     field: 'shipping_date',
@@ -158,7 +194,11 @@ const columns = [
   { field: 'contacto', headerName: 'Contacto', width: 300 },
   { field: 'numeroContacto', headerName: 'Número de Contacto', width: 200 },
   { field: 'contacto_recibe', headerName: 'Remitente', width: 300 },
-  { field: 'numeroContacto_recibe', headerName: 'Númnero de Remitente', width: 200 },
+  {
+    field: 'numeroContacto_recibe',
+    headerName: 'Númnero de Remitente',
+    width: 200
+  },
   {
     field: 'empresaEnvio',
     headerName: 'Centro de Costo',
