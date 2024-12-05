@@ -5,8 +5,8 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import Tesseract from 'tesseract.js'
 
 const videoConstraints = {
-  width: 330,
-  height: 500,
+  width: 1200,
+  height: 720,
   facingMode: 'environment'
 }
 
