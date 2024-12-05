@@ -7,7 +7,7 @@ import Tesseract from 'tesseract.js'
 const videoConstraints = {
   width: 330,
   height: 500,
-  facingMode: 'user'
+  facingMode: 'environment'
 }
 
 const WebcamCapture = () => {
