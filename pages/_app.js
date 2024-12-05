@@ -22,7 +22,8 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
 function MyApp ({ Component, pageProps }) {
   const router = useRouter()
-  const excludedRoutes = ['/paqueterita'] // Rutas públicas
+  const excludedRoutes = ['/paqueterita', '/paqueterita/attempt/[paqueteria_id]'] // Rutas públicas
+  console.log('router.pathname:', router.pathname)
   const isExcluded = excludedRoutes.includes(router.pathname)
 
   return (

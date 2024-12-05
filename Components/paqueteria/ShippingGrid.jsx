@@ -86,9 +86,7 @@ const handledUpdate = async (params) => {
 }
 
 function getProyecto (empresaEnvio) {
-  const bussinesName = bussines.find(
-    (b) => b._id.$oid === empresaEnvio
-  )
+  const bussinesName = bussines.find((b) => b._id.$oid === empresaEnvio)
   return bussinesName?.name?.toUpperCase() || 'No'
 }
 
@@ -102,8 +100,7 @@ const columns = [
   {
     field: 'createdAt',
     headerName: 'Creado',
-    width: 100,
-    renderCell: (params) => formatDate(params.row.createdAt)
+    width: 100
   },
   {
     field: 'shipping_status',
@@ -209,7 +206,14 @@ const columns = [
 
 export default function ShippingGrid ({ data = [] }) {
   const { user } = useUser()
-  const rows = data.map((row) => ({ ...row, lastUpdate: user.name, empresaEnvio: getProyecto(row.empresaEnvio) })) || []
+  const rows =
+    data.map((row) => ({
+      ...row,
+      lastUpdate: user.name,
+      empresaEnvio: getProyecto(row.empresaEnvio),
+      createdAt: formatDate(row.createdAt)
+    })) || []
+
   return (
     <div style={{ height: 600, width: '100%', marginTop: 30 }}>
       <DataGrid
