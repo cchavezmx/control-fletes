@@ -1,13 +1,18 @@
 import FormularioPaqueteria from '../../Components/paqueteria/Form'
-import { Typography } from '@mui/material'
+import { Typography, AppBar, Toolbar, Stack } from '@mui/material'
 
 export default function Index () {
   return (
-    <div>
-      <Typography variant="h4" align="center" gutterBottom>
-        Formulario de Paquetería Grupo Intecsa
-      </Typography>
+    <Stack>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="body1" gutterBottom>
+            Registro Paquetería Grupo Intecsa
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
       <FormularioPaqueteria />
-    </div>
+    </Stack>
   )
 }

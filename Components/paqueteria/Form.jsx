@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { Stack, TextField, Button, MenuItem, Container } from '@mui/material'
+import { Stack, TextField, Button, MenuItem, FormHelperText } from '@mui/material'
 import { LoadScript, Autocomplete } from '@react-google-maps/api'
 import bussines from '../../utils/catalogov2.bussinesses.json'
 import { carriers } from './data'
@@ -16,7 +16,9 @@ const schemaForm = z.object({
   numeroContacto: z.string().min(3),
   empresaEnvio: z.string().min(3),
   contacto_recibe: z.string().min(3),
-  numeroContacto_recibe: z.string().min(3)
+  numeroContacto_recibe: z.string().min(3),
+  emailContacto: z.string().email(),
+  contacto_recibe_email: z.string().email()
 })
 
 const validPostalCode = (value) => {
@@ -58,7 +60,9 @@ const FormularioConAutocomplete = () => {
 
   const onSubmit = async (data) => {
     setError({})
+    console.log('data:', data)
     const result = schemaForm.safeParse(data)
+    console.log('result:', result)
     if (!result.success) {
       toast.error('Error en los datos enviados')
       Object.entries(result.error).forEach(([key, value]) => {
@@ -89,11 +93,13 @@ const FormularioConAutocomplete = () => {
     setValue('empresaEnvio', '')
     setValue('contacto_recibe', '')
     setValue('numeroContacto_recibe', '')
+    setValue('emailContacto', '')
+    setValue('contacto_recibe_email', '')
     setAddress('')
   }
 
   return (
-    <Container>
+    <Stack mt={4}>
       <LoadScript
         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
         libraries={['places']}
@@ -104,162 +110,217 @@ const FormularioConAutocomplete = () => {
             <p>Id de respuesta: {idResponse}</p>
           </div>
         )}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ padding: '0 1rem' }}>
           {/* Campo de Proyecto u Obra */}
-          <Controller
-            name="proyecto"
-            control={control}
-            defaultValue=""
-            render={({ field: { onChange, ...restField } }) => (
-              <TextField
-                {...restField}
-                error={error.proyecto}
-                label="Proyecto u Obra"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                onChange={(e) => {
-                  return onChange(e.target.value.toUpperCase())
+          <Stack spacing={2} boxShadow={2} padding={2} mt={1} borderRadius={1}>
+            <FormHelperText>Información de proyecto</FormHelperText>
+            <Controller
+              name="proyecto"
+              control={control}
+              defaultValue=""
+              render={({ field: { onChange, ...restField } }) => (
+                <TextField
+                  {...restField}
+                  error={error.proyecto}
+                  label="Proyecto u Obra"
+                  size="small"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  onChange={(e) => {
+                    return onChange(e.target.value.toUpperCase())
+                  }}
+                />
+              )}
+            />
+
+            {/* Campo de Servicio de Paquetería */}
+            <Controller
+              name="paqueteria"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={error.paqueteria}
+                  size="small"
+                  label="Servicio de Paquetería"
+                  select
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                >
+                  {carriers.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+
+            {/* Autocompletado de dirección */}
+            <label
+              htmlFor="direccion"
+              style={{
+                display: 'block',
+                marginTop: '16px',
+                marginBottom: '8px',
+                fontSize: '16px'
+              }}
+            >
+              Dirección de Entrega
+            </label>
+            <Autocomplete
+              size="small"
+              onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
+              onPlaceChanged={handlePlaceChanged}
+            >
+              <input
+                type="text"
+                placeholder="Escribe tu dirección"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '16px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  marginBottom: '16px'
                 }}
               />
-            )}
-          />
+            </Autocomplete>
 
-          {/* Campo de Servicio de Paquetería */}
-          <Controller
-            name="paqueteria"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                error={error.paqueteria}
-                label="Servicio de Paquetería"
-                select
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              >
-                {carriers.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            )}
-          />
-
-          {/* Autocompletado de dirección */}
-          <label
-            htmlFor="direccion"
-            style={{
-              display: 'block',
-              marginTop: '16px',
-              marginBottom: '8px',
-              fontSize: '16px'
-            }}
-          >
-            Dirección de Entrega
-          </label>
-          <Autocomplete
-            onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
-            onPlaceChanged={handlePlaceChanged}
-          >
-            <input
-              type="text"
-              placeholder="Escribe tu dirección"
-              style={{
-                width: '100%',
-                padding: '10px',
-                fontSize: '16px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                marginBottom: '16px'
-              }}
+            {/* Campo oculto para almacenar la dirección */}
+            <Controller
+              name="direccion"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  {...(error.direccion && {
+                    error: true,
+                    helperText: error.direccion
+                  })}
+                  size="small"
+                  label="Dirección"
+                  value={address} // Sincroniza el valor del autocompletado
+                  style={{ display: 'none' }}
+                />
+              )}
             />
-          </Autocomplete>
-
-          {/* Campo oculto para almacenar la dirección */}
-          <Controller
-            name="direccion"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                {...(error.direccion && {
-                  error: true,
-                  helperText: error.direccion
-                })}
-                label="Dirección"
-                value={address} // Sincroniza el valor del autocompletado
-                style={{ display: 'none' }}
-              />
-            )}
-          />
+          </Stack>
 
           {/* Otros campos */}
-          <Controller
-            name="contacto"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                error={error.contacto}
-                label="Nombre del que envía"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              />
-            )}
-          />
-          <Controller
-            name="numeroContacto"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                error={error.numeroContacto}
-                label="Número del que envía"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              />
-            )}
-          />
+          <Stack spacing={2} boxShadow={2} padding={2} mt={1} borderRadius={1}>
+            <FormHelperText>Información de contacto de Remitente</FormHelperText>
+            <Controller
+              name="contacto"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  size="small"
+                  error={error.contacto}
+                  label="Nombre del que envía"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <Controller
+              name="emailContacto"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  size="small"
+                  error={error.contacto}
+                  type="email"
+                  required
+                  label="Correo del que envía"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <Controller
+              name="numeroContacto"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  size="small"
+                  error={error.numeroContacto}
+                  label="Número del que envía"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+          </Stack>
           {/* Otros campos */}
-          <Controller
-            name="contacto_recibe"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                error={error.contacto_recibe}
-                label="Nombre del que recibe"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              />
-            )}
-          />
-          <Controller
-            name="numeroContacto_recibe"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                error={error.numeroContacto_recibe}
-                label="Número del que recibe"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-              />
-            )}
-          />
+          <Stack spacing={2} boxShadow={2} padding={2} mt={1} borderRadius={1}>
+            <FormHelperText>Información de contacto Destino</FormHelperText>
+            <Controller
+              name="contacto_recibe"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  size="small"
+                  error={error.contacto_recibe}
+                  label="Nombre del que recibe"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <FormHelperText>Numero de que recibe</FormHelperText>
+            <Controller
+              name="numeroContacto_recibe"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={error.numeroContacto_recibe}
+                  size="small"
+                  label="Número del que recibe"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+            <Controller
+              name="contacto_recibe_email"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={error.numeroContacto_recibe}
+                  size="small"
+                  type="email"
+                  required
+                  label="Correo del que recibe"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            />
+          </Stack>
+
           {/* Empresa que envía */}
           <Controller
             name="empresaEnvio"
@@ -270,6 +331,7 @@ const FormularioConAutocomplete = () => {
                 {...field}
                 error={error.empresaEnvio}
                 label="Empresa que envía"
+                size="small"
                 select
                 variant="outlined"
                 fullWidth
@@ -285,14 +347,14 @@ const FormularioConAutocomplete = () => {
           />
 
           {/* Botón para enviar */}
-          <Stack spacing={2} direction="row" justifyContent="center">
+          <Stack spacing={4} mt={2} mb={2}>
             <Button type="submit" variant="contained" color="primary">
               Enviar
             </Button>
           </Stack>
         </form>
       </LoadScript>
-    </Container>
+    </Stack>
   )
 }
 

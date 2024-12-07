@@ -1,7 +1,7 @@
 import 'dayjs/locale/es-mx'
 import '../styles/globals.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { createTheme, ThemeProvider } from '@mui/material'
+import { Container, createTheme, ThemeProvider } from '@mui/material'
 import Layout from '../Components/Layout'
 import { SWRConfig } from 'swr'
 import { ToastContainer } from 'react-toastify'
@@ -22,7 +22,11 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
 function MyApp ({ Component, pageProps }) {
   const router = useRouter()
-  const excludedRoutes = ['/paqueterita', '/paqueterita/attempt/[paqueteria_id]'] // Rutas públicas
+  const excludedRoutes = [
+    '/paqueterita',
+    '/paqueterita/attempt/[paqueteria_id]',
+    '/paqueterita/attempt/tracking_id/[attemp_id]/[tracking_id]'
+  ] // Rutas públicas
   console.log('router.pathname:', router.pathname)
   const isExcluded = excludedRoutes.includes(router.pathname)
 
@@ -32,7 +36,9 @@ function MyApp ({ Component, pageProps }) {
       <UserProvider>
         {isExcluded
           ? (
-            <Component {...pageProps} />
+            <Container maxWidth="xl">
+              <Component {...pageProps} />
+            </Container>
             )
           : (
             <GlobalStateProvider>

@@ -6,17 +6,7 @@ import Button from '@mui/material/Button'
 import bussines from '../../utils/catalogov2.bussinesses.json'
 import { toast } from 'react-toastify'
 import { useUser } from '@auth0/nextjs-auth0'
-import dayjs from 'dayjs'
 const API = process.env.NEXT_PUBLIC_API
-
-const formatDate = (date, time) => {
-  const formatDate = new Date(date).toUTCString()
-  if (!time) {
-    return dayjs(formatDate).add(1, 'day').format('DD/MM/YYYY')
-  } else {
-    return dayjs(formatDate).format('HH:mm a')
-  }
-}
 
 const shippingFollowing = (params) => {
   const code = params.row.shipping_code
@@ -43,7 +33,6 @@ const shippingFollowing = (params) => {
 }
 
 const generateInvoice = async (data) => {
-  data.createdAt = formatDate(data.createdAt)
   fetch('api/paqueteria', {
     method: 'POST',
     headers: {
@@ -100,7 +89,8 @@ const columns = [
   {
     field: 'createdAt',
     headerName: 'Creado',
-    width: 100
+    width: 100,
+    renderCell: (params) => <span>{params.row.createdAt}</span>
   },
   {
     field: 'shipping_status',
@@ -210,8 +200,7 @@ export default function ShippingGrid ({ data = [] }) {
     data.map((row) => ({
       ...row,
       lastUpdate: user.name,
-      empresaEnvio: getProyecto(row.empresaEnvio),
-      createdAt: formatDate(row.createdAt)
+      empresaEnvio: getProyecto(row.empresaEnvio)
     })) || []
 
   return (

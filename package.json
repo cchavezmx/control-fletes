@@ -28,6 +28,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.53.2",
+    "react-qr-barcode-scanner": "^2.0.0",
     "react-select": "^5.8.0",
     "react-swipeable-views": "^0.14.0",
     "react-toastify": "^8.2.0",
