@@ -20,6 +20,9 @@ importers:
       '@fontsource/roboto':
         specifier: ^4.5.5
         version: 4.5.8
+      '@hookform/resolvers':
+        specifier: ^5.0.1
+        version: 5.0.1(react-hook-form@7.53.2(react@17.0.2))
       '@mui/icons-material':
         specifier: ^5.6.2
         version: 5.16.8(@mui/material@5.16.8(@emotion/react@11.13.5(@types/react@18.3.12)(react@17.0.2))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.3.12)(react@17.0.2))(@types/react@18.3.12)(react@17.0.2))(@types/react@18.3.12)(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(@types/react@18.3.12)(react@17.0.2)
@@ -55,7 +58,7 @@ importers:
         version: 6.9.16
       openai:
         specifier: ^4.75.0
-        version: 4.75.0(zod@3.23.8)
+        version: 4.75.0(zod@3.24.3)
       react:
         specifier: 17.0.2
         version: 17.0.2
@@ -87,8 +90,8 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1
       zod:
-        specifier: ^3.22.4
-        version: 3.23.8
+        specifier: ^3.24.3
+        version: 3.24.3
     devDependencies:
       eslint:
         specifier: 8.14.0
@@ -489,6 +492,11 @@ packages:
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
 
+  '@hookform/resolvers@5.0.1':
+    resolution: {integrity: sha512-u/+Jp83luQNx9AdyW2fIPGY6Y7NG68eN2ZW8FOJYL+M0i4s49+refdJdOp/A9n9HFQtQs3HIDHQvX3ZET2o7YA==}
+    peerDependencies:
+      react-hook-form: ^7.55.0
+
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
@@ -839,6 +847,9 @@ packages:
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
+
+  '@standard-schema/utils@0.3.0':
+    resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
@@ -2660,8 +2671,8 @@ packages:
   zlibjs@0.3.1:
     resolution: {integrity: sha512-+J9RrgTKOmlxFSDHo0pI1xM6BLVUv+o0ZT9ANtCxGkjIVCCUdx9alUF8Gm+dGLKbkkkidWIHFDZHDMpfITt4+w==}
 
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+  zod@3.24.3:
+    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
 
 snapshots:
 
@@ -3252,6 +3263,11 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
+  '@hookform/resolvers@5.0.1(react-hook-form@7.53.2(react@17.0.2))':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.53.2(react@17.0.2)
+
   '@humanwhocodes/config-array@0.13.0':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
@@ -3553,6 +3569,8 @@ snapshots:
   '@sideway/pinpoint@2.0.0': {}
 
   '@sindresorhus/is@4.6.0': {}
+
+  '@standard-schema/utils@0.3.0': {}
 
   '@szmarczak/http-timer@4.0.6':
     dependencies:
@@ -5036,7 +5054,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  openai@4.75.0(zod@3.23.8):
+  openai@4.75.0(zod@3.24.3):
     dependencies:
       '@types/node': 18.19.67
       '@types/node-fetch': 2.6.12
@@ -5046,7 +5064,7 @@ snapshots:
       formdata-node: 4.4.1
       node-fetch: 2.6.7
     optionalDependencies:
-      zod: 3.23.8
+      zod: 3.24.3
     transitivePeerDependencies:
       - encoding
 
@@ -5737,4 +5755,4 @@ snapshots:
 
   zlibjs@0.3.1: {}
 
-  zod@3.23.8: {}
+  zod@3.24.3: {}
