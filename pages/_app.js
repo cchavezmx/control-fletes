@@ -26,7 +26,8 @@ function MyApp ({ Component, pageProps }) {
     '/paqueterita',
     '/paqueterita/attempt/[paqueteria_id]',
     '/paqueterita/attempt/tracking_id/[attemp_id]/[tracking_id]',
-    '/control-vehicular'
+    '/control-vehicular',
+    '/flotilla/[id]/[type]'
   ] // Rutas públicas
   console.log('router.pathname:', router.pathname)
   const isExcluded = excludedRoutes.includes(router.pathname)
