@@ -10,6 +10,11 @@ const columnsDocumentosFlotillas = [
     width: 100
   },
   {
+    field: 'bussiness_cost',
+    headerName: 'Cliente',
+    width: 150
+  },
+  {
     field: 'type',
     headerName: 'Tipo Documento',
     width: 150
