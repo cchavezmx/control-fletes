@@ -3,7 +3,7 @@ import CardsEmpresa from './CardsEmpresa'
 import useSWR from 'swr'
 
 const API = process.env.NEXT_PUBLIC_API
-const noActiveEmpresas = ['62a75bab9ec0343efa92406e', '62a75bbf9ec0343efa92406f']
+const noActiveEmpresas = ['62a75bbf9ec0343efa92406f']
 
 function Dashboard () {
   const { data } = useSWR(`${API}/flotilla/empresas/get`)
