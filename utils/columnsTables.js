@@ -1,111 +1,115 @@
 const columnsDocumentosFlotillas = [
   {
-    field: 'id',
-    headerName: 'ID',
-    hide: true
+    field: "id",
+    headerName: "ID",
+    hide: true,
   },
   {
-    field: 'folio',
-    headerName: 'Folio',
-    width: 100
+    field: "folio",
+    headerName: "Folio",
+    width: 100,
   },
   {
-    field: 'bussiness_cost',
-    headerName: 'Cliente',
-    width: 150
-  },
-  {
-    field: 'type',
-    headerName: 'Tipo Documento',
-    width: 150
-  },
-  {
-    field: 'request_date',
-    headerName: 'Fecha Solicitud',
+    field: "bussiness_cost",
+    headerName: "Cliente",
     width: 150,
-    type: 'date'
   },
   {
-    field: 'createdAt',
-    headerName: 'Hora de Solicitud',
+    field: "type",
+    headerName: "Tipo Documento",
     width: 150,
-    sortable: true
   },
   {
-    field: 'delivery_date',
-    headerName: 'Fecha Disperción',
+    field: "request_date",
+    headerName: "Fecha Solicitud",
     width: 150,
-    type: 'date'
+    type: "date",
   },
   {
-    field: 'driver',
-    headerName: 'Conductor',
-    width: 200
+    field: "createdAt",
+    headerName: "Hora de Solicitud",
+    width: 150,
+    sortable: true,
   },
   {
-    field: 'vehicle',
-    headerName: 'Vehiculo',
-    width: 150
+    field: "delivery_date",
+    headerName: "Fecha Disperción",
+    width: 150,
+    type: "date",
   },
   {
-    field: 'modelo',
-    headerName: 'Modelo',
-    width: 150
+    field: "driver",
+    headerName: "Conductor",
+    width: 200,
   },
   {
-    field: 'route',
-    headerName: 'Ruta',
+    field: "vehicle",
+    headerName: "Vehiculo",
+    width: 150,
+  },
+  {
+    field: "modelo",
+    headerName: "Modelo",
+    width: 150,
+  },
+  {
+    field: "route",
+    headerName: "Ruta",
     width: 250,
-    sortable: false
+    sortable: false,
   },
   {
-    field: 'recorrido_km',
-    headerName: 'Recorrido (Km)',
+    field: "recorrido_km",
+    headerName: "Recorrido (Km)",
     width: 150,
-    hide: true
+    hide: true,
   },
   {
-    field: 'subtotal_travel',
-    headerName: 'Subtotal',
-    width: 100
-  },
-  {
-    field: 'fuel_amount',
-    headerName: 'Carga de Gas $',
-    width: 150
-  },
-  {
-    field: 'casetas',
-    headerName: 'Casetas',
+    field: "fuel_card",
+    headerName: "Tarjeta de combustible",
     width: 150,
-    hide: true
+    hide: false,
   },
   {
-    field: 'tarjeta_deposito',
-    headerName: 'Tarjeta de Depósito',
+    field: "subtotal_travel",
+    headerName: "Subtotal",
+    width: 100,
+  },
+  {
+    field: "fuel_amount",
+    headerName: "Carga de Gas $",
     width: 150,
-    hide: true
   },
   {
-    field: 'link_googlemaps',
-    headerName: 'Link Google Maps',
+    field: "casetas",
+    headerName: "Casetas",
     width: 150,
-    hide: true
+    hide: true,
   },
   {
-    field: 'fuel_level',
-    headerName: 'Nivel de Combustible %',
+    field: "tarjeta_deposito",
+    headerName: "Tarjeta de Depósito",
     width: 150,
-    hide: true
+    hide: true,
   },
   {
-    field: 'isCancel_status',
-    headerName: 'Estatus',
+    field: "link_googlemaps",
+    headerName: "Link Google Maps",
+    width: 150,
+    hide: true,
+  },
+  {
+    field: "fuel_level",
+    headerName: "Nivel de Combustible %",
+    width: 150,
+    hide: true,
+  },
+  {
+    field: "isCancel_status",
+    headerName: "Estatus",
     width: 250,
-    hide: true
-  }
-]
+    hide: true,
+  },
+];
 
-export {
-  columnsDocumentosFlotillas
-}
+export { columnsDocumentosFlotillas };
