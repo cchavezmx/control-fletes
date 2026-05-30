@@ -1,7 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&display=swap");
-@import "tailwindcss";
 
-@plugin "tailwindcss-animate";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: 0 0% 100%;
@@ -31,7 +32,16 @@
   --inventario: 32 100% 50%;
 }
 
-/* Legacy styles para migración gradual */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Legacy styles para MUI - mantener durante migración */
 html,
 body {
   padding: 0;
@@ -97,3 +107,4 @@ a {
   background-color: #160033;
   color: #fff;
 }
+/* Fin legacy styles */

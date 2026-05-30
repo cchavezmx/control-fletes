@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
 export default function TailwindDemo() {
   const [inputValue, setInputValue] = React.useState("");
@@ -199,16 +200,19 @@ export default function TailwindDemo() {
             <span>Select: OK</span>
           </div>
           <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <span>Sheet: OK</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <span>AppBar Tailwind: OK</span>
+          </div>
+          <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span>AppBar: En progreso</span>
+            <span>Migrar páginas: Pendiente</span>
           </div>
         </div>
       </section>
     </div>
   );
-}
-
-// Componente simple para separación
-function Separator() {
-  return <div className="h-px bg-border my-6" />;
 }
