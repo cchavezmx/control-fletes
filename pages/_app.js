@@ -1,22 +1,12 @@
 import 'dayjs/locale/es-mx'
 import '../styles/globals.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { Container, createTheme, ThemeProvider } from '@mui/material'
-import Layout from '../Components/Layout'
 import { SWRConfig } from 'swr'
 import { ToastContainer } from 'react-toastify'
 import { GlobalStateProvider } from '../context/GlobalContext'
 import { UserProvider } from '@auth0/nextjs-auth0'
 import { useRouter } from 'next/router'
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Barlow, Arial',
-    fontSize: 16
-  },
-  palette: {},
-  overrides: {}
-})
+import Layout from '../Components/Layout'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
@@ -27,39 +17,33 @@ function MyApp ({ Component, pageProps }) {
     '/paqueterita/attempt/[paqueteria_id]',
     '/paqueterita/attempt/tracking_id/[attemp_id]/[tracking_id]',
     '/control-vehicular',
-    '/flotilla/[id]/[type]',
-    '/demo'  // Temporal: demo Tailwind sin Layout
+    '/flotilla/[id]/[type]'
   ] // Rutas públicas
   
   const isExcluded = excludedRoutes.includes(router.pathname)
 
   return (
-    <ThemeProvider theme={theme}>
+    <UserProvider>
       <ToastContainer />
-      <UserProvider>
-        {isExcluded
-          ? (
-            <Container maxWidth="xl">
+      {isExcluded
+        ? (
+          <SWRConfig value={{ provider: () => new Map(), fetcher }}>
+            <Component {...pageProps} />
+          </SWRConfig>
+          )
+        : (
+          <GlobalStateProvider>
+            <Layout>
               <SWRConfig value={{ provider: () => new Map(), fetcher }}>
                 <Component {...pageProps} />
               </SWRConfig>
-            </Container>
-            )
-          : (
-            <GlobalStateProvider>
-              <Layout>
-                <SWRConfig value={{ provider: () => new Map(), fetcher }}>
-                  <Component {...pageProps} />
-                </SWRConfig>
-              </Layout>
-            </GlobalStateProvider>
-            )}
-      </UserProvider>
-    </ThemeProvider>
+            </Layout>
+          </GlobalStateProvider>
+          )}
+    </UserProvider>
   )
 }
 
-// Si necesitas cargar datos iniciales
 MyApp.getInitialProps = async (appContext) => {
   let pageProps = {}
   const env = process.env.VERCEL_ENV

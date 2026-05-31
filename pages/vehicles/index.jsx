@@ -1,27 +1,13 @@
-import { Box } from '@mui/material'
 import CardVehicles from '../../Components/CardVehicles'
 
 const Vehicles = ({ vehicles }) => {
   return (
-  <>
-    <Box
-      sx={{
-        display: 'Grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '1rem',
-        marginTop: '2.5rem'
-      }}
-
-    >
+    <><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-10 px-4">
        {
          vehicles.map(vehicle => <CardVehicles key={vehicle._id} vehicle={vehicle} />)
        }
-    </Box>
-    <footer style={{
-      height: '5rem'
-    }}>
-
-    </footer>
+    </div>
+    <footer className="h-20" />
   </>
   )
 }

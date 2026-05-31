@@ -1,27 +1,21 @@
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0'
 import Appbar from './Appbar'
-import { Container } from '@mui/material'
 
 const ResponsiveAppBar = ({ children }) => {
-  // const [anchorElNav, setAnchorElNav] = React.useState(null);
-  // const [anchorElUser, setAnchorElUser] = React.useState(null);
-
   const { user, error: errorUser, isLoading } = useUser()
 
-  if (isLoading) return <div>Loading...</div>
-  if (errorUser) return <div>{errorUser.message}</div>
-  if (user) {
-    return (
-  <>
-    <Appbar />
-    <Container maxWidth="xl">
-      {children}
-    </Container>
-  </>
-    )
-  }
+  if (isLoading) return <div className="p-8">Loading...</div>
+  if (errorUser) return <div className="p-8 text-destructive">{errorUser.message}</div>
+  if (!user) return null
 
-  return <></>
+  return (
+    <>
+      <Appbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {children}
+      </div>
+    </>
+  )
 }
 
 export default withPageAuthRequired(ResponsiveAppBar)
