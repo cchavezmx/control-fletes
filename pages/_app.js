@@ -27,9 +27,10 @@ function MyApp ({ Component, pageProps }) {
     '/paqueterita/attempt/[paqueteria_id]',
     '/paqueterita/attempt/tracking_id/[attemp_id]/[tracking_id]',
     '/control-vehicular',
-    '/flotilla/[id]/[type]'
+    '/flotilla/[id]/[type]',
+    '/demo'  // Temporal: demo Tailwind sin Layout
   ] // Rutas públicas
-  console.log('router.pathname:', router.pathname)
+  
   const isExcluded = excludedRoutes.includes(router.pathname)
 
   return (
@@ -39,7 +40,9 @@ function MyApp ({ Component, pageProps }) {
         {isExcluded
           ? (
             <Container maxWidth="xl">
-              <Component {...pageProps} />
+              <SWRConfig value={{ provider: () => new Map(), fetcher }}>
+                <Component {...pageProps} />
+              </SWRConfig>
             </Container>
             )
           : (
