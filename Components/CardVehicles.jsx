@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import dayjs from 'dayjs'
 // shadcn/ui
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card'
-import { Button } from '../components/ui/button'
-import { Badge } from '../components/ui/badge'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card'
+import { Button } from './ui/button'
+import { Badge } from './ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../components/ui/dialog'
+} from './ui/dialog'
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '../components/ui/sheet'
+} from './ui/sheet'
 
 // Components
 import EditVeichle from './Modal/EditVehicle'

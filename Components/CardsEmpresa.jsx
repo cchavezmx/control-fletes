@@ -1,40 +1,30 @@
 import * as React from 'react'
-import Card from '@mui/material/Card'
-import CardActions from '@mui/material/CardActions'
-import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
 import Link from 'next/link'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
+import { Button } from './ui/button'
+import { Badge } from './ui/badge'
 
 export default function CardsEmpresa ({ empresa }) {
   const { name } = empresa
+  
   return (
-    <Card
-      sx={{ backgroundColor: '#f5f5f5' }}
-    >
-      <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-          Grupo Intecsa
-        </Typography>
-        <Typography variant="h5" component="div" sx={{
-          width: '400px',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          textTransform: 'uppercase'
-        }}>
+    <Card className="bg-muted w-full max-w-md">
+      <CardHeader className="pb-2">
+        <Badge variant="secondary" className="w-fit mb-2">Grupo Intecsa</Badge>
+        <CardTitle className="text-lg uppercase truncate" title={name}>
           {name}
-        </Typography>
-        <Typography sx={{ mb: 1.5, fontWeight: 'bold' }} color="text.secondary">
-        </Typography>
-        <Typography variant="body2">
-        </Typography>
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent>
+        {/* Espacio para más contenido si lo necesitas */}
       </CardContent>
-      <CardActions>
-        <Link passHref href="/[empresaId]" as={`/${empresa._id}`}>
-          <Button variant='contained' size="small">Detalles</Button>
+      
+      <CardFooter>
+        <Link href={`/${empresa._id}`} passHref legacyBehavior>
+          <Button size="sm">Detalles</Button>
         </Link>
-      </CardActions>
+      </CardFooter>
     </Card>
   )
 }

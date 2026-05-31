@@ -8,20 +8,20 @@ import {
 } from 'lucide-react'
 
 // shadcn/ui
-import { Button } from '../components/ui/button'
+import { Button } from './ui/button'
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '../components/ui/sheet'
+} from './ui/sheet'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../components/ui/dialog'
-import { Separator } from '../components/ui/separator'
+} from './ui/dialog'
+import { Separator } from './ui/separator'
 
 const menuObject = [
   { name: 'Editar Unidades', icon: Car, link: '/vehicles', hide: false },
