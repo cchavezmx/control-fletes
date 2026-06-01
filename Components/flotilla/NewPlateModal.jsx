@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, Divider, Modal, Stack, TextField, Typography } from '@mui/material'
-import { modalStyle } from '../../utils/styles'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 
 function NewPlateModal ({ open, onClose, handledNewVehicle }) {
   const [plate, setPlate] = useState('')
@@ -25,35 +31,29 @@ function NewPlateModal ({ open, onClose, handledNewVehicle }) {
   }, [open])
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-    >
-      <Box sx={{ ...modalStyle, padding: '20px' }}>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle className="text-center font-black">Nuevo vehiculo</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit}>
-        <Typography variant="h6" component="h2" sx={{ textAlign: 'center', fontWeight: '900', marginBottom: 2 }}>
-          Nuevo vehiculo
-        </Typography>
-        <Divider sx={{ marginBottom: 2 }} />
-        <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <TextField
-            label="Añadir la placa del vehiculo"
-            id="placas"
-            variant="outlined"
-            placeholder='ABC-1234'
-            type="text"
-            fullWidth
-            value={plate}
-            onChange={(e) => setPlate(e.target.value)}
-          />
-          <Stack direction="row" spacing={2}>
-            <Button variant="contained" color='error' onClick={onClose}>Cancelar</Button>
-            <Button variant="contained" type="submit" disabled={loading}>Añadir nuevo</Button>
-          </Stack>
-        </Box>
+          <Separator className="mb-4" />
+          <div className="flex flex-col items-center gap-4">
+            <input
+              className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+              placeholder="ABC-1234"
+              type="text"
+              value={plate}
+              onChange={(e) => setPlate(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button variant="destructive" onClick={onClose}>Cancelar</Button>
+              <Button type="submit" disabled={loading}>Añadir nuevo</Button>
+            </div>
+          </div>
         </form>
-      </Box>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   )
 }
 

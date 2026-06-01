@@ -6,22 +6,12 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/es'
 import Select from 'react-select'
 import {
-  TextField,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Button,
-  MenuItem,
-  Slider,
-  Typography,
-  Box,
-  Grid
-} from '@mui/material'
-
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+  LocalizationProvider
+} from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { toast } from 'react-toastify'
+import { Button } from '@/components/ui/button'
 
 dayjs.locale('es')
 
@@ -135,47 +125,32 @@ export default function VehicleExitForm ({ vehicles = [] }) {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <Typography variant="h6">Gurdando Registro...</Typography>
-      </Box>
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg font-medium">Gurdando Registro...</p>
+      </div>
     )
   }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-      <Box
-        component="form"
+      <form
         onSubmit={handleSubmit(onSubmit)}
-        sx={{ maxWidth: 800, mx: 'auto', p: 3 }}
+        className="max-w-3xl mx-auto p-6"
       >
-        <Typography variant="h5" gutterBottom>
-          Salida de Vehículo
-        </Typography>
+        <h1 className="text-xl font-bold mb-4">Salida de Vehículo</h1>
 
-        <Box
-          display="grid"
-          gridTemplateColumns={{ xs: '1fr', md: '1fr 1fr' }}
-          gap={2}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {['conductor', 'destino'].map((field) => (
-            <TextField
+            <input
               key={field}
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              className={`w-full h-10 rounded-md border px-3 text-sm ${errors[field] ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
               {...register(field)}
-              error={!!errors[field]}
-              helperText={errors[field]?.message?.toString()}
             />
           ))}
 
-          <Box sx={{ gridColumn: '1 / -1' }}>
-            <Typography variant="subtitle1" gutterBottom>
-              Seleccionar Vehículo
-            </Typography>
+          <div className="md:col-span-2">
+            <p className="text-sm font-medium mb-2">Seleccionar Vehículo</p>
             <Select
               styles={customSelectStyles}
               options={vehicleOptions}
@@ -183,17 +158,15 @@ export default function VehicleExitForm ({ vehicles = [] }) {
               onChange={handleVehicleChange}
               placeholder="Selecciona un vehículo"
             />
-          </Box>
+          </div>
 
-          {['modelo', 'placa', 'Seguro', 'tarjetaCirculacion'].map((field) => (
-            <TextField
+          {['modelo', 'placa', 'soat', 'tarjetaCirculacion'].map((field) => (
+            <input
               key={field}
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              className={`w-full h-10 rounded-md border px-3 text-sm ${errors[field] ? 'border-red-500' : 'border-gray-300'}`}
+              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
               value={watch(field) || ''}
               onChange={(e) => setValue(field, e.target.value)}
-              error={!!errors[field]}
-              helperText={errors[field]?.message?.toString()}
-              fullWidth
             />
           ))}
 
@@ -201,41 +174,44 @@ export default function VehicleExitForm ({ vehicles = [] }) {
             label="Fecha salida"
             value={watch('fechaSalida') ? dayjs(watch('fechaSalida')) : null}
             onChange={handleDateChange('fechaSalida')}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth
-                error={!!errors.fechaSalida}
-                helperText={errors.fechaSalida?.message?.toString()}
-              />
-            )}
+            slotProps={{
+              textField: {
+                className: 'w-full',
+                error: !!errors.fechaSalida,
+                helperText: errors.fechaSalida?.message?.toString()
+              }
+            }}
           />
 
           <DatePicker
             label="Fecha llegada"
             value={watch('fechaLlegada') ? dayjs(watch('fechaLlegada')) : null}
             onChange={handleDateChange('fechaLlegada')}
-            renderInput={(params) => <TextField {...params} fullWidth />}
+            slotProps={{
+              textField: {
+                className: 'w-full'
+              }
+            }}
           />
 
-          <TextField
-            label="Kilometraje salida"
+          <input
+            className={`w-full h-10 rounded-md border px-3 text-sm ${errors.kmSalida ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="Kilometraje salida"
             type="number"
             {...register('kmSalida')}
-            error={!!errors.kmSalida}
-            helperText={errors.kmSalida?.message?.toString()}
           />
 
-          <TextField
-            label="Kilometraje llegada"
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Kilometraje llegada"
             type="number"
             {...register('kmLlegada')}
           />
-        </Box>
+        </div>
 
-        <Box mt={3}>
-          <Typography variant="subtitle1">Accesorios y Herramientas</Typography>
-          <FormGroup row>
+        <div className="mt-6">
+          <p className="text-sm font-medium mb-2">Accesorios y Herramientas</p>
+          <div className="flex flex-wrap gap-3">
             {[
               'Extintor',
               'Gato',
@@ -248,86 +224,73 @@ export default function VehicleExitForm ({ vehicles = [] }) {
               'Radio',
               'Antena'
             ].map((item) => (
-              <FormControlLabel
-                key={item}
-                control={<Checkbox {...register(item)} />}
-                label={item}
-              />
+              <label key={item} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" {...register(item)} />
+                {item}
+              </label>
             ))}
-          </FormGroup>
-        </Box>
+          </div>
+        </div>
 
-        <Box mt={3}>
-          <Typography variant="subtitle1">Estado Carrocería</Typography>
-          <Grid container spacing={2}>
+        <div className="mt-6">
+          <p className="text-sm font-medium mb-2">Estado Carrocería</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { label: 'Puertas', name: 'PuertasEstado' },
               { label: 'Pintura', name: 'PinturaEstado' },
               { label: 'Interiores', name: 'InterioresEstado' },
               { label: 'Cinturones', name: 'CinturonesEstado' }
             ].map(({ label, name }) => (
-              <Grid item xs={12} sm={6} key={name}>
-                <TextField
-                  select
-                  fullWidth
-                  label={label}
-                  value={watch(name) || ''}
-                  onChange={(e) => setValue(name, e.target.value)}
-                  error={!!errors[name]}
-                  helperText={errors[name]?.message?.toString()}
-                >
-                  <MenuItem value="">Seleccione</MenuItem>
-                  <MenuItem value="bueno">Bueno</MenuItem>
-                  <MenuItem value="regular">Regular</MenuItem>
-                  <MenuItem value="malo">Malo</MenuItem>
-                </TextField>
-              </Grid>
+              <select
+                key={name}
+                className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
+                value={watch(name) || ''}
+                onChange={(e) => setValue(name, e.target.value)}
+              >
+                <option value="">{label}</option>
+                <option value="bueno">Bueno</option>
+                <option value="regular">Regular</option>
+                <option value="malo">Malo</option>
+              </select>
             ))}
-          </Grid>
-        </Box>
+          </div>
+        </div>
 
-        <Box mt={3}>
-          <Typography gutterBottom>Combustible (Salida)</Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs>
-              <Slider
-                value={Number(combustible)}
-                onChange={(e, val) => setValue('combustibleSalida', val)}
-                min={0}
-                max={100}
-                step={5}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                type="number"
-                value={combustible}
-                onChange={(e) =>
-                  setValue('combustibleSalida', Number(e.target.value))
-                }
-                inputProps={{ min: 0, max: 100 }}
-                sx={{ width: 80 }}
-              />
-            </Grid>
-          </Grid>
-        </Box>
+        <div className="mt-6">
+          <p className="text-sm font-medium mb-2">Combustible (Salida)</p>
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={Number(combustible)}
+              onChange={(e) => setValue('combustibleSalida', Number(e.target.value))}
+              className="flex-1 h-2 rounded-lg appearance-none cursor-pointer bg-gray-200 accent-[#3f51b5]"
+            />
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={combustible}
+              onChange={(e) => setValue('combustibleSalida', Number(e.target.value))}
+              className="w-20 h-10 rounded-md border border-gray-300 px-2 text-sm"
+            />
+          </div>
+        </div>
 
-        <Box mt={3}>
-          <TextField
-            label="Motivo de salida"
+        <div className="mt-6">
+          <textarea
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm min-h-[80px]"
+            placeholder="Motivo de salida"
             {...register('motivo')}
-            multiline
-            rows={3}
-            fullWidth
           />
-        </Box>
+        </div>
 
-        <Box mt={4}>
-          <Button type="submit" variant="contained" color="primary">
-            Guardar salida
-          </Button>
-        </Box>
-      </Box>
+        <div className="mt-6">
+          <Button type="submit">Guardar salida</Button>
+        </div>
+      </form>
     </LocalizationProvider>
   )
 }

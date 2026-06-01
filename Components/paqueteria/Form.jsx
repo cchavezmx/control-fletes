@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { Stack, TextField, Button, MenuItem, FormHelperText } from '@mui/material'
 import { LoadScript, Autocomplete } from '@react-google-maps/api'
 import bussines from '../../utils/catalogov2.bussinesses.json'
 import { carriers } from './data'
 import { toast } from 'react-toastify'
+import { Button } from '@/components/ui/button'
 import z from 'zod'
 const API = process.env.NEXT_PUBLIC_API
 
@@ -55,14 +55,12 @@ const FormularioConAutocomplete = () => {
     const place = autocompleteRef.current.getPlace()
     const formattedAddress = place?.formatted_address || ''
     setAddress(formattedAddress)
-    setValue('direccion', formattedAddress) // Sincroniza con React Hook Form
+    setValue('direccion', formattedAddress)
   }
 
   const onSubmit = async (data) => {
     setError({})
-    console.log('data:', data)
     const result = schemaForm.safeParse(data)
-    console.log('result:', result)
     if (!result.success) {
       toast.error('Error en los datos enviados')
       Object.entries(result.error).forEach(([key, value]) => {
@@ -84,7 +82,6 @@ const FormularioConAutocomplete = () => {
 
     const doc = await saveData(data)
     setIdResponse(doc.success_id)
-    // Limpiar formulario
     setValue('proyecto', '')
     setValue('paqueteria', '')
     setValue('direccion', '')
@@ -99,7 +96,7 @@ const FormularioConAutocomplete = () => {
   }
 
   return (
-    <Stack mt={4}>
+    <div className="mt-8">
       <LoadScript
         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
         libraries={['places']}
@@ -110,67 +107,41 @@ const FormularioConAutocomplete = () => {
             <p>Id de respuesta: {idResponse}</p>
           </div>
         )}
-        <form onSubmit={handleSubmit(onSubmit)} style={{ padding: '0 1rem' }}>
-          {/* Campo de Proyecto u Obra */}
-          <Stack spacing={2} boxShadow={2} padding={2} mt={1} borderRadius={1}>
-            <FormHelperText>Información de proyecto</FormHelperText>
+        <form onSubmit={handleSubmit(onSubmit)} className="px-4">
+          <div className="flex flex-col gap-3 shadow-sm border rounded p-4 mt-2">
+            <p className="text-xs text-muted-foreground">Información de proyecto</p>
             <Controller
               name="proyecto"
               control={control}
               defaultValue=""
               render={({ field: { onChange, ...restField } }) => (
-                <TextField
+                <input
                   {...restField}
-                  error={error.proyecto}
-                  label="Proyecto u Obra"
-                  size="small"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  onChange={(e) => {
-                    return onChange(e.target.value.toUpperCase())
-                  }}
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.proyecto ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Proyecto u Obra"
+                  onChange={(e) => onChange(e.target.value.toUpperCase())}
                 />
               )}
             />
 
-            {/* Campo de Servicio de Paquetería */}
             <Controller
               name="paqueteria"
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <select
                   {...field}
-                  error={error.paqueteria}
-                  size="small"
-                  label="Servicio de Paquetería"
-                  select
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border bg-white px-2 text-sm ${error.paqueteria ? 'border-red-500' : 'border-gray-300'}`}
                 >
+                  <option value="">Servicio de Paquetería</option>
                   {carriers.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
+                    <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
-                </TextField>
+                </select>
               )}
             />
 
-            {/* Autocompletado de dirección */}
-            <label
-              htmlFor="direccion"
-              style={{
-                display: 'block',
-                marginTop: '16px',
-                marginBottom: '8px',
-                fontSize: '16px'
-              }}
-            >
-              Dirección de Entrega
-            </label>
+            <label className="block mt-4 mb-2 text-base">Dirección de Entrega</label>
             <Autocomplete
               size="small"
               onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
@@ -179,54 +150,35 @@ const FormularioConAutocomplete = () => {
               <input
                 type="text"
                 placeholder="Escribe tu dirección"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '16px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  marginBottom: '16px'
-                }}
+                className="w-full p-2.5 text-base border border-gray-300 rounded mb-4"
               />
             </Autocomplete>
 
-            {/* Campo oculto para almacenar la dirección */}
             <Controller
               name="direccion"
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  {...(error.direccion && {
-                    error: true,
-                    helperText: error.direccion
-                  })}
-                  size="small"
-                  label="Dirección"
-                  value={address} // Sincroniza el valor del autocompletado
-                  style={{ display: 'none' }}
+                  type="hidden"
+                  value={address}
                 />
               )}
             />
-          </Stack>
+          </div>
 
-          {/* Otros campos */}
-          <Stack spacing={2} boxShadow={2} padding={2} mt={1} borderRadius={1}>
-            <FormHelperText>Información de contacto de Remitente</FormHelperText>
+          <div className="flex flex-col gap-3 shadow-sm border rounded p-4 mt-2">
+            <p className="text-xs text-muted-foreground">Información de contacto de Remitente</p>
             <Controller
               name="contacto"
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  size="small"
-                  error={error.contacto}
-                  label="Nombre del que envía"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.contacto ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Nombre del que envía"
                 />
               )}
             />
@@ -235,16 +187,12 @@ const FormularioConAutocomplete = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  size="small"
-                  error={error.contacto}
                   type="email"
                   required
-                  label="Correo del que envía"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.contacto ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Correo del que envía"
                 />
               )}
             />
@@ -253,51 +201,39 @@ const FormularioConAutocomplete = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  size="small"
-                  error={error.numeroContacto}
-                  label="Número del que envía"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.numeroContacto ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Número del que envía"
                 />
               )}
             />
-          </Stack>
-          {/* Otros campos */}
-          <Stack spacing={2} boxShadow={2} padding={2} mt={1} borderRadius={1}>
-            <FormHelperText>Información de contacto Destino</FormHelperText>
+          </div>
+
+          <div className="flex flex-col gap-3 shadow-sm border rounded p-4 mt-2">
+            <p className="text-xs text-muted-foreground">Información de contacto Destino</p>
             <Controller
               name="contacto_recibe"
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  size="small"
-                  error={error.contacto_recibe}
-                  label="Nombre del que recibe"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.contacto_recibe ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Nombre del que recibe"
                 />
               )}
             />
-            <FormHelperText>Numero de que recibe</FormHelperText>
+            <p className="text-xs text-muted-foreground">Número de que recibe</p>
             <Controller
               name="numeroContacto_recibe"
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  error={error.numeroContacto_recibe}
-                  size="small"
-                  label="Número del que recibe"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.numeroContacto_recibe ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Número del que recibe"
                 />
               )}
             />
@@ -306,55 +242,40 @@ const FormularioConAutocomplete = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextField
+                <input
                   {...field}
-                  error={error.numeroContacto_recibe}
-                  size="small"
                   type="email"
                   required
-                  label="Correo del que recibe"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
+                  className={`w-full h-10 rounded-md border px-3 text-sm ${error.numeroContacto_recibe ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Correo del que recibe"
                 />
               )}
             />
-          </Stack>
+          </div>
 
-          {/* Empresa que envía */}
           <Controller
             name="empresaEnvio"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextField
+              <select
                 {...field}
-                error={error.empresaEnvio}
-                label="Empresa que envía"
-                size="small"
-                select
-                variant="outlined"
-                fullWidth
-                margin="normal"
+                className={`w-full h-10 rounded-md border bg-white px-2 text-sm mt-4 ${error.empresaEnvio ? 'border-red-500' : 'border-gray-300'}`}
               >
+                <option value="">Empresa que envía</option>
                 {bussines.map((option) => (
-                  <MenuItem key={option._id.$oid} value={option._id.$oid}>
-                    {option.name}
-                  </MenuItem>
+                  <option key={option._id.$oid} value={option._id.$oid}>{option.name}</option>
                 ))}
-              </TextField>
+              </select>
             )}
           />
 
-          {/* Botón para enviar */}
-          <Stack spacing={4} mt={2} mb={2}>
-            <Button type="submit" variant="contained" color="primary">
-              Enviar
-            </Button>
-          </Stack>
+          <div className="mt-4 mb-4">
+            <Button type="submit">Enviar</Button>
+          </div>
         </form>
       </LoadScript>
-    </Stack>
+    </div>
   )
 }
 

@@ -1,7 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useState, useMemo, useEffect } from 'react'
-import { Drawer, TextField, Box, InputLabel, Select, MenuItem, FormControl, Button } from '@mui/material'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -9,28 +11,6 @@ import NewVehicle from './NewVehicle'
 import NewPlan from './NewPlan'
 
 const API = process.env.NEXT_PUBLIC_API
-
-const style = {
-  width: '100%',
-  height: '100%',
-  backgroundColor: '#FBFCDD',
-  borderRadius: '4px',
-  overflow: 'auto',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 3
-}
-
-const flexColum = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  height: '100%',
-  width: '300px',
-  gap: '1rem',
-  padding: '0.25rem'
-}
 
 const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicles = [], prevData }) => {
   const [type, setType] = useState('')
@@ -45,7 +25,6 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
   const dateDelivery = watch('delivery_date')
   const planWatchSelected = watch('plan')
 
-  // modal de nuevo vehiculo
   const [vehicleSelected, setVehicleSelected] = useState('')
   const [openNewVehicle, setOpenNewVehicle] = useState(false)
   const handledNewVehicle = (event) => setOpenNewVehicle(event)
@@ -54,12 +33,10 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
     const response = await fetch(`${API}/flotilla/planes/slug/${slug}`)
       .then(res => res.json())
       .then(({ planes }) => planes)
-
     return response
   }
 
   const [planByVehicle, setPlanByVehicle] = useState([])
-  // almacena los planes por vehiculo seleccionado
   useEffect(() => {
     if (vehicleSelected) {
       getVehicleBySlug(vehicleSelected)
@@ -81,33 +58,23 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
 
   const selectVehicles = () => {
     return (
-      <>
-        <InputLabel id="newVehicle">Lista de unidades</InputLabel>
-        <Select
-          labelId="newVehicle"
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">Lista de unidades</label>
+        <select
+          className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
           value={vehicleSelected}
-          id="newVehicle"
-          fullWidth
-          onChange={(e) => {
-            setVehicleSelected(e.target.value)
-          }}
+          onChange={(e) => setVehicleSelected(e.target.value)}
         >
-          <MenuItem onClick={() => handledNewVehicle(true)} value="" >
-              <em>Agregar nueva unidad</em>🚛
-          </MenuItem>
+          <option onClick={() => handledNewVehicle(true)} value="">Agregar nueva unidad 🚛</option>
           {
             listVehicles.map(vehicle => (
-              <MenuItem key={vehicle._id} value={vehicle.placas}>{`${vehicle.placas} - ${vehicle.modelo}`}</MenuItem>
+              <option key={vehicle._id} value={vehicle.placas}>{`${vehicle.placas} - ${vehicle.modelo}`}</option>
             ))
           }
-      </Select>
-    </>
+        </select>
+      </div>
     )
   }
-
-  // const nextFolio = useMemo(() => {
-  //   return folioCount[type] + 1
-  // }, [type])
 
   const handleClose = () => {
     close()
@@ -121,7 +88,6 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
       toast.error('Selecciona un vehiculo')
       return
     }
-
     if (!type) {
       toast.info('Selecciona un tipo de documento')
       return
@@ -156,183 +122,85 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
   }
 
   return (
-    <Drawer
-      open={open}
-      onClose={handleClose}
-      anchor="left"
-    >
-        <Box sx={{ ...style }}>
-          <form style={{
-            paddingBottom: '1rem'
-          }}
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <Box sx={{ ...flexColum }}>
-              <FormControl fullWidth>
-                <InputLabel id="type">Tipo de documento</InputLabel>
-                <Select
-                  labelId="type"
-                  id="type"
-                  value={type}
-                  label="Tipo de documento"
-                  onChange={(e) => setType(e.target.value)}
-                >
-                  <MenuItem value="traslado">Traslado</MenuItem>
-                  <MenuItem value="flete">Flete</MenuItem>
-                  <MenuItem value="renta">Renta</MenuItem>
-                </Select>
-              </FormControl>
-              <Box sx={{
-                overflow: ''
-              }}>
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent side="left" className="w-full max-w-[400px] overflow-y-auto bg-[#FBFCDD]">
+        <form
+          className="flex flex-col gap-4 p-4"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Tipo de documento</label>
+              <select
+                className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <option value="">Selecciona...</option>
+                <option value="traslado">Traslado</option>
+                <option value="flete">Flete</option>
+                <option value="renta">Renta</option>
+              </select>
+            </div>
 
-              </Box>
-              { selectVehicles() }
-              {
-                vehicleSelected &&
-                <FormControl fullWidth>
-                <InputLabel id="type">Elije tu plan</InputLabel>
-                <Select
-                  labelId="plan"
-                  id="plan"
-                  fullWidth
-                  label="Elije tu plan"
+            {selectVehicles()}
+
+            {vehicleSelected && (
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">Elige tu plan</label>
+                <select
+                  className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
                   {...register('plan', { required: true })}
                 >
-                  <MenuItem onClick={() => handledNewPlan(true)} value="" >
-                    <em>Agregar nueva plan</em>🚛
-                  </MenuItem>
+                  <option onClick={() => handledNewPlan(true)} value="">Agregar nuevo plan 🚛</option>
                   {
                     planByVehicle.length > 0
-                      ? planByVehicle.map(plan => <MenuItem key={plan._id} value={plan._id}>{`${plan.planName} - $${plan.planPrice} PESOS`}</MenuItem>)
-                      : <MenuItem value="">No hay planes</MenuItem>
+                      ? planByVehicle.map(plan => <option key={plan._id} value={plan._id}>{`${plan.planName} - $${plan.planPrice} PESOS`}</option>)
+                      : <option value="">No hay planes</option>
                   }
-                </Select>
-              </FormControl>
-              }
-              <TextField
-                label="Fecha de solicitud"
-                name="request_date"
-                id="request_date"
-                variant="outlined"
-                fullWidth
-                type="date"
-                value={dateRequest ? dayjs().format(dateRequest) : dayjs().format('YYYY-MM-DD')}
-                { ...register('request_date', { required: true }) }
+                </select>
+              </div>
+            )}
+
+            <input
+              className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+              type="date"
+              value={dateRequest ? dayjs(dateRequest).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')}
+              {...register('request_date', { required: true })}
+            />
+            {errors.request_date && <span className="text-xs text-red-600">Este campo es obligatorio</span>}
+
+            <input
+              className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+              type="date"
+              value={dateDelivery ? dayjs(dateDelivery).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')}
+              {...register('delivery_date', { required: true })}
+            />
+            {errors.delivery_date && <span className="text-xs text-red-600">Este campo es obligatorio</span>}
+
+            {['conductor', 'ruta', 'kilometer_out', 'kilometer_in', 'fuel_level', 'document_id', 'project_id', 'fuel_card'].map((field) => (
+              <input
+                key={field}
+                className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                type={field.includes('kilometer') || field === 'fuel_level' ? 'number' : 'text'}
+                {...register(field)}
               />
-              { errors.request_date && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
-              <TextField
-                label="Fecha de disperción"
-                name="delivery_date"
-                value={dateDelivery ? dayjs().format(dateDelivery) : dayjs().format('YYYY-MM-DD')}
-                id="delivery_date"
-                variant="filled"
-                fullWidth
-                type="date"
-                { ...register('delivery_date', { required: true }) }
-              />
-              { errors.delivery_date && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
-              <TextField
-                label="Conductor"
-                name="driver"
-                id="driver"
-                variant="outlined"
-                fullWidth
-                { ...register('driver', { required: true }) }
-              />
-              { errors.driver && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
-              <TextField
-                label="Ruta"
-                name="route"
-                id="route"
-                variant="outlined"
-                fullWidth
-                { ...register('route', { required: true }) }
-              />
-              { errors.route && <small style={{ color: 'red' }}>Este campos es obligatorio</small> }
-              <TextField
-                label="Kilometraje de salida"
-                name="kilometer_out"
-                id="kilometer_out"
-                variant="outlined"
-                type="number"
-                fullWidth
-                { ...register('kilometer_out', { required: false }) }
-              />
-              <TextField
-                label="Kilometraje de llegada"
-                name="kilometer_in"
-                id="kilometer_in"
-                variant="outlined"
-                type="number"
-                fullWidth
-                { ...register('kilometer_in', { required: false }) }
-              />
-              <TextField
-                label="Nivel de combustible"
-                name="fuel_level"
-                id="fuel_level"
-                variant="outlined"
-                type="number"
-                fullWidth
-                { ...register('fuel_level', { required: false }) }
-              />
-              <TextField
-                label="Folio Documento de traslado"
-                name="document_id"
-                id="document_id"
-                variant="outlined"
-                type="text"
-                fullWidth
-                { ...register('document_id', { required: false }) }
-              />
-              <TextField
-                label="Folio proyecto"
-                name="project_id"
-                id="project_id"
-                variant="outlined"
-                type="text"
-                fullWidth
-                { ...register('project_id', { required: false }) }
-              />
-              <TextField
-                label="Número de tarjeta de combustible"
-                name="fuel_card"
-                id="fuel_card"
-                variant="outlined"
-                fullWidth
-                { ...register('fuel_card', { required: false }) }
-              />
-              <TextField
-                maxRows={4}
-                label="Observaciones"
-                name="observations"
-                id="observations"
-                variant="outlined"
-                fullWidth
-                type="textArea"
-                { ...register('observations', { required: false }) }
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '1.25rem', margin: '10px', justifyContent: 'center' }}>
-                <Button
-                  variant="contained"
-                  width="100%"
-                  type="submit"
-                  disabled={saveData}
-                  >
-                    Guardar
-                </Button>
-                <Button
-                  variant="contained"
-                  width="100%"
-                  onClick={handleClose}
-                  >
-                    Cerrar
-                </Button>
-            </Box>
-          </form>
-        </Box>
+            ))}
+
+            <textarea
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm min-h-[80px]"
+              placeholder="Observaciones"
+              {...register('observations')}
+            />
+          </div>
+
+          <div className="flex gap-4 justify-center mt-2">
+            <Button type="submit" disabled={saveData}>Guardar</Button>
+            <Button variant="secondary" onClick={handleClose}>Cerrar</Button>
+          </div>
+        </form>
+
         <NewVehicle
           open={openNewVehicle}
           close={handledNewVehicle}
@@ -345,8 +213,8 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
           vehicleID={getIdVehicle}
           setPlanByVehicle={setPlanByVehicle}
         />
-    </Drawer>
-
+      </SheetContent>
+    </Sheet>
   )
 }
 

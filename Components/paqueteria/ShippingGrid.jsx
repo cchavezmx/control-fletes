@@ -1,12 +1,26 @@
 import React from 'react'
-import { DataGrid, GridToolbar, esES } from '@mui/x-data-grid'
+import { DataGrid, GridToolbar } from '@mui/x-data-grid'
+import { esES } from '@mui/x-data-grid/locales'
 import DatePickerValue from '../flotilla/DatePickerValue'
-import Chip from '@mui/material/Chip'
-import Button from '@mui/material/Button'
+import { Button } from '@/components/ui/button'
 import bussines from '../../utils/catalogov2.bussinesses.json'
 import { toast } from 'react-toastify'
-import { useUser } from '@auth0/nextjs-auth0'
+import { useUser } from '@auth0/nextjs-auth0/client'
 const API = process.env.NEXT_PUBLIC_API
+
+const chipColors = {
+  primary: 'bg-blue-100 text-blue-800',
+  warning: 'bg-amber-100 text-amber-800',
+  success: 'bg-green-100 text-green-800',
+  secondary: 'bg-gray-100 text-gray-800',
+  error: 'bg-red-100 text-red-800'
+}
+
+const Badge = ({ label, color = 'secondary' }) => (
+  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${chipColors[color] || chipColors.secondary}`}>
+    {label}
+  </span>
+)
 
 const shippingFollowing = (params) => {
   const code = params.row.shipping_code
@@ -27,7 +41,7 @@ const shippingFollowing = (params) => {
   }
   return (
     <a href={links[company]} target="_blank" rel="noreferrer">
-      <Chip label={label} color={color} />
+      <Badge label={label} color={color} />
     </a>
   )
 }
@@ -45,7 +59,7 @@ const generateInvoice = async (data) => {
       if (!res.ok) {
         throw new Error('Error al generar el PDF')
       }
-      return res.blob() // Convertir la respuesta a un blob
+      return res.blob()
     })
     .then((blob) => {
       const pdfURL = window.URL.createObjectURL(blob)
@@ -83,8 +97,7 @@ const columns = [
   {
     filed: 'lastUpdate',
     headerName: 'Última Actualización',
-    width: 200,
-    hide: true
+    width: 200
   },
   {
     field: 'createdAt',
@@ -102,12 +115,7 @@ const columns = [
         'En Camino': 'warning',
         Entregado: 'success'
       }
-      return (
-        <Chip
-          label={params.row.shipping_status}
-          color={colors[params.row.shipping_status]}
-        />
-      )
+      return <Badge label={params.row.shipping_status} color={colors[params.row.shipping_status]} />
     }
   },
   {
@@ -116,7 +124,7 @@ const columns = [
     width: 100,
     headerAlign: 'center',
     renderCell: (params) => (
-      <Button variant="outlined" onClick={() => generateInvoice(params.row)}>
+      <Button variant="outline" size="sm" onClick={() => generateInvoice(params.row)}>
         Imprimir
       </Button>
     )
@@ -204,17 +212,24 @@ export default function ShippingGrid ({ data = [] }) {
     })) || []
 
   return (
-    <div style={{ height: 600, width: '100%', marginTop: 30 }}>
+    <div className="mt-8 h-[600px] w-full">
       <DataGrid
         processRowUpdate={handledUpdate}
-        localeText={esES.components.MuiDataGrid.defaultProps.localeText}
-        components={{
-          Toolbar: GridToolbar
-        }}
+        localeText={esES}
+        slots={{ toolbar: GridToolbar }}
         rows={rows}
         columns={columns}
-        pageSize={30}
-        experimentalFeatures={{ newEditingApi: true }}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 30 }
+          },
+          columns: {
+            columnVisibilityModel: {
+              lastUpdate: false
+            }
+          }
+        }}
+        pageSizeOptions={[30]}
       />
     </div>
   )

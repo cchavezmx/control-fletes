@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import { Button } from '@/components/ui/button'
 const emoticones = ['🚀', '🥶', '😁', '🙈', '📷', '🍻', '🦜', '❤️', '👽', '👾', '🐑', '🧶', '🏃🏻‍♂️🏃🏻‍♂️']
 
 const ShareButton = ({ id, type, title }) => {
@@ -15,9 +15,7 @@ const ShareButton = ({ id, type, title }) => {
     window.open(gmailLink, '_blank')
   }
 
-  return <Button variant='contained' color="secondary" onClick={handleClick}>
-    Enviar
-  </Button>
+  return <Button variant="secondary" onClick={handleClick}>Enviar</Button>
 }
 
 export default ShareButton

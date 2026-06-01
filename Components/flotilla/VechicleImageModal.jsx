@@ -1,12 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from 'react'
-import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material'
-import { modalStyle } from '../../utils/styles'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/router'
 const API = process.env.NEXT_PUBLIC_API
-// añadir funcion para guadar fecha de verificacion
 
 function VechicleImageModal ({ openModal, row, close }) {
   const { register, handleSubmit } = useForm({ defaultValues: { ...row } })
@@ -49,40 +53,34 @@ function VechicleImageModal ({ openModal, row, close }) {
   }
 
   return (
-    <Modal
-    open={openModal}
-    onClose={close}
-  >
-    <Box sx={{ ...modalStyle, padding: 2, width: 450 }}>
-      <Typography variant="h6" component="h2" sx={{ textAlign: 'center', fontWeight: '900', marginBottom: 2 }}>
-        Imagen del vehiculo
-      </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <img src={nextImage || picture} alt={picture} style={{
-          width: '400px',
-          height: 'auto',
-          objectFit: 'cover'
-        }} />
-        <form onSubmit={handleSubmit(handledFormSubmit)}>
-          <small>
-            <strong>Nota:</strong> Si subes una imagen nueva se remplazara la anterior
-          </small>
-        <TextField
-          id="picture"
-          variant="outlined"
-          type="file"
-          fullWidth
-          {...register('picture', { required: false })}
-        />
-        <Stack direction="row" spacing={2} sx={{ marginTop: 2, justifyContent: 'center' }}>
-          <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 2 }}>
-            Cambiar imagen
-          </Button>
-        </Stack>
-        </form>
-      </Box>
-    </Box>
-    </Modal>
+    <Dialog open={openModal} onOpenChange={close}>
+      <DialogContent className="max-w-[450px]">
+        <DialogHeader>
+          <DialogTitle className="text-center">Imagen del vehiculo</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src={nextImage || picture}
+            alt={picture}
+            className="w-[400px] h-auto object-cover"
+          />
+          <form onSubmit={handleSubmit(handledFormSubmit)} className="w-full">
+            <p className="text-xs mb-2">
+              <strong>Nota:</strong> Si subes una imagen nueva se remplazara la anterior
+            </p>
+            <input
+              id="picture"
+              type="file"
+              className="w-full text-sm"
+              {...register('picture', { required: false })}
+            />
+            <div className="flex justify-center mt-4">
+              <Button type="submit">Cambiar imagen</Button>
+            </div>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

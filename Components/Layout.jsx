@@ -1,23 +1,27 @@
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0'
+import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0/client'
+import { useRouter } from 'next/router'
 import Appbar from './Appbar'
-import { Container } from '@mui/material'
 
 const ResponsiveAppBar = ({ children }) => {
-  // const [anchorElNav, setAnchorElNav] = React.useState(null);
-  // const [anchorElUser, setAnchorElUser] = React.useState(null);
-
   const { user, error: errorUser, isLoading } = useUser()
+  const router = useRouter()
+
+  // Lock the viewport only on the expediente detail page so the table owns the scroll.
+  // Other pages (dashboard, wizard, etc.) keep normal page-level scroll.
+  const isLocked =
+    typeof router?.asPath === 'string' &&
+    /^\/[a-f0-9]{24}\/?$/.test(router.asPath)
 
   if (isLoading) return <div>Loading...</div>
   if (errorUser) return <div>{errorUser.message}</div>
   if (user) {
     return (
-  <>
-    <Appbar />
-    <Container maxWidth="xl">
-      {children}
-    </Container>
-  </>
+      <div className={`app-shell${isLocked ? ' is-locked' : ''}`}>
+        <Appbar />
+        <div className="layout-shell">
+          {children}
+        </div>
+      </div>
     )
   }
 

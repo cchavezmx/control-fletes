@@ -1,53 +1,48 @@
-import { DataGrid, GridToolbar, esES } from '@mui/x-data-grid'
-import { Box } from '@mui/material'
+import { DataGrid, GridToolbar } from '@mui/x-data-grid'
+import { esES } from '@mui/x-data-grid/locales'
 
-export default function TableFlotillas ({ columns, rows, setSelectedRow }) {
-  const handleRowClick = ([row]) => {
-    const rowSelected = rows.find(r => r._id === row)
-    if (row) {
-      setSelectedRow((prev) => {
-        return [rowSelected, ...prev]
-      })
-      return
+export default function TableFlotillas ({ columns, rows, onSelectionChange, onRowClick, setSelectedRow }) {
+  const handleSelectionChange = (ids) => {
+    if (onSelectionChange) {
+      onSelectionChange(new Set(ids))
     }
-    setSelectedRow([])
+    if (setSelectedRow) {
+      const [rowId] = ids
+      const rowSelected = rows.find(r => r.id === rowId)
+      if (rowId) {
+        setSelectedRow([rowSelected])
+        return
+      }
+      setSelectedRow([])
+    }
   }
 
   return (
-  <>
-    <Box sx={{
-      height: '70vh',
-      width: '100%',
-      '& .super-app-theme--Rejected': {
-        bgcolor: '#bdc3c7',
-        color: '#34495e',
-        '&:hover': {
-          bgcolor: '#bdc3c7'
-        }
-      }
-    }}>
+    <div className="flex flex-col h-[80vh] min-h-[600px] w-full">
+      <div className="flex-1 min-h-0">
       <DataGrid
         initialState={{
           sorting: {
             sortModel: [{ field: 'createdAt', sort: 'desc' }]
+          },
+          pagination: {
+            paginationModel: { pageSize: 20 }
           }
         }}
-        localeText={esES.components.MuiDataGrid.defaultProps.localeText}
+        localeText={esES}
         rows={rows}
         disableRowSelectionOnClick
         columns={columns}
-        pageSize={20}
-        rowsPerPageOptions={[20]}
+        pageSizeOptions={[20]}
         checkboxSelection
-        onSelectionModelChange={handleRowClick}
-        components={{
-          Toolbar: GridToolbar
-        }}
+        onRowSelectionModelChange={handleSelectionChange}
+        onRowClick={(params) => onRowClick && onRowClick(params.row)}
+        slots={{ toolbar: GridToolbar }}
         getRowClassName={(params) => {
           return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'red'
         }}
       />
-    </Box>
-  </>
+      </div>
+    </div>
   )
 }

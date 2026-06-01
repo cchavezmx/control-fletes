@@ -1,25 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
-import {
-  Modal,
-  Box,
-  Typography,
-  Button
-} from '@mui/material'
+import { X, FileText, Loader2 } from 'lucide-react'
 
 const API = process.env.NEXT_PUBLIC_API
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  width: '100%'
-}
 
 const validTypes = {
   Traslado: 'traslado',
@@ -28,13 +11,11 @@ const validTypes = {
 }
 
 function PrevPDFModal ({ open, close, modalPreview }) {
-  // add cors to fetch
   const { id, type } = modalPreview
-  const [loading, setLoading] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [pdfPreview, setPdfPreview] = useState(null)
 
   const pdfCreator = async () => {
-    // preview pdf blob data
     await fetch(`${API}/flotilla/plan/print/${id}?type=${validTypes[type]}`, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST'
@@ -51,35 +32,70 @@ function PrevPDFModal ({ open, close, modalPreview }) {
       })
   }
 
-  useEffect(async () => {
-    setLoading(true)
-    await pdfCreator()
-  }, [])
+  useEffect(() => {
+    if (open) {
+      setLoading(true)
+      pdfCreator()
+    }
+  }, [open])
+
+  useEffect(() => {
+    function onKey (e) {
+      if (e.key === 'Escape') close()
+    }
+    if (open) {
+      window.addEventListener('keydown', onKey)
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [open, close])
 
   return (
-    <Modal
-    open={open}
-    onClose={close}>
-      <Box sx={{ ...style }}>
-        <Button onClick={close} variant="contained">Cerrar</Button>
-        {
-          !loading && pdfPreview &&
-          <iframe
-            src={pdfPreview}
-            width="100%"
-            height="800px"
-            title="PDF Preview"
-            frameBorder="0"
-            allowFullScreen
-          />
-        }
-        {
-          loading && <Typography variant='h3' sx={{ margin: '2.5rem 0', fontWeight: '500' }}>
-            Cargando...
-          </Typography>
-        }
-      </Box>
-    </Modal>
+    <>
+      <div className={`scrim${open ? ' show' : ''}`} onClick={close} />
+      <div className={`sheet-right${open ? ' show' : ''}`}>
+        <div className="sheet-head">
+          <div className="sh-ic">
+            <FileText size={20} />
+          </div>
+          <div>
+            <div className="sh-folio">Vista previa del documento</div>
+            <div className="sh-sub">{modalPreview.type} · Folio {modalPreview.id}</div>
+          </div>
+          <div className="spacer" />
+          <button className="iconbtn-intecsa" onClick={close} title="Cerrar (Esc)">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="sheet-body">
+          {loading && (
+            <div className="flex items-center justify-center h-full flex-col gap-3 text-[var(--muted)]">
+              <Loader2 size={32} className="animate-spin" />
+              <span className="text-sm font-semibold">Cargando PDF…</span>
+            </div>
+          )}
+          {!loading && pdfPreview && (
+            <iframe
+              src={pdfPreview}
+              width="100%"
+              height="100%"
+              title="PDF Preview"
+              style={{ border: 0, borderRadius: 8, background: '#fff' }}
+              allowFullScreen
+            />
+          )}
+          {!loading && !pdfPreview && (
+            <div className="flex items-center justify-center h-full flex-col gap-2 text-[var(--danger)]">
+              <X size={32} />
+              <span className="text-sm font-semibold">No se pudo cargar el PDF</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   )
 }
 

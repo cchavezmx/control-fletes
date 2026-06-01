@@ -1,11 +1,10 @@
-import { Stack } from '@mui/material'
 import TableDocuments from '../../Components/flotilla/TableDocuments'
 function NewVehiclesList ({ vehicles }) {
   return (
     <div>
-      <Stack>
-        <h1>Inventarios de Vehiculos</h1>
-      </Stack>
+      <div className="py-4">
+        <h1 className="text-2xl font-bold">Inventarios de Vehiculos</h1>
+      </div>
       <TableDocuments data={vehicles} />
     </div>
   )

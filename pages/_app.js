@@ -1,22 +1,12 @@
 import 'dayjs/locale/es-mx'
 import '../styles/globals.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { Container, createTheme, ThemeProvider } from '@mui/material'
 import Layout from '../Components/Layout'
 import { SWRConfig } from 'swr'
 import { ToastContainer } from 'react-toastify'
 import { GlobalStateProvider } from '../context/GlobalContext'
-import { UserProvider } from '@auth0/nextjs-auth0'
+import { UserProvider } from '@auth0/nextjs-auth0/client'
 import { useRouter } from 'next/router'
-
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Barlow, Arial',
-    fontSize: 16
-  },
-  palette: {},
-  overrides: {}
-})
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
@@ -29,18 +19,17 @@ function MyApp ({ Component, pageProps }) {
     '/control-vehicular',
     '/flotilla/[id]/[type]'
   ] // Rutas públicas
-  console.log('router.pathname:', router.pathname)
   const isExcluded = excludedRoutes.includes(router.pathname)
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <ToastContainer />
       <UserProvider>
         {isExcluded
           ? (
-            <Container maxWidth="xl">
+            <div className="max-w-7xl mx-auto px-4">
               <Component {...pageProps} />
-            </Container>
+            </div>
             )
           : (
             <GlobalStateProvider>
@@ -52,7 +41,7 @@ function MyApp ({ Component, pageProps }) {
             </GlobalStateProvider>
             )}
       </UserProvider>
-    </ThemeProvider>
+    </>
   )
 }
 

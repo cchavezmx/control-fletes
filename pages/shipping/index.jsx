@@ -1,5 +1,3 @@
-import Typography from '@mui/material/Typography'
-import Stack from '@mui/material/Stack'
 import ShippingGrid from '../../Components/paqueteria/ShippingGrid'
 import useSWR from 'swr'
 
@@ -9,12 +7,12 @@ export default function Shipping () {
 
   return (
     <div>
-      <Typography variant="h4" align="center" mt={8} gutterBottom>
+      <h1 className="text-2xl font-bold text-center mt-8 mb-4">
         Solicitudes de paquetería
-      </Typography>
-      <Stack>
+      </h1>
+      <div>
         <ShippingGrid data={data?.message} />
-      </Stack>
+      </div>
     </div>
   )
 }

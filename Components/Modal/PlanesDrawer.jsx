@@ -1,9 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Typography, Card, Box, Divider, Modal, TextField, Button } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { modalStyle } from '../../utils/styles'
-import { toast } from 'react-toastify'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { useRouter } from 'next/router'
+import { toast } from 'react-toastify'
 
 const API = process.env.NEXT_PUBLIC_API
 
@@ -83,120 +89,73 @@ const UpdateModal = ({ open, onClose, closeDrawer }) => {
 
     useEffect(() => {
       if (namePlanDelete.trim() === name.trim()) {
-        console.log('confirmado')
         setIsConfirm(true)
       }
     }, [namePlanDelete])
 
     return (
-      <Modal
-        open={open}
-        onClose={onClose}
-      >
-        <Box sx={{
-          ...modalStyle,
-          padding: '20px',
-          margin: '8px',
-          justifyContent: 'space-evenly',
-          flexDirection: 'column',
-          display: 'flex',
-          height: '380px',
-          width: 'fit-content'
-        }}>
-          <Typography variant="h6" sx={{ textAlign: 'center' }}>
-            ¿Está seguro que desea eliminar el plan?
-          </Typography>
-          <Typography variant="h6" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-            Para confirmar escriba el nombre del plan
-          </Typography>
-          <Typography variant="h5" sx={{
-            textAlign: 'center',
-            fontWeight: 'bold',
-            backgroundColor: '#f5576c',
-            color: 'white'
-          }}>
-            { name }
-          </Typography>
-          <TextField
-            label="Escriba el nombre del plan"
-            variant="outlined"
-            fullWidth
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-center">¿Está seguro que desea eliminar el plan?</DialogTitle>
+          </DialogHeader>
+          <p className="text-center text-sm font-bold">Para confirmar escriba el nombre del plan</p>
+          <p className="text-center font-bold bg-red-400 text-white py-1 rounded">{name}</p>
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm mt-2"
+            placeholder="Escriba el nombre del plan"
             value={namePlanDelete}
             onChange={(e) => deleteConfirm(e)}
-            sx={{ mt: 2 }}
           />
-          <Box sx={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'column' }}>
+          <div className="flex flex-col gap-2 mt-4">
             <Button
-              color='error'
-              variant="contained"
+              variant="destructive"
               onClick={() => handleDeletePlan()}
               disabled={!isConfirm}
-              sx={{ mt: 2 }}
             >
               Entiendo y acepto las consecuencias de eliminar el plan
             </Button>
-            <Button
-              color='info'
-              variant="contained"
-              sx={{ marginTop: 1 }}
-              onClick={() => onClose()}
-            >
-              Cancelar
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+            <Button variant="secondary" onClick={() => onClose()}>Cancelar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     )
   }
 
   return (
-    <Modal
-      open={open.open}
-      onClose={onClose}
-    >
-      <Box sx={{ ...modalStyle, padding: '23px', width: '400px' }}>
-      <Typography sx={{
-        textAlign: 'center',
-        marginBottom: '30px',
-        fontSize: '23px'
-      }}>
-          Modificar plan
-        </Typography>
-        <form onSubmit={updatePlanSubmit} style={{ marginBottom: '30px' }}>
-          <TextField
-            fullWidth={true}
-            sx={{ marginBottom: '30px' }}
-            label="Nombre del plan"
+    <Dialog open={open.open} onOpenChange={onClose}>
+      <DialogContent className="max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle className="text-center text-xl">Modificar plan</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={updatePlanSubmit} className="flex flex-col gap-4">
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Nombre del plan"
             value={newNamePlan}
             onChange={(e) => setNewNamePlan(e.target.value)}
           />
-          <TextField
-            fullWidth={true}
-            label="Descripción del plan"
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Descripción del plan"
             value={newDescriptionPlan}
-            sx={{ marginBottom: '30px' }}
             onChange={(e) => setNewDescriptionPlan(e.target.value)}
           />
-          <TextField
-            fullWidth={true}
-            label="Costo del plan"
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Costo del plan"
             value={newPricePlan}
-            sx={{ marginBottom: '30px', fontFamily: 'arial' }}
             onChange={(e) => setNewPricePlan(e.target.value)}
           />
-          <Box sx={{
-            marginTop: '24px',
-            display: 'flex',
-            justifyContent: 'space-between'
-          }}>
-            <Button type='submit' variant='contained'>Modificar</Button>
-            <Button onClick={onClose} color="secondary" variant='contained'>Cerrar</Button>
-            <Button type="button" onClick={() => setOpenModalDelete(true)} color="error" variant='contained'>Eliminar</Button>
-          </Box>
+          <div className="flex justify-between">
+            <Button type="submit">Modificar</Button>
+            <Button variant="secondary" onClick={onClose}>Cerrar</Button>
+            <Button variant="destructive" type="button" onClick={() => setOpenModalDelete(true)}>Eliminar</Button>
+          </div>
         </form>
-      <ModalDeleteValidation name={newNamePlan} open={openModalDelete} onClose={() => setOpenModalDelete(false)} />
-      </Box>
-    </Modal>
+        <ModalDeleteValidation name={newNamePlan} open={openModalDelete} onClose={() => setOpenModalDelete(false)} />
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -231,68 +190,38 @@ const PlanesDrawer = ({ id, name, closeDrawer }) => {
   }
 
   return (
-    <Box sx={{ width: 400, padding: '0 16px' }}>
-      <Typography sx={{
-        maringTop: '20px',
-        textAlign: 'center',
-        fontSize: '28px',
-        padding: '16px',
-        fontWeight: 'bold'
-      }}>
-        { name }
-      </Typography>
-      { loading ? <div>Loading...</div> : null }
-      { !loading && planes?.length === 0 &&
-      (
-        <Typography variant="h6" marginTop={'20px'}>
-          No hay planes disponibles
-        </Typography>
+    <div className="w-full px-4">
+      <h2 className="text-center text-2xl font-bold py-4">{name}</h2>
+      {loading ? <div>Loading...</div> : null}
+      {!loading && planes?.length === 0 && (
+        <p className="text-lg mt-5">No hay planes disponibles</p>
       )}
       {
         !loading && planes?.length > 0 && (
-          planes.map(plane => {
-            return (
-              <Card key={plane._id}
+          planes.map(plane => (
+            <div
+              key={plane._id}
               onClick={() => openUpdateModal(plane._id)}
-              sx={{
-                backgroundColor: '#fdfbfb',
-                padding: '16px',
-                boxShadow: 1,
-                margin: '13px 0',
-                '&:hover': {
-                  backgroundColor: '#cfd9df',
-                  cursor: 'pointer'
-                }
-              }}>
-                <Box>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    Nombre del plan
-                  </Typography>
-                  <Typography sx={{ fontSize: '1.25rem' }}>
-                    { plane.planName }
-                  </Typography>
-                  <Divider sx={{ margin: '10px 0' }}/>
-                </Box>
-                <Box>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    Descripción
-                  </Typography>
-                  <Typography sx={{ fontSize: '1.25rem' }}>
-                    { plane.planDescription }
-                  </Typography>
-                  <Divider sx={{ margin: '10px 0' }}/>
-                </Box>
-                <Box>
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    Costo
-                  </Typography>
-                  <Typography variant="h6" sx={{ textTransform: 'capitalize', lineHeight: '1.25rem', fontFamily: 'arial' }}>
-                    { Intl.NumberFormat('en-MX', { style: 'currency', currency: 'MXN' }).format(plane.planPrice) }
-                  </Typography>
-                </Box>
-              </Card>
-            )
-          })
+              className="bg-[#fdfbfb] p-4 shadow-sm my-3 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+            >
+              <div>
+                <p className="font-bold">Nombre del plan</p>
+                <p className="text-lg">{plane.planName}</p>
+                <Separator className="my-2" />
+              </div>
+              <div>
+                <p className="font-bold">Descripción</p>
+                <p className="text-lg">{plane.planDescription}</p>
+                <Separator className="my-2" />
+              </div>
+              <div>
+                <p className="font-bold">Costo</p>
+                <p className="text-base font-medium">
+                  {Intl.NumberFormat('en-MX', { style: 'currency', currency: 'MXN' }).format(plane.planPrice)}
+                </p>
+              </div>
+            </div>
+          ))
         )
       }
       <UpdateModal
@@ -300,7 +229,7 @@ const PlanesDrawer = ({ id, name, closeDrawer }) => {
         onClose={() => setOpenEdit({ open: false, data: null })}
         closeDrawer={closeDrawer}
       />
-    </Box>
+    </div>
   )
 }
 

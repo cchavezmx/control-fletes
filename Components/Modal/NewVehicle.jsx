@@ -1,26 +1,15 @@
 import { useState } from 'react'
-import { Modal, Box, Typography, TextField, Button } from '@mui/material'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
 const API = process.env.NEXT_PUBLIC_API
-
-const style = {
-  width: '350px',
-  height: 'fit-content',
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  bgcolor: 'background.paper',
-  borderRadius: '4px',
-  overflow: 'auto',
-  boxShadow: 24
-}
-
-const form = {
-  padding: '2px', marginBottom: '20px'
-}
 
 const NewVehicle = ({ open, close, chivato, empresaId }) => {
   const { handleSubmit, register, reset } = useForm()
@@ -62,28 +51,29 @@ const NewVehicle = ({ open, close, chivato, empresaId }) => {
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={close}
-
-    >
-      <Box sx={{ ...style }} p={2}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Typography variant="h6" sx={{ ...form }}>
-            Crear Nuevo Vehículo
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField label="Placas" {...register('placas', { required: true })} sx={{ ...form }} />
-            <TextField label="Modelo" {...register('modelo', { required: true })} sx={{ ...form }} />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-            <Button variant="outlined" onClick={() => onClose()}>Cancelar</Button>
-            <Button type='submit' variant='contained' disable={!saveData}>Guardar</Button>
-          </Box>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle>Crear Nuevo Vehículo</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Placas"
+            {...register('placas', { required: true })}
+          />
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Modelo"
+            {...register('modelo', { required: true })}
+          />
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" disabled={saveData}>Guardar</Button>
+          </div>
         </form>
-      </Box>
-
-    </Modal>
+      </DialogContent>
+    </Dialog>
   )
 }
 

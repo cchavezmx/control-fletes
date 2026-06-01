@@ -1,27 +1,16 @@
 // disabled camelcase convention for this file
-// eslint-disable-next-line camelcase
 import { useCallback, useEffect, useState } from 'react'
-import {
-  Container,
-  Stack,
-  Typography,
-  TextField,
-  FormHelperText,
-  Button,
-  Grid
-} from '@mui/material'
 import { useRouter } from 'next/router'
+import { Button } from '@/components/ui/button'
 
 const API = process.env.NEXT_PUBLIC_API
 
 function OrderPage () {
   const params = useRouter()
-  // eslint-disable-next-line camelcase
   const { tracking_id, attemp_id } = params.query
   const [trackingId, setTrackingId] = useState(tracking_id)
   const [code, setCode] = useState('')
   const [attempId] = useState(attemp_id)
-  // eslint-disable-next-line camelcase
   const [shipping_code, setShippingCode] = useState(null)
   const [register, setRegister] = useState(null)
 
@@ -63,7 +52,6 @@ function OrderPage () {
       .then((data) => setRegister(data.message))
   }
 
-  // eslint-disable-next-line camelcase
   if (shipping_code) {
     return <h1>Esta guía ya fue registrada</h1>
   }
@@ -73,32 +61,28 @@ function OrderPage () {
   }
 
   return (
-    <Container >
-      <Grid container spacing={3}>
-        <Grid item>
-          <h2 style={{ textAlign: 'center' }}>Información de la orden</h2>
-          <Stack>
-            <Stack>
-              <Typography variant="h6" align="center" mb={8} gutterBottom>
-                Pedido Intecsa: <small>{code}</small>
-              </Typography>
-            </Stack>
-            <form onSubmit={handledSubmit}>
-              <Stack width={300} gap={1}>
-                <Typography variant="subtitle1" align="center" mb={2} gutterBottom>
-                  Confirmación de guía de paquetería
-                </Typography>
-                <FormHelperText>Guía de seguimiento registrada</FormHelperText>
-                <TextField id="standard-basic" value={trackingId} onChange={(e) => onChangeTrackingId(e)} />
-                <Button variant="contained" color="primary" type="submit" disabled={register !== null}>
-                  Confirmar guía
-                </Button>
-              </Stack>
-            </form>
-          </Stack>
-        </Grid>
-      </Grid>
-    </Container>
+    <div className="max-w-7xl mx-auto px-4">
+      <div className="py-4">
+        <h2 className="text-center text-xl font-bold">Información de la orden</h2>
+        <div className="flex flex-col items-center gap-4">
+          <h3 className="text-lg font-semibold text-center my-8">
+            Pedido Intecsa: <small>{code}</small>
+          </h3>
+          <form onSubmit={handledSubmit}>
+            <div className="w-[300px] flex flex-col gap-3">
+              <p className="text-base font-medium text-center">Confirmación de guía de paquetería</p>
+              <p className="text-xs text-muted-foreground">Guía de seguimiento registrada</p>
+              <input
+                className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+                value={trackingId}
+                onChange={(e) => onChangeTrackingId(e)}
+              />
+              <Button type="submit" disabled={register !== null}>Confirmar guía</Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   )
 }
 

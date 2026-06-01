@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Typography, Box, AppBar } from "@mui/material";
-import {} from "@auth0/nextjs-auth0";
 const API = process.env.NEXT_PUBLIC_API;
 
 const PDFInvoice = ({ id, type }) => {
@@ -34,9 +32,11 @@ const PDFInvoice = ({ id, type }) => {
 
   return (
     <>
-      <AppBar />
-      <Box>
-        {loading && <Typography variant="h5">Cargando...</Typography>}
+      <header className="bg-[#3f51b5] text-white px-4 py-3">
+        <h1 className="text-lg font-bold">Documento PDF</h1>
+      </header>
+      <div className="w-full">
+        {loading && <h5 className="text-xl font-medium p-4">Cargando...</h5>}
         {!loading && (
           <iframe
             src={pdfurl}
@@ -47,7 +47,7 @@ const PDFInvoice = ({ id, type }) => {
             allowFullScreen
           />
         )}
-      </Box>
+      </div>
     </>
   );
 };

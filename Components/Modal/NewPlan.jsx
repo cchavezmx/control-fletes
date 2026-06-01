@@ -1,17 +1,16 @@
 import { useState } from 'react'
-import { Modal, Box, Typography, TextField, Button } from '@mui/material'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { modalStyle } from '../../utils/styles'
 const API = process.env.NEXT_PUBLIC_API
 
-const form = {
-  padding: '2px', marginBottom: '20px'
-}
-
 const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
-  // setPlanByVehicle hace un update del array de todos los planes que tiene el vehiculo
-
   const { handleSubmit, register, reset } = useForm()
   const [saveData, setSaveData] = useState(false)
 
@@ -51,29 +50,35 @@ const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={close}
-
-    >
-      <Box sx={{ ...modalStyle }} p={2}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Typography variant="h6" sx={{ ...form }}>
-            Crear Nuevo Plan
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField label="Nombre" {...register('planName', { required: true })} sx={{ ...form }} />
-            <TextField label="Descripción" {...register('planDescription', { required: true })} sx={{ ...form }} />
-            <TextField label="Precio" type="number" {...register('planPrice', { required: true })} sx={{ ...form }} />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-            <Button variant="outlined" onClick={() => onClose()}>Cancelar</Button>
-            <Button type='submit' variant='contained' disable={!saveData}>Guardar</Button>
-          </Box>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle>Crear Nuevo Plan</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Nombre"
+            {...register('planName', { required: true })}
+          />
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Descripción"
+            {...register('planDescription', { required: true })}
+          />
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Precio"
+            type="number"
+            {...register('planPrice', { required: true })}
+          />
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" disabled={saveData}>Guardar</Button>
+          </div>
         </form>
-      </Box>
-
-    </Modal>
+      </DialogContent>
+    </Dialog>
   )
 }
 

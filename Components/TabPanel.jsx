@@ -1,46 +1,21 @@
 import * as React from 'react'
-import PropTypes from 'prop-types'
-import SwipeableViews from 'react-swipeable-views'
-import { useTheme } from '@mui/material/styles'
-import AppBar from '@mui/material/AppBar'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import TableFlotillas from '../Components/TableFlotillas'
+import TableFlotillas from './TableFlotillas'
 import { useRouter } from 'next/router'
 
-function TabPanel (props) {
-  const { children, value, index, ...other } = props
-
+function TabPanel ({ children, value, index, ...other }) {
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
+        <div className="p-6">{children}</div>
       )}
     </div>
   )
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired
-}
-
-function a11yProps (index) {
-  return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`
-  }
 }
 
 export default function FullWidthTabs ({
@@ -49,15 +24,10 @@ export default function FullWidthTabs ({
   rows,
   setSelectedRow
 }) {
-  const theme = useTheme()
   const [value, setValue] = React.useState(0)
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (newValue) => {
     setValue(newValue)
-  }
-
-  const handleChangeIndex = (index) => {
-    setValue(index)
   }
 
   const router = useRouter()
@@ -100,43 +70,46 @@ export default function FullWidthTabs ({
   ]
 
   return (
-    <Box sx={{ bgcolor: 'background.paper', width: '100%' }}>
-      <AppBar position="static">
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="secondary"
-          textColor="inherit"
-          variant="fullWidth"
-          aria-label="full width tabs example"
+    <div className="w-full bg-background">
+      <div className="flex border-b">
+        <button
+          className={`px-6 py-3 text-sm font-medium transition-colors ${
+            value === 0
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+          onClick={() => { handleChange(0); normalDocuments() }}
         >
-          <Tab label="Activos" {...a11yProps(0)} onClick={() => normalDocuments()}/>
-          <Tab label="Cancelados" {...a11yProps(1)} onClick={() => cancelDocuments()} />
-          {/* <Tab label="Pendientes" {...a11yProps(2)} /> */}
-        </Tabs>
-      </AppBar>
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}
-      >
-        <TabPanel value={value} index={0} dir={theme.direction}>
-          <TableFlotillas
-            documents={documents}
-            rows={rows}
-            columns={columns}
-            setSelectedRow={setSelectedRow}
-          />
-        </TabPanel>
-        <TabPanel value={value} index={1} dir={theme.direction}>
-          <TableFlotillas
-              documents={documents}
-              rows={rows}
-              columns={canceledColumns}
-              setSelectedRow={setSelectedRow}
-            />
-        </TabPanel>
-      </SwipeableViews>
-    </Box>
+          Activos
+        </button>
+        <button
+          className={`px-6 py-3 text-sm font-medium transition-colors ${
+            value === 1
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+          onClick={() => { handleChange(1); cancelDocuments() }}
+        >
+          Cancelados
+        </button>
+      </div>
+
+      <TabPanel value={value} index={0}>
+        <TableFlotillas
+          documents={documents}
+          rows={rows}
+          columns={columns}
+          setSelectedRow={setSelectedRow}
+        />
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        <TableFlotillas
+          documents={documents}
+          rows={rows}
+          columns={canceledColumns}
+          setSelectedRow={setSelectedRow}
+        />
+      </TabPanel>
+    </div>
   )
 }

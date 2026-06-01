@@ -1,26 +1,19 @@
 import { useState } from 'react'
 import {
-  Modal,
-  Button,
-  TextField,
-  Box,
-  Checkbox,
-  FormControlLabel
-} from '@mui/material'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
-import { modalStyle, form, flexColum, flexRow } from '../../utils/styles'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 const API = process.env.NEXT_PUBLIC_API
-// añadir funcion para guadar fecha de verificacion
 
 const EditVehicles = (props) => {
-  const {
-    open,
-    close,
-    data
-  } = props
+  const { open, close, data } = props
 
   const { register, handleSubmit, watch } = useForm({ defaultValues: { ...data } })
 
@@ -53,7 +46,6 @@ const EditVehicles = (props) => {
         expiration_card: getDateLoco(dateExpCard) === getDateLoco(new Date()) ? null : getDateLoco(dateExpCard),
         expiration_verify: getDateLoco(dateExpVeriy) === getDateLoco(new Date()) ? null : getDateLoco(dateExpVeriy),
         is_active: isActive
-
       })
     })
       .then((res) => res.json())
@@ -98,84 +90,67 @@ const EditVehicles = (props) => {
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={close}
-    >
-      <form style={{ ...form }} onSubmit={handleSubmit(handledFormSubmit)}>
-        <Box sx={{ ...modalStyle }}>
-          <Box sx={{ ...flexColum, width: '100%', padding: '20px' }}>
-            <TextField
-              label="Placa"
-              id="placas"
-              variant="outlined"
-              type="text"
-              fullWidth
-              {...register('placas', { required: true })}
-            />
-            <TextField
-              label="Modelo"
-              id="modelo"
-              variant="outlined"
-              type="text"
-              fullWidth
-              {...register('modelo', { required: true })}
-            />
-            <TextField
-              id="picture"
-              variant="outlined"
-              type="file"
-              fullWidth
-              {...register('picture', { required: false })}
-            />
-          <Box sx={{
-            width: '100%',
-            backgroundColor: !data.expiration_card ? '#f5f5f5' : null,
-            padding: '0.5rem 0'
-          }}>
-            <TextField
-              label="Vencimiento Tarjeta"
-              id="expiration_card"
-              variant="outlined"
+    <Dialog open={open} onOpenChange={close}>
+      <DialogContent className="max-w-[400px]">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(handledFormSubmit)}>
+          <DialogHeader>
+            <DialogTitle>Editar Vehículo</DialogTitle>
+          </DialogHeader>
+
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Placa"
+            type="text"
+            {...register('placas', { required: true })}
+          />
+          <input
+            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
+            placeholder="Modelo"
+            type="text"
+            {...register('modelo', { required: true })}
+          />
+          <input
+            className="w-full text-sm"
+            type="file"
+            {...register('picture', { required: false })}
+          />
+
+          <div className={`w-full p-2 rounded ${!data.expiration_card ? 'bg-gray-100' : ''}`}>
+            <input
+              className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               type="date"
-              fullWidth
               value={getDateLoco(dateExpCard)}
               {...register('expiration_card', { required: false })}
             />
-            { !data.expiration_card && <small style={{ color: 'red' }}>Configura el vencimiento</small> }
-          </Box>
-          <Box sx={{
-            width: '100%',
-            backgroundColor: !data.expiration_card ? '#f5f5f5' : null,
-            padding: '0.5rem 0'
-          }}>
-            <TextField
-              label="Vencimiento verificación"
-              id="expiration_verify"
-              variant="outlined"
+            {!data.expiration_card && <span className="text-xs text-red-600">Configura el vencimiento</span>}
+          </div>
+
+          <div className={`w-full p-2 rounded ${!data.expiration_verify ? 'bg-gray-100' : ''}`}>
+            <input
+              className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               type="date"
-              fullWidth
               value={getDateLoco(dateExpVeriy)}
               {...register('expiration_verify', { required: false })}
             />
-            { !data.expiration_verify && <small style={{ color: 'red' }}>Configura el vencimiento</small> }
-          </Box>
-            <FormControlLabel
-            control={<Checkbox defaultChecked={!isActive} onChange={() => setIsActive(!isActive)} />}
-            label="Desactivar vehiculo"
+            {!data.expiration_verify && <span className="text-xs text-red-600">Configura el vencimiento</span>}
+          </div>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              defaultChecked={!isActive}
+              onChange={() => setIsActive(!isActive)}
             />
-          </Box>
-          <Box sx={{ ...flexRow, width: '100%', padding: '20px', flexDirection: 'row' }}>
-            <Button type='submit' variant="contained" color="secondary">Guardar</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => close()}
-              >Cancelar</Button>
-          </Box>
-      </Box>
-      </form>
-    </Modal>
+            Desactivar vehiculo
+          </label>
+
+          <div className="flex gap-2 justify-end">
+            <Button type="submit">Guardar</Button>
+            <Button variant="secondary" onClick={close}>Cancelar</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

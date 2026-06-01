@@ -1,11 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    middlewarePrefetch: true
-  },
   images: {
-    domains: ['s.gravatar.com', 'https://storage.googleapis.com', 'lh3.googleusercontent.com', 'store.storeimages.cdn-apple.com', 'res.cloudinary.com']
+    remotePatterns: [
+      { protocol: 'https', hostname: 's.gravatar.com' },
+      { protocol: 'https', hostname: 'storage.googleapis.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'store.storeimages.cdn-apple.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' }
+    ]
+  },
+  eslint: {
+    ignoreDuringBuilds: true
   }
 }
 

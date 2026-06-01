@@ -7,13 +7,15 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import 'dayjs/locale/es-mx'
 
 export default function DatePickerValue ({ day, handledUpdate, id, type }) {
-  const [value, setValue] = useState(dayjs(day).format('YYYY-MM-DD'))
+  const initial = day ? dayjs(day) : dayjs()
+  const [value, setValue] = useState(initial)
 
   const handleChange = (newValue) => {
-    setValue(dayjs(newValue).format('YYYY-MM-DD'))
+    const d = dayjs(newValue)
+    setValue(d)
     handledUpdate({
       _id: id,
-      [type]: new Date(dayjs(newValue).valueOf()).getTime()
+      [type]: d.valueOf()
     })
   }
 
@@ -21,10 +23,10 @@ export default function DatePickerValue ({ day, handledUpdate, id, type }) {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
        <DesktopDatePicker
           sx={{ height: 40, width: '100%' }}
-          inputFormat="YYYY-MM-DD"
+          format="YYYY-MM-DD"
           value={value}
           onChange={handleChange}
-          renderInput={(params) => <TextField {...params} />}
+          slotProps={{ textField: { size: 'small' } }}
         />
     </LocalizationProvider>
   )
