@@ -15,6 +15,8 @@ const getBussinesCostName = (doc) => {
   return EMPRESAS.find((empresa) => empresa._id === _client)?.name;
 }
 
+export const isDocCancelled = (doc) => Boolean(doc?.isCancel_status);
+
 const getRowData = ({ documents }) => {
   const traslados =
     documents.traslado !== 0
