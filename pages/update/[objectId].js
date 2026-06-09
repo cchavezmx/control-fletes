@@ -11,48 +11,47 @@ const API = process.env.NEXT_PUBLIC_API
 const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
   const router = useRouter()
 
-  const { register, handleSubmit, watch } = useForm({
-    defaultValues: currentModel
+  const fmtDay = (d) => (d ? dayjs(d).format('YYYY-MM-DD') : '')
+
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      ...currentModel,
+      request_date: fmtDay(currentModel?.request_date),
+      delivery_date: fmtDay(currentModel?.delivery_date)
+    }
   })
 
-  const dateRequest = watch('request_date')
-  const dateDelivery = watch('delivery_date')
-
-  const getDateLoco = (date) => {
-    if (dateRequest !== currentModel.request_date) {
-      return dayjs(date).format('YYYY-MM-DD')
-    } else {
-      return dayjs(date).add(1, 'day').format('YYYY-MM-DD')
-    }
-  }
-
   const [saveData, setSaveData] = useState(false)
-  const [clientData, setClientData] = useState(currentModel.client)
+
   const updateOrderSubmit = async (data) => {
     setSaveData(true)
-    await fetch(`${API}/flotilla/update/${objectId}?type=${type.toLowerCase()}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        ...data
+    try {
+      const res = await fetch(`${API}/flotilla/update/${objectId}?type=${type.toLowerCase()}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       })
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.message._id) {
-          toast.success('Actualizado')
-          setTimeout(() => {
-            router.push(`/${currentModel.bussiness_cost}`)
-          }, 3000)
-        } else {
-          toast.error(res.message)
-        }
-      })
-      .finally(() => {
-        setSaveData(false)
-      })
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '')
+        throw new Error(`Error ${res.status}: ${errText || res.statusText}`)
+      }
+
+      const result = await res.json().catch(() => ({}))
+
+      if (result?.message?._id) {
+        toast.success('Actualizado')
+        setTimeout(() => {
+          router.push(`/${currentModel.bussiness_cost}`)
+        }, 1500)
+      } else {
+        toast.error(typeof result?.message === 'string' ? result.message : 'No se pudo actualizar')
+      }
+    } catch (err) {
+      toast.error(err.message || 'No se pudo actualizar')
+    } finally {
+      setSaveData(false)
+    }
   }
 
   return (
@@ -97,21 +96,17 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
           <input
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
             type="date"
-            value={getDateLoco(dateRequest)}
             {...register('request_date', { required: true })}
           />
           <input
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
             type="date"
-            value={getDateLoco(dateDelivery)}
             {...register('delivery_date', { required: true })}
           />
 
           <select
             className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
             {...register('client', { required: true })}
-            onChange={(e) => setClientData(e.target.value)}
-            value={EMPRESAS.find(empresa => empresa._id === clientData)?._id || ''}
           >
             {EMPRESAS.map(empresa => (
               <option key={empresa._id} value={empresa._id}>{empresa.name}</option>
@@ -151,15 +146,22 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
 export async function getServerSideProps (context) {
   const { type, currentEmpresa } = context.query
   const { objectId } = context.params
-  const currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${type.toLowerCase()}`)
-    .then(res => res.json())
-    .then(({ [type.toLowerCase()]: currentModel }) => currentModel)
+
+  if (!type) return { notFound: true }
+
+  const lowerType = type.toLowerCase()
+  const currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${lowerType}`)
+    .then(res => (res.ok ? res.json() : null))
+    .then(data => data?.[lowerType] ?? null)
+    .catch(() => null)
+
+  if (!currentModel) return { notFound: true }
 
   return {
     props: {
       type,
       objectId,
-      currentEmpresa,
+      currentEmpresa: currentEmpresa ?? '',
       currentModel
     }
   }
