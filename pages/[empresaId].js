@@ -53,9 +53,9 @@ function Empresa ({ empresa, documents, vehicles }) {
   const filteredRows = useMemo(() => {
     let r = rows.slice()
     if (typeFilter !== 'all') r = r.filter(d => d.type === typeFilter)
-    if (statusFilter !== 'all') {
-      r = r.filter(d => statusFilter === 'cancelado' ? d.isCancel_status : !d.isCancel_status)
-    }
+    // Solo se muestran los cancelados al elegir el KPI "Cancelados".
+    // En cualquier otra vista (Todos/Activos) se ocultan.
+    r = r.filter(d => statusFilter === 'cancelado' ? d.isCancel_status : !d.isCancel_status)
     if (query.trim()) {
       const t = query.toLowerCase()
       r = r.filter(d =>
@@ -218,11 +218,14 @@ function Empresa ({ empresa, documents, vehicles }) {
     setPage(1)
   }
 
+  // Los chips de tipo cuentan según la vista de estatus activa (activos vs cancelados).
+  const statusRows = rows.filter(d => statusFilter === 'cancelado' ? d.isCancel_status : !d.isCancel_status)
+
   const typeChips = [
-    { v: 'all', label: 'Todos', count: rows.length },
-    { v: 'Traslado', label: 'Traslados', count: rows.filter(d => d.type === 'Traslado').length },
-    { v: 'Flete', label: 'Fletes', count: rows.filter(d => d.type === 'Flete').length },
-    { v: 'Renta', label: 'Rentas', count: rows.filter(d => d.type === 'Renta').length }
+    { v: 'all', label: 'Todos', count: statusRows.length },
+    { v: 'Traslado', label: 'Traslados', count: statusRows.filter(d => d.type === 'Traslado').length },
+    { v: 'Flete', label: 'Fletes', count: statusRows.filter(d => d.type === 'Flete').length },
+    { v: 'Renta', label: 'Rentas', count: statusRows.filter(d => d.type === 'Renta').length }
   ]
 
   const dataState = rows.length === 0 ? 'empty' : 'ready'
@@ -244,7 +247,7 @@ function Empresa ({ empresa, documents, vehicles }) {
             <div>
               <h1>{empresa}</h1>
               <div className="lede">
-                Expediente operativo ·<span className="ml-1 font-semibold text-[var(--ink-2)]">{rows.length} documentos</span>
+                Expediente operativo ·<span className="ml-1 font-semibold text-[var(--ink-2)]">{statusRows.length} documentos</span>
               </div>
             </div>
           </div>
@@ -416,10 +419,38 @@ export async function getServerSideProps (context) {
     }
   }
 
-  const documents = await fetch(`${API}/flotilla/documentos/${empresaId}?type=${type}`)
-    .then((res) => res.json())
-    .then(({ documents }) => documents[0])
-    .catch(() => ({ traslado: [], fletes: [], rentas: [] }))
+  const fetchDocs = (qType) =>
+    fetch(`${API}/flotilla/documentos/${empresaId}${qType ? `?type=${qType}` : ''}`)
+      .then((res) => res.json())
+      .then(({ documents }) => documents[0])
+      .catch(() => ({ traslado: [], fletes: [], rentas: [] }))
+
+  // El endpoint solo devuelve activos por defecto y cancelados con type=cancel.
+  // El expediente muestra ambos en una sola vista, así que traemos los dos y los unimos.
+  const [active, cancelled] = await Promise.all([
+    fetchDocs(type),
+    fetchDocs('cancel')
+  ])
+
+  const mergeType = (key) => {
+    const merged = [
+      ...(Array.isArray(active?.[key]) ? active[key] : []),
+      ...(Array.isArray(cancelled?.[key]) ? cancelled[key] : [])
+    ]
+    const seen = new Set()
+    return merged.filter((d) => {
+      if (seen.has(d._id)) return false
+      seen.add(d._id)
+      return true
+    })
+  }
+
+  const documents = {
+    name: active?.name || cancelled?.name,
+    traslado: mergeType('traslado'),
+    fletes: mergeType('fletes'),
+    rentas: mergeType('rentas')
+  }
 
   const vehicles = await fetch(`${API}/flotilla/vehicles`)
     .then((res) => res.json())
