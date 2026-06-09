@@ -566,7 +566,7 @@ export default function DocumentWizard (props) {
     const casetasTotal = computeConcept(data.casetas_amount, data.casetas_unit, data.casetas_days, 1)
     const operatorTotal = computeConcept(data.operator_rate, data.operator_unit, data.operator_days, diasPeriodo)
     const perDiemTotal = computeConcept(data.per_diem_rate, data.per_diem_unit, data.per_diem_days, diasPeriodo)
-    const gasolineTotal = computeConcept(data.gasoline_rate, data.gasoline_unit, data.gasoline_km ?? '', diasPeriodo)
+    const gasolineTotal = computeConcept(data.gasoline_rate, data.gasoline_unit || 'fijo', 0, diasPeriodo)
     const rentaTotal = computeConcept(data.unit_rent_amount, data.unit_rent_unit, data.unit_rent_qty, diasPeriodo)
 
     const subtotal = casetasTotal + operatorTotal + perDiemTotal + gasolineTotal + rentaTotal

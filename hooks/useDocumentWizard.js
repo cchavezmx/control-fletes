@@ -136,7 +136,7 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
       casetas_unit: 'fijo',
       operator_unit: 'dia',
       per_diem_unit: 'dia',
-      gasoline_unit: 'dia',
+      gasoline_unit: 'fijo',
       unit_rent_unit: 'dia',
       origin: '',
       destination: '',

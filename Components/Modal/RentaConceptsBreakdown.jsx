@@ -60,11 +60,12 @@ const CONCEPTS = [
     title: 'Gasolina',
     subtitle: 'Combustible del trayecto',
     icon: Fuel,
-    defUnit: 'dia',
+    defUnit: 'fijo',
     rateField: 'gasoline_rate',
     daysField: 'gasoline_km',
     unitField: 'gasoline_unit',
-    notesField: 'gasoline_notes'
+    notesField: 'gasoline_notes',
+    fixed: true // gasolina es monto fijo (estimado total), no se multiplica por km
   },
   {
     key: 'renta',
@@ -341,8 +342,7 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const perDiemDays = Number(useWatch({ control, name: 'per_diem_days' }) || 0)
 
   const gasolineRate = Number(useWatch({ control, name: 'gasoline_rate' }) || 0)
-  const gasolineUnit = useWatch({ control, name: 'gasoline_unit' }) || 'dia'
-  const gasolineKm = useWatch({ control, name: 'gasoline_km' })
+  const gasolineUnit = useWatch({ control, name: 'gasoline_unit' }) || 'fijo'
 
   const unitRentAmount = Number(useWatch({ control, name: 'unit_rent_amount' }) || 0)
   const unitRentUnit = useWatch({ control, name: 'unit_rent_unit' }) || 'dia'
@@ -372,7 +372,7 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const casetasTotal = computeConcept(casetasAmount, casetasUnit, casetasDays, 1)
   const operatorTotal = computeConcept(operatorRate, operatorUnit, operatorDays, diasPeriodo)
   const perDiemTotal = computeConcept(perDiemRate, perDiemUnit, perDiemDays, diasPeriodo)
-  const gasolineTotal = computeConcept(gasolineRate, gasolineUnit, gasolineKm ?? '', diasPeriodo)
+  const gasolineTotal = computeConcept(gasolineRate, gasolineUnit, 0, diasPeriodo)
   const rentaTotal = computeConcept(unitRentAmount, unitRentUnit, unitRentQty, diasPeriodo)
 
   const subtotal = casetasTotal + operatorTotal + perDiemTotal + gasolineTotal + rentaTotal
