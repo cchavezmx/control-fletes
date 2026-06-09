@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { fmtDate, fmtTime, fmtMoney } from '../../utils/formatDate'
 import EMPRESAS from '../../lib/empresas.json'
+import { isDocCancelled } from '../../utils/getRowData'
 
 const getEmpresaName = (id) => {
   if (!id) return null
@@ -25,7 +26,7 @@ const TYPE_ICONS = { Traslado: Route, Flete: Package, Renta: Key }
 const STATUS_LABELS = { activo: 'Activo', pendiente: 'Pendiente', cancelado: 'Cancelado', borrador: 'Borrador' }
 
 function isCancelled (doc) {
-  return doc?.isCancel_status && doc.isCancel_status !== false && doc.isCancel_status !== 'false'
+  return isDocCancelled(doc)
 }
 
 function getStatusKey (doc) {
@@ -71,6 +72,18 @@ function ConceptRow ({ label, rate, unit, days, qty, km, notes, period, total })
         {notes && <Field label="Notas" value={notes} full />}
         {total !== undefined && total !== '' && <Field label="Importe" value={fmtMoney(total)} />}
       </div>
+    </div>
+  )
+}
+
+function CostLine ({ label, detail, total, bold, accent }) {
+  return (
+    <div className={`dd-costline${bold ? ' bold' : ''}${accent ? ' accent' : ''}`}>
+      <div className="dd-costline-text">
+        <span className="dd-costline-label">{label}</span>
+        {detail && <span className="dd-costline-detail">{detail}</span>}
+      </div>
+      <div className="dd-costline-total tnum">{total}</div>
     </div>
   )
 }
@@ -136,7 +149,31 @@ export default function DocDetailDrawer ({ doc, open, onClose, onOpenPDF, onEdit
   const profit_amount    = cb.profit_amount
   const indirect_amount  = cb.indirect_amount
 
-  const hasCosts = casetas_amount || operator_rate || per_diem_rate ||
+  // Cálculo de importes por concepto (mismo orden que el PDF y el Resumen del wizard)
+  // — casetas: monto fijo (sin multiplicador)
+  // — operador / viáticos: rate × days
+  // — gasolina: monto fijo (carga manual, sin multiplicador)
+  // — renta: monto × qty
+  const num = (v) => Number(v || 0)
+  const casetasImporte  = num(casetas_amount)
+  const operatorImporte = num(operator_rate) * num(operator_days)
+  const perDiemImporte  = num(per_diem_rate) * num(per_diem_days)
+  const gasolineImporte = num(gasoline_rate)
+  const unitRentImporte = num(unit_rent_amount) * num(unit_rent_qty || 1)
+  const subtotalConceptos = casetasImporte + operatorImporte + perDiemImporte + gasolineImporte + unitRentImporte
+
+  // profit / indirect: leer del subdoc persistido; si falta, recalcular desde % y subtotal
+  const profitPct   = num(doc.profit_pct)
+  const indirectPct = num(doc.indirect_pct)
+  const utilidadCalc   = +(subtotalConceptos * (profitPct / 100)).toFixed(2)
+  const indirectosCalc = +(subtotalConceptos * (indirectPct / 100)).toFixed(2)
+  const utilidad    = num(profit_amount)   || utilidadCalc
+  const indirectos  = num(indirect_amount) || indirectosCalc
+  const base        = subtotalConceptos + utilidad + indirectos
+  const iva         = +(base * 0.16).toFixed(2)
+  const total       = +(base + iva).toFixed(2)
+
+  const hasCosts = subtotalConceptos > 0 || casetas_amount || operator_rate || per_diem_rate ||
                    gasoline_rate || unit_rent_amount || doc.subtotal_travel
 
   const clientName  = getEmpresaName(normalizeId(doc.client))
@@ -281,25 +318,74 @@ export default function DocDetailDrawer ({ doc, open, onClose, onOpenPDF, onEdit
           </Section>
 
           {hasCosts && (
-            <Section title="Costos" icon={CreditCard}>
-              <ConceptRow label="Casetas" rate={casetas_amount} unit={casetas_unit} days={casetas_days} notes={casetas_notes} />
-              <ConceptRow label="Operador" rate={operator_rate} unit={operator_unit} days={operator_days} notes={operator_notes} />
-              <ConceptRow label="Viáticos" rate={per_diem_rate} unit={per_diem_unit} days={per_diem_days} notes={per_diem_notes} />
-              <ConceptRow label="Combustible" rate={gasoline_rate} unit={gasoline_unit} km={gasoline_km} notes={gasoline_notes} />
-              <ConceptRow label="Renta de unidad" rate={unit_rent_amount} unit={unit_rent_unit} qty={unit_rent_qty} period={unit_rent_period} notes={unit_rent_notes} />
-              <Field label="Subtotal conceptos" value={fmtMoney(doc.subtotal_travel)} />
-              {doc.profit_pct !== undefined && doc.profit_pct !== '' && (
-                <Field
-                  label="Utilidad"
-                  value={`${doc.profit_pct}%${profit_amount !== undefined && profit_amount !== '' ? ` · ${fmtMoney(profit_amount)}` : ''}`}
+            <Section title="Desglose de conceptos" icon={CreditCard}>
+              {casetasImporte > 0 && (
+                <CostLine
+                  label="Casetas"
+                  detail={casetas_unit && casetas_unit !== 'fijo' ? `${fmtMoney(casetas_amount)} × ${casetas_days || 1} ${casetas_unit}` : 'Monto fijo'}
+                  total={fmtMoney(casetasImporte)}
                 />
               )}
-              {doc.indirect_pct !== undefined && doc.indirect_pct !== '' && (
-                <Field
-                  label="Indirectos"
-                  value={`${doc.indirect_pct}%${indirect_amount !== undefined && indirect_amount !== '' ? ` · ${fmtMoney(indirect_amount)}` : ''}`}
+              {operatorImporte > 0 && (
+                <CostLine
+                  label="Operador"
+                  detail={`${operator_days || 0} días × ${fmtMoney(operator_rate)}/día`}
+                  total={fmtMoney(operatorImporte)}
                 />
               )}
+              {perDiemImporte > 0 && (
+                <CostLine
+                  label="Viáticos"
+                  detail={`${per_diem_days || 0} días × ${fmtMoney(per_diem_rate)}/día`}
+                  total={fmtMoney(perDiemImporte)}
+                />
+              )}
+              {gasolineImporte > 0 && (
+                <CostLine
+                  label="Gasolina"
+                  detail="Monto fijo"
+                  total={fmtMoney(gasolineImporte)}
+                />
+              )}
+              {unitRentImporte > 0 && (
+                <CostLine
+                  label="Renta de unidad"
+                  detail={unit_rent_qty > 1
+                    ? `${fmtMoney(unit_rent_amount)} × ${unit_rent_qty} ${unit_rent_unit || 'días'}`
+                    : (unit_rent_period
+                        ? { dia: 'Por día', semana: 'Por semana', mes: 'Por mes' }[unit_rent_period] || 'Monto fijo'
+                        : 'Monto fijo')}
+                  total={fmtMoney(unitRentImporte)}
+                />
+              )}
+
+              {subtotalConceptos > 0 && (
+                <CostLine label="Subtotal conceptos" total={fmtMoney(subtotalConceptos)} bold />
+              )}
+
+              {utilidad > 0 && (
+                <CostLine
+                  label={`Utilidad ${profitPct || doc.profit_pct || 8}%`}
+                  total={fmtMoney(utilidad)}
+                />
+              )}
+              {indirectos > 0 && (
+                <CostLine
+                  label={`Indirectos ${indirectPct || doc.indirect_pct || 12}%`}
+                  total={fmtMoney(indirectos)}
+                />
+              )}
+
+              {base > 0 && subtotalConceptos > 0 && (
+                <CostLine label="Subtotal + Util + Indir" total={fmtMoney(base)} bold />
+              )}
+              {iva > 0 && base > 0 && (
+                <CostLine label="IVA 16%" total={fmtMoney(iva)} />
+              )}
+              {total > 0 && base > 0 && (
+                <CostLine label="Total" total={fmtMoney(total)} bold accent />
+              )}
+
               {doc.priority && <Field label="Prioridad" value={doc.priority} />}
             </Section>
           )}

@@ -45,6 +45,7 @@ export const DOCUMENT_SCHEMA = z.object({
   per_diem_notes: z.string().optional(),
   gasoline_rate: z.string().optional(),
   gasoline_unit: z.string().optional(),
+  gasoline_km: z.string().optional(),
   gasoline_notes: z.string().optional(),
   unit_rent_amount: z.string().optional(),
   unit_rent_unit: z.string().optional(),
@@ -288,12 +289,50 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
     const segments = [normalized.origin, ...stopsClean, normalized.destination].filter(Boolean)
     const routeDerived = segments.join(' → ')
 
+    // Build cost_breakdown subdocument for the PDF service spec
+    // (docs/pdf-payload-spec.md §3.4, §4, §5.2)
+    const num = (v) => Number(v || 0)
+    const subtotal = num(normalized.subtotal_travel)
+    const profitPct = num(normalized.profit_pct)
+    const indirectPct = num(normalized.indirect_pct)
+    const profitAmount = +(subtotal * (profitPct / 100)).toFixed(2)
+    const indirectAmount = +(subtotal * (indirectPct / 100)).toFixed(2)
+
+    const cost_breakdown = {
+      casetas_amount:   num(normalized.casetas_amount),
+      casetas_unit:     normalized.casetas_unit   || 'fijo',
+      casetas_days:     num(normalized.casetas_days),
+      casetas_notes:    normalized.casetas_notes  || '',
+      operator_rate:    num(normalized.operator_rate),
+      operator_unit:    normalized.operator_unit  || 'dia',
+      operator_days:    num(normalized.operator_days),
+      operator_notes:   normalized.operator_notes || '',
+      per_diem_rate:    num(normalized.per_diem_rate),
+      per_diem_unit:    normalized.per_diem_unit  || 'dia',
+      per_diem_days:    num(normalized.per_diem_days),
+      per_diem_notes:   normalized.per_diem_notes || '',
+      gasoline_rate:    num(normalized.gasoline_rate),
+      gasoline_unit:    'fijo', // gasolina siempre monto fijo manual, sin multiplicador
+      gasoline_km:      num(normalized.gasoline_km || normalized.recorrido_km),
+      gasoline_notes:   normalized.gasoline_notes || '',
+      unit_rent_amount: num(normalized.unit_rent_amount),
+      unit_rent_unit:   normalized.unit_rent_unit || 'dia',
+      unit_rent_qty:    num(normalized.unit_rent_qty || 1),
+      unit_rent_notes:  normalized.unit_rent_notes || '',
+      unit_rent_period: normalized.unit_rent_period || 'dia',
+      profit_amount:    profitAmount,
+      indirect_amount:  indirectAmount
+    }
+
     const payload = {
       ...normalized,
       route: routeDerived,
       description: planSelected,
       vehicle: vehicleSelected,
       bussiness_cost: empresaId,
+      cost_breakdown,
+      profit_amount: profitAmount,
+      indirect_amount: indirectAmount,
       // Revisión de unidad (pre-flight checklist)
       pre_flight: {
         fuel_level: Number(normalized.fuel_level ?? 0),

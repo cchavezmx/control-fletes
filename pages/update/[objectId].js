@@ -1,15 +1,42 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import { useForm } from 'react-hook-form'
 import dayjs from 'dayjs'
+import {
+  ArrowLeft, FileText, MapPin, CalendarDays, Receipt, Fuel, CreditCard, Save
+} from 'lucide-react'
 import EMPRESAS from '../../lib/empresas.json'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/router'
+
 const API = process.env.NEXT_PUBLIC_API
 
-const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
+/* ─── Helpers de presentación ─── */
+const Section = ({ title, icon: Icon, children }) => (
+  <section className="edit-section">
+    <header className="edit-section-head">
+      {Icon && <Icon size={16} />}
+      <h3>{title}</h3>
+    </header>
+    <div className="form-row">{children}</div>
+  </section>
+)
+
+const Field = ({ label, children, hint, full }) => (
+  <div className="form-group" style={full ? { gridColumn: '1 / -1' } : undefined}>
+    <label className="label-intecsa">{label}</label>
+    {children}
+    {hint && <p className="help-text">{hint}</p>}
+  </div>
+)
+
+const UpdateModel = ({ type, objectId, currentModel, currentEmpresa, empresaId }) => {
   const router = useRouter()
+
+  // bussiness_cost a veces llega como objeto poblado desde el backend; normalizar a id string.
+  const bcId = typeof currentModel?.bussiness_cost === 'object'
+    ? currentModel?.bussiness_cost?._id
+    : currentModel?.bussiness_cost
+  const backEmpresaId = empresaId || bcId || ''
 
   const fmtDay = (d) => (d ? dayjs(d).format('YYYY-MM-DD') : '')
 
@@ -22,6 +49,8 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
   })
 
   const [saveData, setSaveData] = useState(false)
+
+  const goBack = () => router.push(`/${backEmpresaId}`)
 
   const updateOrderSubmit = async (data) => {
     setSaveData(true)
@@ -40,10 +69,8 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
       const result = await res.json().catch(() => ({}))
 
       if (result?.message?._id) {
-        toast.success('Actualizado')
-        setTimeout(() => {
-          router.push(`/${currentModel.bussiness_cost}`)
-        }, 1500)
+        toast.success('Documento actualizado')
+        setTimeout(goBack, 1200)
       } else {
         toast.error(typeof result?.message === 'string' ? result.message : 'No se pudo actualizar')
       }
@@ -54,89 +81,123 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
     }
   }
 
+  /* ─── Estado: documento no disponible ─── */
+  if (!currentModel) {
+    return (
+      <div className="wizard-wrap">
+        <div className="edit-empty">
+          <div className="edit-empty-ic"><FileText size={28} /></div>
+          <h1>No se pudo cargar el documento</h1>
+          <p>El documento no existe o el servicio no respondió. Verifica el enlace o inténtalo de nuevo.</p>
+          <button className="btn-intecsa" type="button" onClick={() => router.back()}>
+            <ArrowLeft size={15} /> Regresar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const inputCls = 'input-intecsa'
+
   return (
-    <div>
-      <div className="text-center p-4">
-        <h1 className="text-2xl font-bold">{currentEmpresa}</h1>
-        <h2 className="text-xl font-semibold">
-          Modificación <span className="bg-yellow-300 px-1 inline">{type}</span> Folio {currentModel.folio}
-        </h2>
-        <p className="text-xs text-muted-foreground">El tipo de documento y el folio no se pueden actualizar</p>
+    <div className="wizard-wrap">
+      {/* Header */}
+      <div className="wizard-header">
+        <div className="wizard-header-left">
+          <button className="iconbtn-intecsa" type="button" onClick={goBack} title="Volver">
+            <ArrowLeft size={16} />
+          </button>
+          <h1 className="wizard-header-title">Editar documento</h1>
+          <span className="badge-type">{type}</span>
+          <span className="badge-folio">Folio {currentModel.folio}</span>
+        </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit(updateOrderSubmit)}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start p-4"
-      >
-        <div className="flex flex-col gap-4 w-full">
-          {[
-            { name: 'subject', label: 'Asunto del documento', type: 'string' },
-            { name: 'driver', label: 'Conductor' },
-            { name: 'route', label: 'Ruta' },
-            { name: 'recorrido_km', label: 'Recorrido (Km)' },
-            { name: 'subtotal_travel', label: `Subtotal ${type.toUpperCase()}`, type: 'text' },
-            { name: 'fuel_level', label: 'Nivel de combustible %', type: 'number' },
-            { name: 'document_id', label: 'Salida de almacén (ADMIN/COMERCIAL)' },
-            { name: 'project_id', label: 'Folio proyecto' },
-            { name: 'fuel_card', label: 'Número de tarjeta de combustible' },
-            { name: 'fuel_amount', label: 'Carga de combustible' },
-            { name: 'link_googlemaps', label: 'Link Google Maps' }
-          ].map((field) => (
-            <input
-              key={field.name}
-              className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
-              placeholder={field.label}
-              type={field.type || 'text'}
-              {...register(field.name)}
-            />
-          ))}
-        </div>
+      <div className="edit-subhead">
+        <p className="edit-empresa">{currentEmpresa}</p>
+        <p className="help-text">El tipo de documento y el folio no se pueden actualizar.</p>
+      </div>
 
-        <div className="flex flex-col gap-4 w-full">
-          <input
-            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
-            type="date"
-            {...register('request_date', { required: true })}
-          />
-          <input
-            className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
-            type="date"
-            {...register('delivery_date', { required: true })}
-          />
+      <form onSubmit={handleSubmit(updateOrderSubmit)} className="edit-form">
+        <Section title="Información general" icon={FileText}>
+          <Field label="Asunto del documento" full>
+            <input className={inputCls} placeholder="Ej. Traslado de personal" {...register('subject')} />
+          </Field>
+          <Field label="Conductor">
+            <input className={inputCls} placeholder="Nombre del conductor" {...register('driver')} />
+          </Field>
+          <Field label="Cliente destino" full>
+            <select className="select-intecsa" {...register('client', { required: true })}>
+              {EMPRESAS.map(empresa => (
+                <option key={empresa._id} value={empresa._id}>{empresa.name}</option>
+              ))}
+            </select>
+          </Field>
+        </Section>
 
-          <select
-            className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
-            {...register('client', { required: true })}
-          >
-            {EMPRESAS.map(empresa => (
-              <option key={empresa._id} value={empresa._id}>{empresa.name}</option>
-            ))}
-          </select>
+        <Section title="Ruta" icon={MapPin}>
+          <Field label="Ruta" full>
+            <input className={inputCls} placeholder="Origen → paradas → destino" {...register('route')} />
+          </Field>
+          <Field label="Recorrido (km)">
+            <input className={inputCls} type="number" placeholder="0" {...register('recorrido_km')} />
+          </Field>
+          <Field label="Link de Google Maps">
+            <input className={inputCls} placeholder="https://maps.google.com/..." {...register('link_googlemaps')} />
+          </Field>
+        </Section>
 
-          {currentModel.casetas && (
-            <>
-              <Separator />
-              <p className="text-sm font-medium">Información de casetas</p>
-              <div className="flex flex-col gap-2">
-                <input
-                  className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
-                  placeholder="Costo total"
-                  {...register('casetas')}
-                />
-                <input
-                  className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
-                  placeholder="TARJETA / BANCO / NOMBRE"
-                  {...register('tarjeta_deposito')}
-                />
-              </div>
-              <Separator />
-            </>
-          )}
+        <Section title="Fechas" icon={CalendarDays}>
+          <Field label="Fecha de solicitud">
+            <input className={inputCls} type="date" {...register('request_date', { required: true })} />
+          </Field>
+          <Field label="Fecha de entrega">
+            <input className={inputCls} type="date" {...register('delivery_date', { required: true })} />
+          </Field>
+        </Section>
 
-          <div className="flex gap-4 justify-center mt-2">
-            <Button type="submit" disabled={saveData}>Guardar</Button>
-            <Button variant="outline" onClick={() => router.push(`/${currentModel.bussiness_cost}`)}>Regresar</Button>
-          </div>
+        <Section title="Facturación" icon={Receipt}>
+          <Field label={`Subtotal ${type}`}>
+            <input className={inputCls} type="number" placeholder="0.00" {...register('subtotal_travel')} />
+          </Field>
+          <Field label="Salida de almacén (ADMIN/COMERCIAL)">
+            <input className={inputCls} placeholder="Folio / referencia" {...register('document_id')} />
+          </Field>
+          <Field label="Folio proyecto">
+            <input className={inputCls} placeholder="Folio del proyecto" {...register('project_id')} />
+          </Field>
+        </Section>
+
+        <Section title="Combustible" icon={Fuel}>
+          <Field label="Nivel de combustible (%)">
+            <input className={inputCls} type="number" placeholder="0" {...register('fuel_level')} />
+          </Field>
+          <Field label="Número de tarjeta de combustible">
+            <input className={inputCls} placeholder="•••• 0000" {...register('fuel_card')} />
+          </Field>
+          <Field label="Carga de combustible">
+            <input className={inputCls} placeholder="Monto / litros" {...register('fuel_amount')} />
+          </Field>
+        </Section>
+
+        {currentModel.casetas && (
+          <Section title="Casetas" icon={CreditCard}>
+            <Field label="Costo total">
+              <input className={inputCls} placeholder="0.00" {...register('casetas')} />
+            </Field>
+            <Field label="Tarjeta / banco / nombre">
+              <input className={inputCls} placeholder="TARJETA / BANCO / NOMBRE" {...register('tarjeta_deposito')} />
+            </Field>
+          </Section>
+        )}
+
+        <div className="edit-foot">
+          <button className="btn-intecsa" type="button" onClick={goBack} disabled={saveData}>
+            <ArrowLeft size={15} /> Regresar
+          </button>
+          <button className="btn-intecsa primary" type="submit" disabled={saveData}>
+            <Save size={15} /> {saveData ? 'Guardando…' : 'Guardar cambios'}
+          </button>
         </div>
       </form>
     </div>
@@ -144,25 +205,47 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
 }
 
 export async function getServerSideProps (context) {
-  const { type, currentEmpresa } = context.query
+  const { type, currentEmpresa, empresaId } = context.query
   const { objectId } = context.params
 
   if (!type) return { notFound: true }
 
   const lowerType = type.toLowerCase()
-  const currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${lowerType}`)
+
+  // 1) Intento directo por id. (El backend /flotilla/get/:id puede responder 400.)
+  let currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${lowerType}`)
     .then(res => (res.ok ? res.json() : null))
-    .then(data => data?.[lowerType] ?? null)
+    .then(data => {
+      if (!data) return null
+      // Backend puede responder { traslado: {...} }, { Traslado: {...} } o el doc directo
+      return data[lowerType] ?? data[type] ?? data.document ?? (data._id ? data : null)
+    })
     .catch(() => null)
 
-  if (!currentModel) return { notFound: true }
+  // 2) Fallback: tomar el documento del listado de la empresa (endpoint que sí funciona).
+  if (!currentModel && empresaId) {
+    currentModel = await fetch(`${API}/flotilla/documentos/${empresaId}?type=${lowerType}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(json => {
+        const bucket = json?.documents?.[0]
+        if (!bucket) return null
+        const all = [
+          ...(bucket.traslado || []),
+          ...(bucket.fletes || []),
+          ...(bucket.rentas || [])
+        ]
+        return all.find(d => d._id === objectId) || null
+      })
+      .catch(() => null)
+  }
 
   return {
     props: {
       type,
       objectId,
+      empresaId: empresaId ?? null,
       currentEmpresa: currentEmpresa ?? '',
-      currentModel
+      currentModel: currentModel ?? null
     }
   }
 }
