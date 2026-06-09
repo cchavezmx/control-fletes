@@ -150,7 +150,11 @@ function Empresa ({ empresa, documents, vehicles }) {
         const doc = payload.id ? payload : payload
         router.push({
           pathname: `/update/${doc.id || doc._id}`,
-          query: { type: doc.type, currentEmpresa: empresa }
+          query: {
+            type: doc.type,
+            currentEmpresa: empresa,
+            empresaId: doc.bussiness_cost || empresaId
+          }
         })
         break
       }
@@ -186,7 +190,7 @@ function Empresa ({ empresa, documents, vehicles }) {
       default:
         break
     }
-  }, [router, empresa, rows])
+  }, [router, empresa, rows, empresaId])
 
   const handleToggle = (id) => {
     setSelected(prev => {

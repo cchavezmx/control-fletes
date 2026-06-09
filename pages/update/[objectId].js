@@ -156,13 +156,15 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
 }
 
 export async function getServerSideProps (context) {
-  const { type, currentEmpresa } = context.query
+  const { type, currentEmpresa, empresaId } = context.query
   const { objectId } = context.params
 
   if (!type) return { notFound: true }
 
   const lowerType = type.toLowerCase()
-  const currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${lowerType}`)
+
+  // 1) Intento directo por id. (El backend /flotilla/get/:id puede responder 400.)
+  let currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${lowerType}`)
     .then(res => (res.ok ? res.json() : null))
     .then(data => {
       if (!data) return null
@@ -170,6 +172,23 @@ export async function getServerSideProps (context) {
       return data[lowerType] ?? data[type] ?? data.document ?? (data._id ? data : null)
     })
     .catch(() => null)
+
+  // 2) Fallback: tomar el documento del listado de la empresa (endpoint que sí funciona).
+  if (!currentModel && empresaId) {
+    currentModel = await fetch(`${API}/flotilla/documentos/${empresaId}?type=${lowerType}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(json => {
+        const bucket = json?.documents?.[0]
+        if (!bucket) return null
+        const all = [
+          ...(bucket.traslado || []),
+          ...(bucket.fletes || []),
+          ...(bucket.rentas || [])
+        ]
+        return all.find(d => d._id === objectId) || null
+      })
+      .catch(() => null)
+  }
 
   return {
     props: {
