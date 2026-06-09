@@ -48,7 +48,6 @@ export default function DocumentWizard (props) {
     register,
     control,
     setValue,
-    watch,
     errors,
     activeStep,
     type,
@@ -174,7 +173,9 @@ export default function DocumentWizard (props) {
     </div>
   )
 
-  const StepClienteFechas = () => (
+  const StepClienteFechas = () => {
+    const clientValue = useWatch({ control, name: 'client' }) || ''
+    return (
     <div className="wizard-step-body">
       <div className="form-row">
         <div className="form-group">
@@ -184,7 +185,7 @@ export default function DocumentWizard (props) {
           </label>
           <select
             className={`select-intecsa ${errors.client ? 'error' : ''}`}
-            value={watch('client') || ''}
+            value={clientValue}
             onChange={(e) => setValue('client', e.target.value, { shouldValidate: true })}
           >
             <option value="">Selecciona un cliente…</option>
@@ -269,7 +270,8 @@ export default function DocumentWizard (props) {
         {errors.delivery_date && <span className="field-error">{errors.delivery_date.message}</span>}
       </div>
     </div>
-  )
+    )
+  }
 
   const StopsField = () => {
     const stops = useWatch({ control, name: 'stops' }) || []
@@ -422,7 +424,7 @@ export default function DocumentWizard (props) {
     const fuelLevel = useWatch({ control, name: 'fuel_level' })
 
     const ChecklistItem = ({ name, label, hint }) => {
-      const checked = !!watch(name)
+      const checked = !!useWatch({ control, name })
       return (
         <label className={`checklist-item${checked ? ' checked' : ''}`}>
           <input
@@ -533,7 +535,7 @@ export default function DocumentWizard (props) {
   }
 
   const StepResumen = ({ goTo }) => {
-    const data = watch()
+    const data = useWatch({ control })
     const planSelected = planByVehicle.find(p => p._id === planWatchSelected)
     const empresaName = EMPRESAS.find(e => e._id === data.client)?.name || '—'
     const isTrasladoFlete = type === 'traslado' || type === 'flete'
