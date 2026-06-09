@@ -155,9 +155,9 @@ El backend actual (`FlotillasController.printPlan`) hace `axios.post` con `respo
 | `per_diem_rate` | number | no | 0 | Tarifa viáticos. |
 | `per_diem_unit` | string | no | `"dia"` | Unidad viáticos. |
 | `per_diem_days` | number (int) | no | 0 | Cantidad de unidades viáticos. |
-| `gasoline_rate` | number | no | 0 | Tarifa gasolina. |
-| `gasoline_unit` | string | no | `"km"` | Unidad gasolina (`"km"`, `"litro"`, `"dia"`). |
-| `gasoline_km` | number | no | 0 | Cantidad de unidades gasolina. |
+| `gasoline_rate` | number | no | 0 | **Monto fijo de gasolina (carga manual). Este ES el importe — NO multiplicar.** |
+| `gasoline_unit` | string | no | `"fijo"` | Siempre `"fijo"`. La gasolina ya no se cobra por unidad. |
+| `gasoline_km` | number | no | 0 | **Solo informativo** (kilometraje del recorrido). **NO entra al cálculo del importe.** |
 | `unit_rent_amount` | number | no | 0 | Monto renta de unidad. |
 | `unit_rent_period` | enum | no | `"dia"` | `"dia"` \| `"semana"` \| `"mes"`. **Legacy**, en desuso por el wizard nuevo. |
 | `unit_rent_unit` | string | no | `"dia"` | Unidad renta de unidad (string libre). Usado por el wizard nuevo junto con `unit_rent_qty`. |
@@ -195,11 +195,11 @@ El frontend también envía `checklist_extintor`, `checklist_llanta_refaccion`, 
 ## 4. Cálculo del subtotal (servicio externo debe hacer)
 
 ```
-subtotal_conceptos = casetas_amount
+subtotal_conceptos = casetas_amount                      // monto fijo, NO multiplicar
                    + (operator_rate  × operator_days)
                    + (per_diem_rate  × per_diem_days)
-                   + (gasoline_rate  × gasoline_km)
-                   + unit_rent_amount
+                   + gasoline_rate                       // ⚠️ monto fijo manual, NO multiplicar por gasoline_km
+                   + unit_rent_amount                     // monto fijo / (× unit_rent_qty si aplica)
 
 utilidad    = subtotal_conceptos × (profit_pct / 100)
 indirectos  = subtotal_conceptos × (indirect_pct / 100)
@@ -207,6 +207,26 @@ base        = subtotal_conceptos + utilidad + indirectos
 iva         = base × 0.16
 total       = base + iva
 ```
+
+> **⚠️ BUG ACTIVO (gasolina multiplicada).** El servicio externo está calculando
+> `gasoline_rate × gasoline_km`, inflando el importe. Ejemplo real (Folio Renta 172):
+> gasolina mostró `78 km × $250.00 = $19,500.00` cuando el importe correcto es
+> **$250.00** (monto fijo). Peor aún, el desglose quedó **inconsistente**: utilidad
+> e indirectos se calcularon sobre el subtotal correcto (gasolina = 250 → $50.40 y
+> $75.60 = 8%/12% de 630), pero la línea de gasolina, el subtotal y el IVA usaron el
+> valor multiplicado. **Regla definitiva: la gasolina es un monto fijo de carga
+> manual. NUNCA se multiplica por `gasoline_km` ni por días.** `gasoline_km` queda
+> solo como dato informativo (kilometraje del recorrido), no entra al cálculo.
+
+**Reglas de multiplicación por concepto (resumen):**
+
+| Concepto | Importe | ¿Multiplica? |
+|---|---|---|
+| Casetas | `casetas_amount` | ❌ Monto fijo |
+| Operador | `operator_rate × operator_days` | ✅ rate × días |
+| Viáticos | `per_diem_rate × per_diem_days` | ✅ rate × días |
+| **Gasolina** | **`gasoline_rate`** | ❌ **Monto fijo (manual)** |
+| Renta de unidad | `unit_rent_amount × (unit_rent_qty || 1)` | ✅ monto × cantidad |
 
 **Orden de las filas en el PDF (§5.2):**
 
