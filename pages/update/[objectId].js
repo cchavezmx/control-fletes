@@ -29,8 +29,14 @@ const Field = ({ label, children, hint, full }) => (
   </div>
 )
 
-const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
+const UpdateModel = ({ type, objectId, currentModel, currentEmpresa, empresaId }) => {
   const router = useRouter()
+
+  // bussiness_cost a veces llega como objeto poblado desde el backend; normalizar a id string.
+  const bcId = typeof currentModel?.bussiness_cost === 'object'
+    ? currentModel?.bussiness_cost?._id
+    : currentModel?.bussiness_cost
+  const backEmpresaId = empresaId || bcId || ''
 
   const fmtDay = (d) => (d ? dayjs(d).format('YYYY-MM-DD') : '')
 
@@ -44,7 +50,7 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
 
   const [saveData, setSaveData] = useState(false)
 
-  const goBack = () => router.push(`/${currentModel?.bussiness_cost || ''}`)
+  const goBack = () => router.push(`/${backEmpresaId}`)
 
   const updateOrderSubmit = async (data) => {
     setSaveData(true)
@@ -237,6 +243,7 @@ export async function getServerSideProps (context) {
     props: {
       type,
       objectId,
+      empresaId: empresaId ?? null,
       currentEmpresa: currentEmpresa ?? '',
       currentModel: currentModel ?? null
     }
