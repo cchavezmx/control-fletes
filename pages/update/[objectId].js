@@ -54,6 +54,18 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa }) => {
     }
   }
 
+  if (!currentModel) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 p-10 text-center">
+        <h1 className="text-xl font-semibold">No se pudo cargar el documento</h1>
+        <p className="text-sm text-muted-foreground">
+          El documento no existe o el servicio no respondió. Verifica el enlace o inténtalo de nuevo.
+        </p>
+        <Button variant="outline" onClick={() => router.back()}>Regresar</Button>
+      </div>
+    )
+  }
+
   return (
     <div>
       <div className="text-center p-4">
@@ -152,17 +164,19 @@ export async function getServerSideProps (context) {
   const lowerType = type.toLowerCase()
   const currentModel = await fetch(`${API}/flotilla/get/${objectId}?type=${lowerType}`)
     .then(res => (res.ok ? res.json() : null))
-    .then(data => data?.[lowerType] ?? null)
+    .then(data => {
+      if (!data) return null
+      // Backend puede responder { traslado: {...} }, { Traslado: {...} } o el doc directo
+      return data[lowerType] ?? data[type] ?? data.document ?? (data._id ? data : null)
+    })
     .catch(() => null)
-
-  if (!currentModel) return { notFound: true }
 
   return {
     props: {
       type,
       objectId,
       currentEmpresa: currentEmpresa ?? '',
-      currentModel
+      currentModel: currentModel ?? null
     }
   }
 }
