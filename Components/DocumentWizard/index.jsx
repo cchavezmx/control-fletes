@@ -73,7 +73,7 @@ export default function DocumentWizard (props) {
 
   const [openNewVehicle, setOpenNewVehicle] = useState(false)
   const [newPlan, setNewPlan] = useState(false)
-  const planWatchSelected = watch('plan')
+  const planWatchSelected = useWatch({ control, name: 'plan' })
 
   const handledNewVehicle = (event) => setOpenNewVehicle(event)
   const handledNewPlan = (event) => setNewPlan(event)
