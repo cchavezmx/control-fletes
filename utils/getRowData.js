@@ -15,6 +15,9 @@ const getBussinesCostName = (doc) => {
   return EMPRESAS.find((empresa) => empresa._id === _client)?.name;
 }
 
+// Un documento se considera cancelado cuando tiene un motivo en isCancel_status.
+export const isDocCancelled = (doc) => Boolean(doc?.isCancel_status);
+
 const getRowData = ({ documents }) => {
   const traslados =
     documents.traslado !== 0

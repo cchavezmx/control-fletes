@@ -195,17 +195,45 @@ El frontend también envía `checklist_extintor`, `checklist_llanta_refaccion`, 
 ## 4. Cálculo del subtotal (servicio externo debe hacer)
 
 ```
-subtotal = casetas_amount
-         + (operator_rate  × operator_days)
-         + (per_diem_rate  × per_diem_days)
-         + (gasoline_rate  × gasoline_km)
-         + unit_rent_amount
-         + profit_amount
-         + indirect_amount
+subtotal_conceptos = casetas_amount
+                   + (operator_rate  × operator_days)
+                   + (per_diem_rate  × per_diem_days)
+                   + (gasoline_rate  × gasoline_km)
+                   + unit_rent_amount
+
+utilidad    = subtotal_conceptos × (profit_pct / 100)
+indirectos  = subtotal_conceptos × (indirect_pct / 100)
+base        = subtotal_conceptos + utilidad + indirectos
+iva         = base × 0.16
+total       = base + iva
 ```
 
-IVA: `subtotal × 0.16`.
-TOTAL: `subtotal + IVA`.
+**Orden de las filas en el PDF (§5.2):**
+
+```
+  Casetas            <importe>
+  Operador           <importe>
+  Viáticos           <importe>
+  Gasolina           <importe>
+  Renta de unidad    <importe>
+  ─────────────────────────────────
+  Subtotal           subtotal_conceptos
+  Utilidad  <pct>%   utilidad
+  Indirectos  <pct>% indirectos
+  ─────────────────────────────────
+  Subtotal + Util + Indir   base
+  IVA 16%            iva
+  ─────────────────────────────────
+  TOTAL              total
+```
+
+**Nota sobre `profit_amount` / `indirect_amount` del payload:** se mantienen por
+compatibilidad, pero el servicio externo debe recalcular a partir de
+`profit_pct` / `indirect_pct` y de `subtotal_conceptos` (no de
+`subtotal_travel` legacy). El orden visual es: primero los 5 conceptos, luego
+el subtotal de esos 5, **después** utilidad e indirectos como renglones
+separados, **después** la base, IVA y total. **NO** sumar `profit_amount` /
+`indirect_amount` dentro del subtotal de los 5 conceptos.
 
 Redondear a 2 decimales (`Math.round(x * 100) / 100`) para evitar drift por punto flotante.
 
