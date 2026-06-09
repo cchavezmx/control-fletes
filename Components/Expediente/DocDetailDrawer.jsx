@@ -152,13 +152,13 @@ export default function DocDetailDrawer ({ doc, open, onClose, onOpenPDF, onEdit
   // Cálculo de importes por concepto (mismo orden que el PDF y el Resumen del wizard)
   // — casetas: monto fijo (sin multiplicador)
   // — operador / viáticos: rate × days
-  // — gasolina: rate × km  (con fallback a recorrido_km del documento)
+  // — gasolina: monto fijo (carga manual, sin multiplicador)
   // — renta: monto × qty
   const num = (v) => Number(v || 0)
   const casetasImporte  = num(casetas_amount)
   const operatorImporte = num(operator_rate) * num(operator_days)
   const perDiemImporte  = num(per_diem_rate) * num(per_diem_days)
-  const gasolineImporte = num(gasoline_rate) * num(gasoline_km ?? doc.recorrido_km)
+  const gasolineImporte = num(gasoline_rate)
   const unitRentImporte = num(unit_rent_amount) * num(unit_rent_qty || 1)
   const subtotalConceptos = casetasImporte + operatorImporte + perDiemImporte + gasolineImporte + unitRentImporte
 
@@ -343,7 +343,7 @@ export default function DocDetailDrawer ({ doc, open, onClose, onOpenPDF, onEdit
               {gasolineImporte > 0 && (
                 <CostLine
                   label="Gasolina"
-                  detail={`${(gasoline_km ?? doc.recorrido_km) || 0} ${gasoline_unit === 'km' ? 'km' : (gasoline_unit || 'días')} × ${fmtMoney(gasoline_rate)}`}
+                  detail="Monto fijo"
                   total={fmtMoney(gasolineImporte)}
                 />
               )}

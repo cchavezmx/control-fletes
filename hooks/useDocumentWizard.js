@@ -312,7 +312,7 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
       per_diem_days:    num(normalized.per_diem_days),
       per_diem_notes:   normalized.per_diem_notes || '',
       gasoline_rate:    num(normalized.gasoline_rate),
-      gasoline_unit:    normalized.gasoline_unit  || 'dia',
+      gasoline_unit:    'fijo', // gasolina siempre monto fijo manual, sin multiplicador
       gasoline_km:      num(normalized.gasoline_km || normalized.recorrido_km),
       gasoline_notes:   normalized.gasoline_notes || '',
       unit_rent_amount: num(normalized.unit_rent_amount),
