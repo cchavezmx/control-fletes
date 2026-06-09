@@ -153,7 +153,7 @@ function Empresa ({ empresa, documents, vehicles }) {
           query: {
             type: doc.type,
             currentEmpresa: empresa,
-            empresaId: doc.bussiness_cost || empresaId
+            empresaId
           }
         })
         break
