@@ -27,7 +27,8 @@ import {
   Truck,
   Mailbox,
   UserCircle,
-  MoreVertical
+  MoreVertical,
+  Bug
 } from 'lucide-react'
 
 const menuObject = [
@@ -40,6 +41,11 @@ const menuObject = [
     name: 'ITA-Utils',
     icon: Settings,
     link: 'ita-utils'
+  },
+  {
+    name: 'QA Board',
+    icon: Bug,
+    link: 'qa'
   }
 ]
 
