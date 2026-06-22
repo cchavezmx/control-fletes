@@ -58,8 +58,8 @@ export async function getServerSideProps(context) {
   return {
     props: {
       id,
-      type,
-    },
+      type: type?.trim().toLowerCase() || 'traslado'
+    }
   };
 }
 
