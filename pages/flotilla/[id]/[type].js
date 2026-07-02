@@ -52,13 +52,24 @@ const PDFInvoice = ({ id, type }) => {
   );
 };
 
+const ALLOWED_TYPES = ["traslado", "flete", "renta"];
+
 export async function getServerSideProps(context) {
   const { id, type } = context.query;
+  const clean = (type || "")
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200F\uFEFF]/g, "")
+    .trim()
+    .toLowerCase();
+
+  if (!ALLOWED_TYPES.includes(clean)) {
+    return { notFound: true };
+  }
 
   return {
     props: {
       id,
-      type: type?.trim().toLowerCase() || 'traslado'
+      type: clean
     }
   };
 }
