@@ -30,3 +30,8 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# pnpm: el workspace file lo regenera pnpm 10/11 con allowBuilds, lo que
+# rompe pnpm 9 en Vercel ('packages field missing'). La aprobacion de builds
+# vive en package.json (pnpm.onlyBuiltDependencies) para compat con pnpm 9.
+pnpm-workspace.yaml
