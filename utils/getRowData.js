@@ -1,14 +1,20 @@
 import dayjs from "dayjs";
 import EMPRESAS from "../lib/empresas.json";
+import { parseDateLocal } from "../utils/formatDate";
 
-const formatDate = (date, time) => {
-  const formatDate = new Date(date).toUTCString();
-  if (!time) {
-    return dayjs(formatDate).add(1, "day").format("DD/MM/YYYY");
-  } else {
-    return dayjs(formatDate).format("HH:mm a");
-  }
-};
+const pad = (n) => String(n).padStart(2, '0')
+
+const formatDate = (date) => {
+  if (!date) return '—'
+  const dt = parseDateLocal(date)
+  if (!dt) return '—'
+  return `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear()}`
+}
+
+const formatTime = (date) => {
+  if (!date) return '—'
+  return dayjs(new Date(date)).format("HH:mm a")
+}
 
 const getBussinesCostName = (doc) => {
   const _client = doc.client;
@@ -29,7 +35,7 @@ const getRowData = ({ documents }) => {
             type: "Traslado",
             request_date: formatDate(document.request_date),
             delivery_date: formatDate(document.delivery_date),
-            createdAt: formatDate(document.createdAt, "time"),
+            createdAt: formatTime(document.createdAt),
             modelo: document?.vehicle_info?.modelo,
           };
         })
@@ -45,7 +51,7 @@ const getRowData = ({ documents }) => {
             bussiness_cost: getBussinesCostName(document),
             request_date: formatDate(document.request_date),
             delivery_date: formatDate(document.delivery_date),
-            createdAt: formatDate(document.createdAt, "time"),
+            createdAt: formatTime(document.createdAt),
             modelo: document?.vehicle_info?.modelo,
           };
         })
@@ -61,7 +67,7 @@ const getRowData = ({ documents }) => {
             type: "Renta",
             request_date: formatDate(document.request_date),
             delivery_date: formatDate(document.delivery_date),
-            createdAt: formatDate(document.createdAt, "time"),
+            createdAt: formatTime(document.createdAt),
             modelo: document?.vehicle_info?.modelo,
           };
         })

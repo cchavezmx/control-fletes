@@ -86,11 +86,14 @@ function Empresa ({ empresa, documents, vehicles }) {
       if (sort.key === 'fechaEntrega') {
         const parseDate = (str) => {
           if (!str) return 0
+          let dt
           if (typeof str === 'string' && str.includes('/')) {
             const [d, m, y] = str.split('/')
-            return new Date(`${y}-${m}-${d}`).getTime()
+            dt = new Date(`${y}-${m}-${d}T00:00:00`)
+          } else {
+            dt = new Date(str)
           }
-          return new Date(str).getTime()
+          return isNaN(dt) ? 0 : dt.getTime()
         }
         return (parseDate(va) - parseDate(vb)) * dir
       }
