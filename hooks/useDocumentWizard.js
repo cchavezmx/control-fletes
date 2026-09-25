@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { useGlobalState } from '../context/GlobalContext'
+import { computeCostBreakdown } from '../utils/costBreakdown'
 
 // ─── Schema (exported for reuse) ───
 export const DOCUMENT_SCHEMA = z.object({
@@ -289,37 +290,42 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
     const segments = [normalized.origin, ...stopsClean, normalized.destination].filter(Boolean)
     const routeDerived = segments.join(' → ')
 
+    // Gasolina: el wizard la captura como monto fijo, por lo que forzamos
+    // gasoline_km a 1 para evitar que el servicio de PDF la multiplique por
+    // el recorrido. Si en el futuro se expone modo por-km, se heredará
+    // recorrido_km cuando la unidad sea 'km'.
+    normalized.gasoline_km = normalized.gasoline_unit === 'km'
+      ? (normalized.gasoline_km || normalized.recorrido_km)
+      : 1
+
     // Build cost_breakdown subdocument for the PDF service spec
     // (docs/pdf-payload-spec.md §3.4, §4, §5.2)
-    const num = (v) => Number(v || 0)
-    const subtotal = num(normalized.subtotal_travel)
-    const profitPct = num(normalized.profit_pct)
-    const indirectPct = num(normalized.indirect_pct)
-    const profitAmount = +(subtotal * (profitPct / 100)).toFixed(2)
-    const indirectAmount = +(subtotal * (indirectPct / 100)).toFixed(2)
+    const breakdown = computeCostBreakdown(normalized)
+    const profitAmount = breakdown.utilidad
+    const indirectAmount = breakdown.indirectos
 
     const cost_breakdown = {
-      casetas_amount:   num(normalized.casetas_amount),
-      casetas_unit:     normalized.casetas_unit   || 'fijo',
-      casetas_days:     num(normalized.casetas_days),
-      casetas_notes:    normalized.casetas_notes  || '',
-      operator_rate:    num(normalized.operator_rate),
-      operator_unit:    normalized.operator_unit  || 'dia',
-      operator_days:    num(normalized.operator_days),
-      operator_notes:   normalized.operator_notes || '',
-      per_diem_rate:    num(normalized.per_diem_rate),
-      per_diem_unit:    normalized.per_diem_unit  || 'dia',
-      per_diem_days:    num(normalized.per_diem_days),
-      per_diem_notes:   normalized.per_diem_notes || '',
-      gasoline_rate:    num(normalized.gasoline_rate),
-      gasoline_unit:    'fijo', // gasolina siempre monto fijo manual, sin multiplicador
-      gasoline_km:      num(normalized.gasoline_km || normalized.recorrido_km),
-      gasoline_notes:   normalized.gasoline_notes || '',
-      unit_rent_amount: num(normalized.unit_rent_amount),
-      unit_rent_unit:   normalized.unit_rent_unit || 'dia',
-      unit_rent_qty:    num(normalized.unit_rent_qty || 1),
-      unit_rent_notes:  normalized.unit_rent_notes || '',
-      unit_rent_period: normalized.unit_rent_period || 'dia',
+      casetas_amount:   breakdown.concepts.casetas.rate,
+      casetas_unit:     breakdown.concepts.casetas.unit,
+      casetas_days:     breakdown.concepts.casetas.days,
+      casetas_notes:    breakdown.concepts.casetas.notes,
+      operator_rate:    breakdown.concepts.operator.rate,
+      operator_unit:    breakdown.concepts.operator.unit,
+      operator_days:    breakdown.concepts.operator.days,
+      operator_notes:   breakdown.concepts.operator.notes,
+      per_diem_rate:    breakdown.concepts.perDiem.rate,
+      per_diem_unit:    breakdown.concepts.perDiem.unit,
+      per_diem_days:    breakdown.concepts.perDiem.days,
+      per_diem_notes:   breakdown.concepts.perDiem.notes,
+      gasoline_rate:    breakdown.concepts.gasoline.rate,
+      gasoline_unit:    breakdown.concepts.gasoline.unit,
+      gasoline_km:      breakdown.concepts.gasoline.km,
+      gasoline_notes:   breakdown.concepts.gasoline.notes,
+      unit_rent_amount: breakdown.concepts.unitRent.rate,
+      unit_rent_unit:   breakdown.concepts.unitRent.unit,
+      unit_rent_qty:    breakdown.concepts.unitRent.qty,
+      unit_rent_notes:  breakdown.concepts.unitRent.notes,
+      unit_rent_period: breakdown.concepts.unitRent.period || 'dia',
       profit_amount:    profitAmount,
       indirect_amount:  indirectAmount
     }

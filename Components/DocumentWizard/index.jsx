@@ -17,6 +17,7 @@ import EMPRESAS from '../../lib/empresas.json'
 import VehiclesSelector from '../VehiclesSelector'
 import DatePickerIntecsa from '../DatePickerIntecsa'
 import Banner from '../Banner'
+import { computeCostBreakdown, computeDiasPeriodo } from '../../utils/costBreakdown'
 
 export { DOCUMENT_SCHEMA, STEPS } from '../../hooks/useDocumentWizard'
 
@@ -546,37 +547,26 @@ export default function DocumentWizard (props) {
     const liveStops = (data.stops || []).filter(s => s && s.trim())
     const liveRoute = [data.origin, ...liveStops, data.destination].filter(Boolean).join(' → ')
 
-    const computeConcept = (rate, unit, qty, dias) => {
-      const r = Number(rate || 0)
-      if (!r) return 0
-      if (unit === 'fijo') return r
-      let cant = (qty === '' || qty == null || qty === undefined) ? null : Number(qty)
-      if (cant === null || cant === undefined) {
-        cant = Number(dias) || 1
-      }
-      return r * cant
-    }
+    const diasPeriodo = computeDiasPeriodo(data.request_date, data.delivery_date)
 
-    const diasPeriodo = (() => {
-      if (!data.request_date || !data.delivery_date) return 1
-      const d = Math.round((new Date(data.delivery_date) - new Date(data.request_date)) / 86400000)
-      return d > 0 ? d : 1
-    })()
+    const breakdown = computeCostBreakdown(data, { diasPeriodo })
+    const {
+      concepts,
+      subtotal,
+      profitPct,
+      indirectPct,
+      utilidad,
+      indirectos,
+      base,
+      iva,
+      total
+    } = breakdown
 
-    const casetasTotal = computeConcept(data.casetas_amount, data.casetas_unit, data.casetas_days, 1)
-    const operatorTotal = computeConcept(data.operator_rate, data.operator_unit, data.operator_days, diasPeriodo)
-    const perDiemTotal = computeConcept(data.per_diem_rate, data.per_diem_unit, data.per_diem_days, diasPeriodo)
-    const gasolineTotal = Number(data.gasoline_rate || 0) // gasolina: monto fijo manual, sin multiplicador
-    const rentaTotal = computeConcept(data.unit_rent_amount, data.unit_rent_unit, data.unit_rent_qty, diasPeriodo)
-
-    const subtotal = casetasTotal + operatorTotal + perDiemTotal + gasolineTotal + rentaTotal
-    const profitPct = Number(data.profit_pct || 8)
-    const indirectPct = Number(data.indirect_pct || 12)
-    const utilidad = subtotal * (profitPct / 100)
-    const indirectos = subtotal * (indirectPct / 100)
-    const base = subtotal + utilidad + indirectos
-    const iva = base * 0.16
-    const total = base + iva
+    const casetasTotal = concepts.casetas.importe
+    const operatorTotal = concepts.operator.importe
+    const perDiemTotal = concepts.perDiem.importe
+    const gasolineTotal = concepts.gasoline.importe
+    const rentaTotal = concepts.unitRent.importe
 
     const SumRow = ({ label, val, empty }) => (
       <div className="sum-row">

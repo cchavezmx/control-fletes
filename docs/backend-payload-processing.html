@@ -1,0 +1,550 @@
+<title>Procesamiento de Payload — Flotillas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --brand-600: #3f51b5;
+    --brand-700: #303f9f;
+    --brand-50: #e8eaf6;
+    --brand-100: #c5cae9;
+    --ink: #1a1d29;
+    --ink-2: #3d4356;
+    --muted: #6b7280;
+    --muted-2: #9ca3af;
+    --line: #e2e4eb;
+    --surface: #ffffff;
+    --surface-2: #f8f9fc;
+    --surface-3: #eef0f6;
+    --success: #15803d;
+    --warning: #b45309;
+    --critical: #b91c1c;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(26,29,41,0.08), 0 4px 12px rgba(26,29,41,0.05);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --brand-600: #7986cb;
+      --brand-700: #9fa8da;
+      --brand-50: #1a1c2b;
+      --brand-100: #2d3150;
+      --ink: #f0f1f5;
+      --ink-2: #c5c9d6;
+      --muted: #9ca3af;
+      --muted-2: #6b7280;
+      --line: #33374a;
+      --surface: #141622;
+      --surface-2: #1a1c2b;
+      --surface-3: #22263a;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --brand-600: #7986cb;
+    --brand-700: #9fa8da;
+    --brand-50: #1a1c2b;
+    --brand-100: #2d3150;
+    --ink: #f0f1f5;
+    --ink-2: #c5c9d6;
+    --muted: #9ca3af;
+    --muted-2: #6b7280;
+    --line: #33374a;
+    --surface: #141622;
+    --surface-2: #1a1c2b;
+    --surface-3: #22263a;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--surface-2);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 900px) {
+    .page {
+      grid-template-columns: 1fr;
+      padding: 20px 16px 48px;
+    }
+    .sidebar { display: none; }
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 32px;
+    height: fit-content;
+  }
+
+  .sidebar-title {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+
+  .toc a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .toc a:hover {
+    background: var(--surface-3);
+    color: var(--brand-700);
+  }
+
+  main {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 44px;
+    border: 1px solid var(--line);
+  }
+
+  @media (max-width: 700px) {
+    main { padding: 24px; }
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Barlow', sans-serif;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 44px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 28px;
+    margin-bottom: 12px;
+  }
+
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .lead {
+    font-size: 17px;
+    color: var(--ink-2);
+    margin-bottom: 28px;
+    max-width: 680px;
+  }
+
+  p { margin: 0 0 14px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--brand-50);
+    color: var(--brand-700);
+    margin-bottom: 24px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-600);
+  }
+
+  pre {
+    background: var(--surface-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 14px 0 22px;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    background: var(--surface-3);
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: var(--ink-2);
+  }
+
+  pre code {
+    background: transparent;
+    padding: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .note {
+    background: var(--brand-50);
+    border-left: 4px solid var(--brand-600);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+
+  .warning {
+    background: #fef3c7;
+    border-left-color: var(--warning);
+  }
+
+  .critical {
+    background: #fee2e2;
+    border-left-color: var(--critical);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .warning { background: #2d2310; }
+    :root:not([data-theme="light"]) .critical { background: #2d1515; }
+  }
+
+  :root[data-theme="dark"] .warning { background: #2d2310; }
+  :root[data-theme="dark"] .critical { background: #2d1515; }
+
+  .formula {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin: 18px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .formula strong {
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  ul, ol {
+    margin: 0 0 18px;
+    padding-left: 22px;
+  }
+
+  li { margin-bottom: 6px; }
+
+  .kicker {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-600);
+    margin-bottom: 8px;
+  }
+</style>
+
+<div class="page">
+  <aside class="sidebar">
+    <p class="sidebar-title">En esta página</p>
+    <nav class="toc">
+      <a href="#intro">Contexto</a>
+      <a href="#endpoint">Endpoint y formato</a>
+      <a href="#campos">Campos esperados</a>
+      <a href="#calculo">Cálculo del backend</a>
+      <a href="#gasolina">Regla crítica: gasolina</a>
+      <a href="#persistencia">Qué persistir</a>
+      <a href="#respuesta">Qué devolver al frontend</a>
+      <a href="#legacy">Compatibilidad legacy</a>
+      <a href="#ejemplo">Ejemplo completo</a>
+      <a href="#verificacion">Checklist de QA</a>
+    </nav>
+  </aside>
+
+  <main>
+    <p class="kicker">Control de Fletes · Backend</p>
+    <h1>Procesamiento del payload de flotilla</h1>
+
+    <span class="badge">Documento vigente</span>
+
+    <p class="lead">
+      Instrucciones para que el backend/API procese correctamente la creación y actualización de documentos de <strong>Traslado</strong>, <strong>Flete</strong> y <strong>Renta</strong> enviados desde el frontend de Control de Fletes.
+    </p>
+
+    <h2 id="intro">1. Contexto</h2>
+    <p>
+      El frontend centralizó el cálculo de costos en <code>utils/costBreakdown.js</code>. El payload que llega ahora es predecible: campos de conceptos como strings, porcentajes como números, y un objeto <code>cost_breakdown</code> anidado con los importes calculados. El backend debe:
+    </p>
+    <ol>
+      <li>Coercer los campos numéricos del payload a <code>Number</code> antes de persistir.</li>
+      <li>Guardar el objeto <code>cost_breakdown</code> tal cual llega.</li>
+      <li>Al generar PDFs o reportes, recalcular el subtotal desde <code>cost_breakdown</code>, no confiar en <code>subtotal_travel</code> legacy.</li>
+      <li>Respetar la unidad de gasolina para no multiplicar un monto fijo por el recorrido.</li>
+    </ol>
+
+    <div class="note critical">
+      <strong>Regla de oro:</strong> el frontend ya no duplica la lógica. Si el backend recalcula distinto, el PDF y el drawer mostrarán totales diferentes. Ambos deben usar la misma fórmula documentada aquí.
+    </div>
+
+    <h2 id="endpoint">2. Endpoint y formato</h2>
+    <p>
+      El frontend hace POST a:
+    </p>
+    <pre><code>POST ${NEXT_PUBLIC_API}/flotilla/insert?type=traslado|flete|renta
+Content-Type: application/json</code></pre>
+
+    <p>Para actualización:</p>
+    <pre><code>PUT ${NEXT_PUBLIC_API}/flotilla/update/:id?type=traslado|flete|renta
+Content-Type: application/json</code></pre>
+
+    <h2 id="campos">3. Campos esperados</h2>
+    <table>
+      <thead>
+        <tr><th>Campo</th><th>Tipo esperado</th><th>Notas</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>type</code></td><td>string</td><td>Viaja como parámetro de URL. Valores: <code>traslado</code>, <code>flete</code>, <code>renta</code>.</td></tr>
+        <tr><td><code>client</code></td><td>string (ObjectId)</td><td>Empresa destino.</td></tr>
+        <tr><td><code>bussiness_cost</code></td><td>string (ObjectId)</td><td>Empresa creadora.</td></tr>
+        <tr><td><code>subject</code></td><td>string</td><td>Asunto del documento.</td></tr>
+        <tr><td><code>request_date</code></td><td>string ISO <code>YYYY-MM-DD</code></td><td>Fecha de solicitud.</td></tr>
+        <tr><td><code>delivery_date</code></td><td>string ISO <code>YYYY-MM-DD</code></td><td>Fecha de entrega / dispersión.</td></tr>
+        <tr><td><code>vehicle</code></td><td>string</td><td>Placas, no <code>_id</code>.</td></tr>
+        <tr><td><code>driver</code></td><td>string</td><td>En mayúsculas.</td></tr>
+        <tr><td><code>origin</code>, <code>destination</code></td><td>string</td><td>Ruta derivada en <code>route</code>.</td></tr>
+        <tr><td><code>subtotal_travel</code></td><td>Number</td><td>Legacy. No usar para recalcular el desglose; solo como fallback.</td></tr>
+        <tr><td><code>profit_pct</code></td><td>Number</td><td>Default 8.</td></tr>
+        <tr><td><code>indirect_pct</code></td><td>Number</td><td>Default 12.</td></tr>
+        <tr><td><code>cost_breakdown</code></td><td>Object</td><td>Desglose de conceptos. Ver detalle abajo.</td></tr>
+        <tr><td><code>pre_flight</code></td><td>Object</td><td>Revisión de unidad: <code>fuel_level</code>, <code>cargo_description</code>, <code>items</code>, <code>observaciones</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.1 <code>cost_breakdown</code> anidado</h3>
+    <p>El frontend envía todos estos campos como <strong>números</strong> (coerción ya aplicada):</p>
+    <pre><code>{
+  "casetas_amount": 1200,
+  "casetas_unit": "fijo",
+  "casetas_days": 0,
+  "casetas_notes": "",
+  "operator_rate": 839.22,
+  "operator_unit": "dia",
+  "operator_days": 14,
+  "operator_notes": "",
+  "per_diem_rate": 307.80,
+  "per_diem_unit": "dia",
+  "per_diem_days": 14,
+  "per_diem_notes": "",
+  "gasoline_rate": 5.00,
+  "gasoline_unit": "km",
+  "gasoline_km": 420,
+  "gasoline_notes": "",
+  "unit_rent_amount": 17800.00,
+  "unit_rent_unit": "dia",
+  "unit_rent_qty": 1,
+  "unit_rent_notes": "",
+  "unit_rent_period": "dia",
+  "profit_amount": 666.16,
+  "indirect_amount": 999.24
+}</code></pre>
+
+    <h2 id="calculo">4. Cálculo que debe aplicar el backend</h2>
+
+    <div class="formula">
+      <strong>Fórmula oficial</strong>
+      conceptos = casetas_amount
+                + (operator_rate × operator_days)
+                + (per_diem_rate × per_diem_days)
+                + (gasoline_rate × gasoline_km cuando unit === 'km', sino gasoline_rate)
+                + (unit_rent_amount × unit_rent_qty)
+
+      subtotal  = redondear2(conceptos)
+      utilidad  = profit_amount ?? redondear2(subtotal × profit_pct / 100)
+      indirectos = indirect_amount ?? redondear2(subtotal × indirect_pct / 100)
+      base      = redondear2(subtotal + utilidad + indirectos)
+      iva       = redondear2(base × 0.16)
+      total     = redondear2(base + iva)
+    </div>
+
+    <p>Donde <code>redondear2(x) = Math.round(x * 100) / 100</code>.</p>
+
+    <div class="note">
+      <strong>Nota:</strong> los campos <code>profit_amount</code> e <code>indirect_amount</code> ya viajan calculados. El backend puede usarlos directamente para evitar drift. Si no viajan (documentos legacy), recalcular desde los porcentajes.
+    </div>
+
+    <h2 id="gasolina">5. Regla crítica: gasolina</h2>
+    <p>
+      El wizard captura gasolina como un <strong>monto fijo</strong> por defecto. El campo <code>gasoline_unit</code> indica cómo interpretarla:
+    </p>
+    <ul>
+      <li><code>gasoline_unit === 'km'</code> y <code>gasoline_km &gt; 0</code>: importe = <code>gasoline_rate × gasoline_km</code>.</li>
+      <li>Cualquier otro caso (incluyendo <code>fijo</code>, <code>dia</code> o ausente): importe = <code>gasoline_rate</code>. No multiplicar por nada.</li>
+    </ul>
+
+    <div class="note warning">
+      <strong>Advertencia:</strong> si el backend ignora <code>gasoline_unit</code> y siempre hace <code>gasoline_rate × gasoline_km</code>, cuando el wizard envíe un monto fijo de $2,500 con <code>gasoline_km: 1</code> el resultado será correcto. Pero si un documento legacy tiene <code>gasoline_km: 420</code> pensando que es recorrido, el importe se disparará a $1,050,000. Respetar la unidad es la única forma segura.
+    </div>
+
+    <h2 id="persistencia">6. Qué persistir</h2>
+    <p>El backend debe persistir al menos:</p>
+    <ul>
+      <li>El objeto <code>cost_breakdown</code> completo (campos de desglose + <code>profit_amount</code> + <code>indirect_amount</code>).</li>
+      <li><code>subtotal_travel</code> como <code>Number</code>.</li>
+      <li><code>profit_pct</code> e <code>indirect_pct</code> como <code>Number</code>.</li>
+      <li><code>pre_flight</code> anidado.</li>
+    </ul>
+
+    <p>Si el backend transforma a un schema propio, debe asegurar que los tipos sean numéricos:</p>
+    <pre><code>cost_breakdown: {
+  casetas_amount: Number(doc.casetas_amount || 0),
+  operator_rate: Number(doc.operator_rate || 0),
+  operator_days: Number(doc.operator_days || 0),
+  // ... etc
+}</code></pre>
+
+    <h2 id="respuesta">7. Qué devolver al frontend</h2>
+    <p>En los endpoints de lectura (especialmente <code>GET /flotilla/documentos/:empresaId</code>), devolver cada documento con:</p>
+    <pre><code>{
+  "_id": "...",
+  "type": "Renta",
+  "folio": 1,
+  "subtotal_travel": 38823.68,
+  "profit_pct": 8,
+  "indirect_pct": 12,
+  "cost_breakdown": { /* objeto completo */ },
+  "pre_flight": { /* objeto completo */ }
+}</code></pre>
+
+    <p>El frontend usa <code>cost_breakdown</code> para renderizar el drawer. Si falta, cae a <code>subtotal_travel</code> como fallback, pero sin desglose por concepto.</p>
+
+    <h2 id="legacy">8. Compatibilidad legacy</h2>
+    <p>Documentos antiguos pueden no tener <code>cost_breakdown</code>. En ese caso:</p>
+    <ol>
+      <li>Usar <code>subtotal_travel</code> como subtotal.</li>
+      <li>Calcular utilidad e indirectos desde <code>profit_pct</code> / <code>indirect_pct</code>.</li>
+      <li>No intentar desglosar conceptos.</li>
+    </ol>
+
+    <h2 id="ejemplo">9. Ejemplo completo de payload de entrada</h2>
+    <pre><code>{
+  "type": "renta",
+  "client": "626e223ffe9887654db63c38",
+  "bussiness_cost": "626e223ffe9887654db63c37",
+  "subject": "Renta De Unidad Para Obra Neiboruga",
+  "request_date": "2025-07-01",
+  "delivery_date": "2025-07-15",
+  "vehicle": "713ZHY",
+  "driver": "JUAN PÉREZ GARCÍA",
+  "origin": "Cd. Obregón, Son.",
+  "destination": "Hermosillo, Son.",
+  "stops": ["Empalme, Son.", "Guaymas, Son."],
+  "route": "Cd. Obregón, Son. → Empalme, Son. → Guaymas, Son. → Hermosillo, Son.",
+  "recorrido_km": "420",
+  "subtotal_travel": 38823.68,
+  "profit_pct": 8,
+  "indirect_pct": 12,
+  "cost_breakdown": {
+    "casetas_amount": 1200,
+    "operator_rate": 839.22,
+    "operator_days": 14,
+    "per_diem_rate": 307.80,
+    "per_diem_days": 14,
+    "gasoline_rate": 5.00,
+    "gasoline_unit": "km",
+    "gasoline_km": 420,
+    "unit_rent_amount": 17800.00,
+    "unit_rent_qty": 1,
+    "profit_amount": 666.16,
+    "indirect_amount": 999.24
+  },
+  "pre_flight": {
+    "fuel_level": 75,
+    "cargo_description": "28 ton perfiles de acero",
+    "items": { "extintor": true, "llanta_refaccion": true, "herramientas": true, "gato": true, "cinturon": true, "documentos": true, "tarjetas": true },
+    "observaciones": "Sin golpes visibles."
+  },
+  "tarjeta_deposito": "BANCOMER 4152 **** **** 7733"
+}</code></pre>
+
+    <h2 id="verificacion">10. Checklist de QA</h2>
+    <ul>
+      <li>Crear un documento de renta con todos los conceptos: wizard, drawer y PDF muestran el mismo total.</li>
+      <li>Crear un documento con gasolina fija: el PDF no multiplica por el recorrido.</li>
+      <li>Verificar documentos legacy: el drawer muestra el subtotal aunque no haya desglose.</li>
+      <li>Verificar montos con decimales extraños (ej. $1,000.555): redondeo a 2 decimales sin drift acumulado.</li>
+      <li>Verificar porcentajes 0%: utilidad e indirectos quedan en 0.</li>
+    </ul>
+
+    <div class="note">
+      <strong>Referencia frontend:</strong> la implementación de referencia vive en <code>utils/costBreakdown.js</code>. Cualquier discrepancia entre backend y frontend debe resolverse copiando esa fórmula al backend.
+    </div>
+  </main>
+</div>
