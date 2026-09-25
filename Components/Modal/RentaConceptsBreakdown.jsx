@@ -151,6 +151,31 @@ const ConceptItem = ({
     ? 1
     : (qtyRaw !== '' && qtyRaw != null ? Number(qtyRaw) : (defaultDays || 1))
 
+  // Mantiene el input de cantidad como string controlado mientras el usuario escribe,
+  // para evitar que un parseo numérico agresivo trunque o cierre el campo.
+  const [qtyDraft, setQtyDraft] = useState(qtyRaw || '')
+  const qtyInputRef = useRef(qtyDraft)
+  qtyInputRef.current = qtyDraft
+
+  useEffect(() => {
+    if (qtyRaw !== qtyInputRef.current) {
+      setQtyDraft(qtyRaw || '')
+    }
+  }, [qtyRaw])
+
+  const handleQtyChange = (e) => {
+    const raw = e.target.value.replace(/[^\d]/g, '')
+    setQtyDraft(raw)
+    setField(concept.daysField, raw === '' ? '' : Number(raw))
+  }
+
+  const handleQtyBlur = () => {
+    if (qtyDraft === '' || qtyDraft == null) {
+      setQtyDraft(String(defaultDays || 1))
+      setField(concept.daysField, defaultDays || 1)
+    }
+  }
+
   const monto = computeConceptTotal({
     rate: rateRaw,
     unit,
