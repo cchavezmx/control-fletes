@@ -8,6 +8,7 @@ import {
 import { fmtDate, fmtTime, fmtMoney } from '../../utils/formatDate'
 import EMPRESAS from '../../lib/empresas.json'
 import { isDocCancelled } from '../../utils/getRowData'
+import { computeCostBreakdown } from '../../utils/costBreakdown'
 
 const getEmpresaName = (id) => {
   if (!id) return null
@@ -122,59 +123,60 @@ export default function DocDetailDrawer ({ doc, open, onClose, onOpenPDF, onEdit
   const stops = Array.isArray(doc.stops) ? doc.stops : []
   const emailSent = Array.isArray(doc.email_sent) ? doc.email_sent : []
 
-  // Cost breakdown: leer del subdocumento anidado (lo que persiste el backend),
-  // con fallback a top-level para retrocompatibilidad con documentos legacy.
-  const cb = doc.cost_breakdown || {}
-  const casetas_amount  = cb.casetas_amount  ?? doc.casetas_amount
-  const casetas_unit    = cb.casetas_unit    ?? doc.casetas_unit
-  const casetas_days    = cb.casetas_days    ?? doc.casetas_days
-  const casetas_notes   = cb.casetas_notes   ?? doc.casetas_notes
-  const operator_rate   = cb.operator_rate   ?? doc.operator_rate
-  const operator_unit   = cb.operator_unit   ?? doc.operator_unit
-  const operator_days   = cb.operator_days   ?? doc.operator_days
-  const operator_notes  = cb.operator_notes  ?? doc.operator_notes
-  const per_diem_rate   = cb.per_diem_rate   ?? doc.per_diem_rate
-  const per_diem_unit   = cb.per_diem_unit   ?? doc.per_diem_unit
-  const per_diem_days   = cb.per_diem_days   ?? doc.per_diem_days
-  const per_diem_notes  = cb.per_diem_notes  ?? doc.per_diem_notes
-  const gasoline_rate   = cb.gasoline_rate   ?? doc.gasoline_rate
-  const gasoline_unit   = cb.gasoline_unit   ?? doc.gasoline_unit
-  const gasoline_km     = cb.gasoline_km     ?? doc.gasoline_days
-  const gasoline_notes  = cb.gasoline_notes  ?? doc.gasoline_notes
-  const unit_rent_amount = cb.unit_rent_amount ?? doc.unit_rent_amount
-  const unit_rent_unit   = cb.unit_rent_unit   ?? doc.unit_rent_unit
-  const unit_rent_qty    = cb.unit_rent_qty    ?? doc.unit_rent_qty
-  const unit_rent_period = cb.unit_rent_period ?? doc.unit_rent_period
-  const unit_rent_notes  = cb.unit_rent_notes  ?? doc.unit_rent_notes
-  const profit_amount    = cb.profit_amount
-  const indirect_amount  = cb.indirect_amount
+  // Cálculo centralizado del desglose (soporta cost_breakdown anidado y legacy plano).
+  const breakdown = computeCostBreakdown(doc)
+  const {
+    concepts,
+    subtotal: subtotalConceptos,
+    profitPct,
+    indirectPct,
+    utilidad,
+    indirectos,
+    base,
+    iva,
+    total,
+    hasCosts,
+    hasBreakdown
+  } = breakdown
 
-  // Cálculo de importes por concepto (mismo orden que el PDF y el Resumen del wizard)
-  // — casetas: monto fijo (sin multiplicador)
-  // — operador / viáticos: rate × days
-  // — gasolina: monto fijo (carga manual, sin multiplicador)
-  // — renta: monto × qty
-  const num = (v) => Number(v || 0)
-  const casetasImporte  = num(casetas_amount)
-  const operatorImporte = num(operator_rate) * num(operator_days)
-  const perDiemImporte  = num(per_diem_rate) * num(per_diem_days)
-  const gasolineImporte = num(gasoline_rate)
-  const unitRentImporte = num(unit_rent_amount) * num(unit_rent_qty || 1)
-  const subtotalConceptos = casetasImporte + operatorImporte + perDiemImporte + gasolineImporte + unitRentImporte
-
-  // profit / indirect: leer del subdoc persistido; si falta, recalcular desde % y subtotal
-  const profitPct   = num(doc.profit_pct)
-  const indirectPct = num(doc.indirect_pct)
-  const utilidadCalc   = +(subtotalConceptos * (profitPct / 100)).toFixed(2)
-  const indirectosCalc = +(subtotalConceptos * (indirectPct / 100)).toFixed(2)
-  const utilidad    = num(profit_amount)   || utilidadCalc
-  const indirectos  = num(indirect_amount) || indirectosCalc
-  const base        = subtotalConceptos + utilidad + indirectos
-  const iva         = +(base * 0.16).toFixed(2)
-  const total       = +(base + iva).toFixed(2)
-
-  const hasCosts = subtotalConceptos > 0 || casetas_amount || operator_rate || per_diem_rate ||
-                   gasoline_rate || unit_rent_amount || doc.subtotal_travel
+  const {
+    casetas: {
+      rate: casetas_amount,
+      unit: casetas_unit,
+      days: casetas_days,
+      notes: casetas_notes,
+      importe: casetasImporte
+    },
+    operator: {
+      rate: operator_rate,
+      unit: operator_unit,
+      days: operator_days,
+      notes: operator_notes,
+      importe: operatorImporte
+    },
+    perDiem: {
+      rate: per_diem_rate,
+      unit: per_diem_unit,
+      days: per_diem_days,
+      notes: per_diem_notes,
+      importe: perDiemImporte
+    },
+    gasoline: {
+      rate: gasoline_rate,
+      unit: gasoline_unit,
+      km: gasoline_km,
+      notes: gasoline_notes,
+      importe: gasolineImporte
+    },
+    unitRent: {
+      rate: unit_rent_amount,
+      unit: unit_rent_unit,
+      qty: unit_rent_qty,
+      period: unit_rent_period,
+      notes: unit_rent_notes,
+      importe: unitRentImporte
+    }
+  } = concepts
 
   const clientName  = getEmpresaName(normalizeId(doc.client))
   const companyName = getEmpresaName(normalizeId(doc.bussiness_cost))
@@ -360,7 +362,11 @@ export default function DocDetailDrawer ({ doc, open, onClose, onOpenPDF, onEdit
               )}
 
               {subtotalConceptos > 0 && (
-                <CostLine label="Subtotal conceptos" total={fmtMoney(subtotalConceptos)} bold />
+                <CostLine
+                  label={hasBreakdown ? 'Subtotal conceptos' : 'Subtotal'}
+                  total={fmtMoney(subtotalConceptos)}
+                  bold
+                />
               )}
 
               {utilidad > 0 && (

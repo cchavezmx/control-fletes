@@ -3,6 +3,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import {
   ChevronDown, ChevronUp, User, Wallet, Fuel, Truck, CreditCard
 } from 'lucide-react'
+import { computeCostBreakdown, computeConceptTotal, computeDiasPeriodo } from '../../utils/costBreakdown'
 
 const formatCurrency = (value) => {
   if (!value || isNaN(value)) return '$0.00'
@@ -142,21 +143,21 @@ const ConceptItem = ({
   const unit = useWatch({ control, name: concept.unitField }) || concept.defUnit
   const notes = useWatch({ control, name: concept.notesField }) || ''
 
-  const rate = Number(rateRaw || 0)
   const u = UNITS[unit] || UNITS.fijo
   const isFijo = concept.fixed || unit === 'fijo'
 
-  // effective quantity
-  let qty = 1
-  if (!isFijo) {
-    if (qtyRaw !== '' && qtyRaw != null) {
-      qty = Number(qtyRaw)
-    } else {
-      qty = defaultDays || 1
-    }
-  }
+  const rate = Number(rateRaw || 0)
+  const qty = isFijo
+    ? 1
+    : (qtyRaw !== '' && qtyRaw != null ? Number(qtyRaw) : (defaultDays || 1))
 
-  const monto = isFijo ? rate : rate * qty
+  const monto = computeConceptTotal({
+    rate: rateRaw,
+    unit,
+    qty: qtyRaw,
+    diasPeriodo: defaultDays,
+    fixed: isFijo
+  })
 
   const headSub = rate
     ? (isFijo
@@ -342,6 +343,8 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const perDiemDays = Number(useWatch({ control, name: 'per_diem_days' }) || 0)
 
   const gasolineRate = Number(useWatch({ control, name: 'gasoline_rate' }) || 0)
+  const gasolineUnit = useWatch({ control, name: 'gasoline_unit' }) || 'fijo'
+  const gasolineKm = Number(useWatch({ control, name: 'gasoline_km' }) || 0)
 
   const unitRentAmount = Number(useWatch({ control, name: 'unit_rent_amount' }) || 0)
   const unitRentUnit = useWatch({ control, name: 'unit_rent_unit' }) || 'dia'
@@ -351,35 +354,56 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const indirectPct = Number(useWatch({ control, name: 'indirect_pct' }) || 12)
 
   /* Compute days from dates */
-  const diasPeriodo = useMemo(() => {
-    if (!requestDate || !deliveryDate) return 1
-    const d = Math.round((new Date(deliveryDate) - new Date(requestDate)) / 86400000)
-    return d > 0 ? d : 1
-  }, [requestDate, deliveryDate])
+  const diasPeriodo = useMemo(() => computeDiasPeriodo(requestDate, deliveryDate), [requestDate, deliveryDate])
 
-  /* Helper to compute concept total */
-  const computeConcept = (rate, unit, qty, dias) => {
-    if (!rate) return 0
-    if (unit === 'fijo') return rate
-    let cant = qty
-    if (cant === '' || cant == null || cant === undefined) {
-      cant = dias || 1
-    }
-    return rate * cant
-  }
+  const formValues = useMemo(() => ({
+    request_date: requestDate,
+    delivery_date: deliveryDate,
+    profit_pct: profitPct,
+    indirect_pct: indirectPct,
+    casetas_amount: casetasAmount,
+    casetas_unit: casetasUnit,
+    casetas_days: casetasDays,
+    operator_rate: operatorRate,
+    operator_unit: operatorUnit,
+    operator_days: operatorDays,
+    per_diem_rate: perDiemRate,
+    per_diem_unit: perDiemUnit,
+    per_diem_days: perDiemDays,
+    gasoline_rate: gasolineRate,
+    gasoline_unit: gasolineUnit,
+    gasoline_km: gasolineKm,
+    unit_rent_amount: unitRentAmount,
+    unit_rent_unit: unitRentUnit,
+    unit_rent_qty: unitRentQty
+  }), [
+    requestDate, deliveryDate, profitPct, indirectPct,
+    casetasAmount, casetasUnit, casetasDays,
+    operatorRate, operatorUnit, operatorDays,
+    perDiemRate, perDiemUnit, perDiemDays,
+    gasolineRate, gasolineUnit, gasolineKm,
+    unitRentAmount, unitRentUnit, unitRentQty
+  ])
 
-  const casetasTotal = computeConcept(casetasAmount, casetasUnit, casetasDays, 1)
-  const operatorTotal = computeConcept(operatorRate, operatorUnit, operatorDays, diasPeriodo)
-  const perDiemTotal = computeConcept(perDiemRate, perDiemUnit, perDiemDays, diasPeriodo)
-  const gasolineTotal = gasolineRate // gasolina: monto fijo manual, sin multiplicador
-  const rentaTotal = computeConcept(unitRentAmount, unitRentUnit, unitRentQty, diasPeriodo)
+  const breakdown = useMemo(() =>
+    computeCostBreakdown(formValues, { diasPeriodo }),
+  [formValues, diasPeriodo])
 
-  const subtotal = casetasTotal + operatorTotal + perDiemTotal + gasolineTotal + rentaTotal
-  const utilidad = subtotal * (profitPct / 100)
-  const indirectos = subtotal * (indirectPct / 100)
-  const base = subtotal + utilidad + indirectos
-  const iva = base * 0.16
-  const total = base + iva
+  const {
+    concepts,
+    subtotal,
+    utilidad,
+    indirectos,
+    base,
+    iva,
+    total
+  } = breakdown
+
+  const casetasTotal = concepts.casetas.importe
+  const operatorTotal = concepts.operator.importe
+  const perDiemTotal = concepts.perDiem.importe
+  const gasolineTotal = concepts.gasoline.importe
+  const rentaTotal = concepts.unitRent.importe
 
   /* Sync subtotal to form (always — even when 0, so backend receives a number) */
   const prevSubtotal = useRef(subtotal)
