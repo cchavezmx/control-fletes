@@ -138,7 +138,7 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
       casetas_unit: 'fijo',
       operator_unit: 'dia',
       per_diem_unit: 'dia',
-      gasoline_unit: 'dia',
+      gasoline_unit: 'fijo',
       unit_rent_unit: 'dia',
       origin: '',
       destination: '',
@@ -165,7 +165,7 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
     formState: { errors }
   } = methods
 
-  console.log('plan', errors)
+  // console.log('plan errors', errors)
 
   const planWatchSelected = watch('plan')
 
@@ -295,7 +295,7 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
     // el recorrido. Si en el futuro se expone modo por-km, se heredará
     // recorrido_km cuando la unidad sea 'km'.
     normalized.gasoline_km = normalized.gasoline_unit === 'km'
-      ? (normalized.gasoline_km || normalized.recorrido_km)
+      ? (Number(normalized.gasoline_km) || Number(normalized.recorrido_km) || 1)
       : 1
 
     // Build cost_breakdown subdocument for the PDF service spec
@@ -365,13 +365,16 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
         body: JSON.stringify(payload)
       })
 
-      if (!res.ok) {
-        const errText = await res.text().catch(() => '')
-        throw new Error(`Error ${res.status}: ${errText || res.statusText}`)
-      }
-
       const data = await res.json().catch(() => ({}))
       console.log('[flotilla/insert] response:', data)
+
+      if (!res.ok || data.success === false) {
+        const backendMessage = data?.message || data?.error || ''
+        const errText = backendMessage || (await res.text().catch(() => ''))
+        throw new Error(
+          `Error ${res.status}: ${errText || res.statusText || 'No se pudo guardar el documento'}`
+        )
+      }
 
       toast.success('Documento guardado')
       handleCancel()
