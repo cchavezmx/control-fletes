@@ -87,7 +87,10 @@ const FIELD_LABELS = {
   driver: 'Conductor',
   origin: 'Origen',
   destination: 'Destino',
-  subtotal_travel: 'Subtotal'
+  subtotal_travel: 'Subtotal',
+  fuel_level: 'Nivel de combustible',
+  plan: 'Plan del vehículo',
+  vehicle: 'Vehículo'
 }
 
 const TEXT_FIELDS_UPPER = ['driver']
@@ -217,19 +220,29 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
   }, [])
 
   const handleNext = useCallback(async () => {
-    const fieldsPerStep = [
-      [],
-      ['client', 'subject', 'request_date', 'delivery_date'],
-      ['driver', 'origin', 'destination'],
-      [],
-      []
-    ]
+    // Validar TODO el formulario al avanzar, no solo los campos del paso actual.
+    const valid = await trigger()
+    if (!valid) {
+      const allErrors = Object.entries(errors)
+        .filter(([, err]) => err != null)
+        .map(([field, err]) => {
+          const label = FIELD_LABELS[field] || field
+          return `${label}: ${err?.message || 'inválido'}`
+        })
+      if (allErrors.length > 0) {
+        setStepErrors(allErrors)
+        toast.error(`Revisa el formulario:\n${allErrors.join('\n')}`)
+      }
+      scrollToTop()
+      return
+    }
 
+    // Validaciones específicas por paso (tipo/vehículo y desglose)
     if (activeStep === 0) {
       const errs = []
       if (!type) errs.push('Selecciona el tipo de documento')
       if (!vehicleSelected) errs.push('Selecciona un vehículo')
-      if (errs.length) { setStepErrors(errs); scrollToTop(); return }
+      if (errs.length) { setStepErrors(errs); toast.error(errs.join('\n')); scrollToTop(); return }
     } else if (activeStep === 4) {
       const current = watch()
       const conceptRates = [
@@ -241,18 +254,9 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
       ]
       const hasAny = conceptRates.some(r => r && Number(r) > 0)
       if (!hasAny) {
-        setStepErrors(['Captura al menos un concepto (tarifa > 0) en el desglose'])
-        scrollToTop()
-        return
-      }
-    } else {
-      const valid = await trigger(fieldsPerStep[activeStep])
-      if (!valid) {
-        const stepFields = fieldsPerStep[activeStep]
-        const errs = stepFields
-          .filter(f => errors[f])
-          .map(f => errors[f]?.message || `${FIELD_LABELS[f] || f} es obligatorio`)
-        setStepErrors(errs)
+        const msg = 'Captura al menos un concepto (tarifa > 0) en el desglose'
+        setStepErrors([msg])
+        toast.error(msg)
         scrollToTop()
         return
       }
@@ -275,6 +279,13 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
   const onSubmit = useCallback(async (data) => {
     setSaveData(true)
     const planSelected = planByVehicle.find(item => item._id === data.plan)
+
+    if (!planSelected) {
+      console.warn('[wizard] no hay plan seleccionado')
+      toast.error('Selecciona un plan del vehículo antes de guardar')
+      setSaveData(false)
+      return
+    }
 
     // Normalize strings
     const normalized = { ...data }
@@ -387,7 +398,25 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
     }
   }, [planByVehicle, vehicleSelected, empresaId, type, saveLastDocuments, handleCancel, onSaved])
 
-  const submit = handleSubmit(onSubmit)
+  const submit = handleSubmit(
+    onSubmit,
+    (formErrors) => {
+      console.error('[wizard] validation errors on submit:', formErrors)
+      const messages = Object.entries(formErrors)
+        .filter(([, err]) => err != null)
+        .map(([field, err]) => {
+          const label = FIELD_LABELS[field] || field
+          const msg = err?.message || 'inválido'
+          return `${label}: ${msg}`
+        })
+      if (messages.length > 0) {
+        toast.error(`No se puede guardar:\n${messages.join('\n')}`)
+      } else {
+        toast.error('Hay campos inválidos en el formulario')
+      }
+      setSaveData(false)
+    }
+  )
 
   // ─── Derived labels ───
   const typeBadgeLabel = type ? type.charAt(0).toUpperCase() + type.slice(1) : ''
