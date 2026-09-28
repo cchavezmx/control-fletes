@@ -130,7 +130,8 @@ export default function DocumentWizard (props) {
         {vehicleSelected && (
           <div className="form-group">
             <label className="label-intecsa">
-              Plan del vehículo <span style={{ fontWeight: 500, color: 'var(--muted-2)' }}>(opcional)</span>
+              Plan del vehículo
+              <span className="required-mark">*</span>
             </label>
             {loadingPlans ? (
               <div className="skel" style={{ height: 40, borderRadius: 8 }} />

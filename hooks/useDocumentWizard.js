@@ -93,6 +93,17 @@ const FIELD_LABELS = {
   vehicle: 'Vehículo'
 }
 
+// Campos del formulario que se capturan en cada paso (índice = activeStep).
+// handleNext valida solo los campos del paso actual; el guardado final
+// (submit → handleSubmit) valida el esquema completo.
+const STEP_FIELDS = [
+  ['plan'], // 0: Tipo y Vehículo (type/vehicleSelected son estado de React, se validan aparte)
+  ['client', 'subject', 'request_date', 'delivery_date'], // 1: Cliente y Fechas
+  ['driver', 'origin', 'destination'], // 2: Detalles Operativos
+  [], // 3: Revisión de Unidad (checklist opcional)
+  ['profit_pct', 'indirect_pct'] // 4: Facturación
+]
+
 const TEXT_FIELDS_UPPER = ['driver']
 const TEXT_FIELDS_TITLE = ['subject']
 const TEXT_FIELDS_TRIM = [
@@ -220,15 +231,17 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
   }, [])
 
   const handleNext = useCallback(async () => {
-    // Validar TODO el formulario al avanzar, no solo los campos del paso actual.
-    const valid = await trigger()
+    // Validar solo los campos del paso actual; los campos de pasos
+    // posteriores todavía no están capturados y no deben bloquear el avance.
+    const fields = STEP_FIELDS[activeStep] || []
+    const valid = fields.length === 0 ? true : await trigger(fields)
     if (!valid) {
-      const allErrors = Object.entries(errors)
-        .filter(([, err]) => err != null)
-        .map(([field, err]) => {
-          const label = FIELD_LABELS[field] || field
-          return `${label}: ${err?.message || 'inválido'}`
+      const allErrors = fields
+        .map((field) => {
+          const err = methods.getFieldState(field)?.error
+          return err ? `${FIELD_LABELS[field] || field}: ${err?.message || 'inválido'}` : null
         })
+        .filter(Boolean)
       if (allErrors.length > 0) {
         setStepErrors(allErrors)
         toast.error(`Revisa el formulario:\n${allErrors.join('\n')}`)
@@ -264,7 +277,7 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
 
     setStepErrors([])
     setActiveStep((prev) => prev + 1)
-  }, [activeStep, type, vehicleSelected, watch, trigger, errors, scrollToTop])
+  }, [activeStep, type, vehicleSelected, watch, trigger, methods, scrollToTop])
 
   const handleBack = useCallback(() => {
     setStepErrors([])
