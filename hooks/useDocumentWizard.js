@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { useGlobalState } from '../context/GlobalContext'
-import { computeCostBreakdown } from '../utils/costBreakdown'
+import { computeCostBreakdown, DEFAULT_RATES, DEFAULT_UNITS, getStoredRates } from '../utils/costBreakdown'
 
 // ─── Schema (exported for reuse) ───
 export const DOCUMENT_SCHEMA = z.object({
@@ -147,13 +147,8 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
       delivery_date: dayjs().format('YYYY-MM-DD'),
       fuel_level: 50,
       subtotal_travel: 0,
-      profit_pct: 8,
-      indirect_pct: 12,
-      casetas_unit: 'fijo',
-      operator_unit: 'dia',
-      per_diem_unit: 'dia',
-      gasoline_unit: 'fijo',
-      unit_rent_unit: 'dia',
+      ...getStoredRates(),
+      ...DEFAULT_UNITS,
       origin: '',
       destination: '',
       stops: [],
@@ -350,8 +345,20 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
       unit_rent_qty:    breakdown.concepts.unitRent.qty,
       unit_rent_notes:  breakdown.concepts.unitRent.notes,
       unit_rent_period: breakdown.concepts.unitRent.period || 'dia',
+      // ── Cálculo completo precalculado por el frontend (fuente de verdad) ──
+      // El servicio de PDF debe renderizar estos montos TAL CUAL, sin
+      // recalcular desde las tarifas crudas (docs/pdf-payload-spec.md §4).
+      casetas_importe:   breakdown.concepts.casetas.importe,
+      operator_importe:  breakdown.concepts.operator.importe,
+      per_diem_importe:  breakdown.concepts.perDiem.importe,
+      gasoline_importe:  breakdown.concepts.gasoline.importe,
+      unit_rent_importe: breakdown.concepts.unitRent.importe,
+      subtotal_amount:   breakdown.subtotal,
       profit_amount:    profitAmount,
-      indirect_amount:  indirectAmount
+      indirect_amount:  indirectAmount,
+      base_amount:      breakdown.base,
+      iva_amount:       breakdown.iva,
+      total_amount:     breakdown.total
     }
 
     const payload = {

@@ -43,16 +43,59 @@ export const computeDiasPeriodo = (requestDate, deliveryDate) => {
   return d > 0 ? d : 1
 }
 
-const FIELD_DEFAULTS = {
+export const DEFAULT_RATES = {
+  profit_pct: 8,
+  indirect_pct: 12,
+  iva_rate: 0.16
+}
+
+export const DEFAULT_UNITS = {
   casetas_unit: 'fijo',
   operator_unit: 'dia',
   per_diem_unit: 'dia',
   gasoline_unit: 'fijo',
   unit_rent_unit: 'dia',
-  unit_rent_qty: 1,
-  profit_pct: 8,
-  indirect_pct: 12,
-  iva_rate: 0.16
+  unit_rent_qty: 1
+}
+
+const STORAGE_KEY = 'intecsa_default_rates'
+
+/**
+ * Lee los porcentajes/impuestos por defecto del localStorage.
+ * Si no hay nada guardado, devuelve los valores constantes de DEFAULT_RATES.
+ */
+export const getStoredRates = () => {
+  if (typeof window === 'undefined') return { ...DEFAULT_RATES }
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY)
+    if (!stored) return { ...DEFAULT_RATES }
+    const parsed = JSON.parse(stored)
+    return {
+      profit_pct: Number(parsed.profit_pct ?? DEFAULT_RATES.profit_pct),
+      indirect_pct: Number(parsed.indirect_pct ?? DEFAULT_RATES.indirect_pct),
+      iva_rate: Number(parsed.iva_rate ?? DEFAULT_RATES.iva_rate)
+    }
+  } catch {
+    return { ...DEFAULT_RATES }
+  }
+}
+
+/**
+ * Guarda los porcentajes/impuestos por defecto en localStorage.
+ */
+export const setStoredRates = (rates) => {
+  if (typeof window === 'undefined') return
+  const payload = {
+    profit_pct: Number(rates?.profit_pct ?? DEFAULT_RATES.profit_pct),
+    indirect_pct: Number(rates?.indirect_pct ?? DEFAULT_RATES.indirect_pct),
+    iva_rate: Number(rates?.iva_rate ?? DEFAULT_RATES.iva_rate)
+  }
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+}
+
+const FIELD_DEFAULTS = {
+  ...DEFAULT_UNITS,
+  ...DEFAULT_RATES
 }
 
 /**

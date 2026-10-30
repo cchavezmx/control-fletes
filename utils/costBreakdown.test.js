@@ -1,10 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   num,
   roundMoney,
   computeDiasPeriodo,
   computeConceptTotal,
-  computeCostBreakdown
+  computeCostBreakdown,
+  DEFAULT_RATES,
+  getStoredRates,
+  setStoredRates
 } from './costBreakdown'
 
 describe('num', () => {
@@ -373,5 +376,117 @@ describe('computeCostBreakdown', () => {
 
     expect(result.hasBreakdown).toBe(false)
     expect(result.hasCosts).toBe(false)
+  })
+
+  it('respeta iva_rate personalizado', () => {
+    const doc = {
+      request_date: '2025-07-01',
+      delivery_date: '2025-07-02',
+      profit_pct: 10,
+      indirect_pct: 5,
+      cost_breakdown: {
+        operator_rate: 1000,
+        operator_days: 1
+      }
+    }
+
+    const result = computeCostBreakdown(doc, { ivaRate: 0.08 })
+
+    expect(result.subtotal).toBe(1000)
+    expect(result.utilidad).toBe(100)
+    expect(result.indirectos).toBe(50)
+    expect(result.base).toBe(1150)
+    expect(result.iva).toBe(92)
+    expect(result.total).toBe(1242)
+  })
+})
+
+describe('stored rates (localStorage)', () => {
+  let storage = {}
+
+  beforeEach(() => {
+    storage = {}
+    global.window = {
+      localStorage: {
+        getItem: (key) => storage[key] ?? null,
+        setItem: (key, value) => { storage[key] = value },
+        removeItem: (key) => { delete storage[key] }
+      }
+    }
+  })
+
+  afterEach(() => {
+    delete global.window
+  })
+
+  it('devuelve DEFAULT_RATES cuando no hay nada guardado', () => {
+    expect(getStoredRates()).toEqual(DEFAULT_RATES)
+  })
+
+  it('lee porcentajes guardados', () => {
+    setStoredRates({ profit_pct: 15, indirect_pct: 10, iva_rate: 0.08 })
+    expect(getStoredRates()).toEqual({
+      profit_pct: 15,
+      indirect_pct: 10,
+      iva_rate: 0.08
+    })
+  })
+
+  it('ignora campos inválidos y cae a defaults', () => {
+    window.localStorage.setItem('intecsa_default_rates', 'no-json')
+    expect(getStoredRates()).toEqual(DEFAULT_RATES)
+  })
+
+  it('guarda valores faltantes con defaults', () => {
+    setStoredRates({ profit_pct: 20 })
+    expect(getStoredRates()).toEqual({
+      profit_pct: 20,
+      indirect_pct: DEFAULT_RATES.indirect_pct,
+      iva_rate: DEFAULT_RATES.iva_rate
+    })
+  })
+})
+
+describe('flujo de multiplicadores', () => {
+  const baseDoc = {
+    request_date: '2025-07-01',
+    delivery_date: '2025-07-02',
+    cost_breakdown: {
+      operator_rate: 1000,
+      operator_days: 1
+    }
+  }
+
+  it('subtotal 1000 + utilidad 8% + indirectos 12% + IVA 16% = 1160', () => {
+    const result = computeCostBreakdown({ ...baseDoc, profit_pct: 8, indirect_pct: 12 })
+
+    expect(result.subtotal).toBe(1000)
+    expect(result.utilidad).toBe(80)
+    expect(result.indirectos).toBe(120)
+    expect(result.base).toBe(1200)
+    expect(result.iva).toBe(192)
+    expect(result.total).toBe(1392)
+  })
+
+  it('subtotal 1000 + utilidad 15% + indirectos 10% + IVA 16% = 1495', () => {
+    const result = computeCostBreakdown({ ...baseDoc, profit_pct: 15, indirect_pct: 10 })
+
+    expect(result.subtotal).toBe(1000)
+    expect(result.utilidad).toBe(150)
+    expect(result.indirectos).toBe(100)
+    expect(result.base).toBe(1250)
+    expect(result.iva).toBe(200)
+    expect(result.total).toBe(1450)
+  })
+
+  it('subtotal 1000 + utilidad 0% + indirectos 0% + IVA 0% = 1000', () => {
+    const result = computeCostBreakdown({ ...baseDoc, profit_pct: 0, indirect_pct: 0 }, { ivaRate: 0 })
+
+    expect(result.subtotal).toBe(1000)
+    expect(result.utilidad).toBe(0)
+    expect(result.indirectos).toBe(0)
+    expect(result.base).toBe(1000)
+    expect(result.iva).toBe(0)
+    expect(result.total).toBe(1000)
   })
 })
