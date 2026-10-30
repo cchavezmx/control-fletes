@@ -1,9 +1,56 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { getUrlByName, addFile } from '../firebase/client'
 import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import { ChevronDown } from 'lucide-react'
 import { getStoredRates, setStoredRates, DEFAULT_RATES } from '../utils/costBreakdown'
+
+/**
+ * Input de porcentaje con estado local para evitar que el foco salte
+ * mientras el usuario escribe. Solo notifica el valor numérico al padre.
+ */
+const RateInput = ({ label, value, onChange, onBlur }) => {
+  const [raw, setRaw] = useState(String(value ?? ''))
+
+  useEffect(() => {
+    setRaw(String(value ?? ''))
+  }, [value])
+
+  const handleChange = useCallback((e) => {
+    const next = e.target.value
+      .replace(/[^\d.]/g, '')
+      .replace(/(\..*)\./g, '$1')
+    setRaw(next)
+
+    const num = next === '' ? 0 : Number(next)
+    if (!Number.isNaN(num)) {
+      onChange(num)
+    }
+  }, [onChange])
+
+  const handleBlur = useCallback(() => {
+    const num = raw === '' ? 0 : Number(raw)
+    setRaw(String(num))
+    onBlur?.(num)
+  }, [raw, onBlur])
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium">{label}</label>
+      <input
+        type="text"
+        inputMode="decimal"
+        min={0}
+        max={100}
+        step="0.01"
+        className="w-full h-10 rounded-md border border-gray-300 px-2 text-sm"
+        value={raw}
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
+    </div>
+  )
+}
 
 const ItaUtils = () => {
   const [catalogo, setCatalogo] = useState('')
@@ -129,44 +176,23 @@ const ItaUtils = () => {
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium">Utilidad (%)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    step="0.01"
-                    className="w-full h-10 rounded-md border border-gray-300 px-2 text-sm"
-                    value={rates.profit_pct}
-                    onChange={(e) => updateRate('profit_pct', e.target.value)}
-                  />
-                </div>
+                <RateInput
+                  label="Utilidad (%)"
+                  value={rates.profit_pct}
+                  onChange={(v) => updateRate('profit_pct', v)}
+                />
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium">Indirectos (%)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    step="0.01"
-                    className="w-full h-10 rounded-md border border-gray-300 px-2 text-sm"
-                    value={rates.indirect_pct}
-                    onChange={(e) => updateRate('indirect_pct', e.target.value)}
-                  />
-                </div>
+                <RateInput
+                  label="Indirectos (%)"
+                  value={rates.indirect_pct}
+                  onChange={(v) => updateRate('indirect_pct', v)}
+                />
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium">IVA (%)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    step="0.01"
-                    className="w-full h-10 rounded-md border border-gray-300 px-2 text-sm"
-                    value={rates.iva_rate * 100}
-                    onChange={(e) => updateRate('iva_rate', Number(e.target.value) / 100)}
-                  />
-                </div>
+                <RateInput
+                  label="IVA (%)"
+                  value={rates.iva_rate * 100}
+                  onChange={(v) => updateRate('iva_rate', v / 100)}
+                />
               </div>
 
               <div className="flex gap-3 justify-end">

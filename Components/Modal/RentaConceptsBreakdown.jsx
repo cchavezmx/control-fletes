@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import {
   ChevronDown, ChevronUp, User, Wallet, Fuel, Truck, CreditCard
@@ -300,21 +300,50 @@ const ConceptItem = ({
 
 /* ─── Billing totals panel ─── */
 const BillingTotals = ({ subtotal, utilidad, indirectos, base, iva, total, profitPct, indirectPct, setValue }) => {
-  const PctInput = ({ value, onChange }) => (
-    <span className="pct-in">
-      <input
-        className="tnum"
-        inputMode="numeric"
-        value={value}
-        placeholder="0"
-        onChange={(e) => {
-          const raw = e.target.value.replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1')
-          onChange(raw === '' ? 0 : Number(raw))
-        }}
-      />
-      <span>%</span>
-    </span>
-  )
+  /**
+   * Input de porcentaje con estado local para que el cursor no pierda foco
+   * mientras el usuario escribe. Se sincroniza con react-hook-form en cada
+   * cambio, pero el valor renderizado se controla localmente.
+   */
+  const PctInput = ({ value, onChange }) => {
+    const [raw, setRaw] = useState(String(value ?? ''))
+
+    useEffect(() => {
+      setRaw(String(value ?? ''))
+    }, [value])
+
+    const handleChange = useCallback((e) => {
+      const next = e.target.value
+        .replace(/[^\d.]/g, '')
+        .replace(/(\..*)\./g, '$1')
+      setRaw(next)
+
+      const num = next === '' ? 0 : Number(next)
+      if (!Number.isNaN(num)) {
+        onChange(num)
+      }
+    }, [onChange])
+
+    const handleBlur = useCallback(() => {
+      const num = raw === '' ? 0 : Number(raw)
+      setRaw(String(num))
+      onChange(num)
+    }, [raw, onChange])
+
+    return (
+      <span className="pct-in">
+        <input
+          className="tnum"
+          inputMode="numeric"
+          value={raw}
+          placeholder="0"
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+        <span>%</span>
+      </span>
+    )
+  }
 
   return (
     <div className="bill-totals">
