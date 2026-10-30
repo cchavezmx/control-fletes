@@ -3,7 +3,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import {
   ChevronDown, ChevronUp, User, Wallet, Fuel, Truck, CreditCard
 } from 'lucide-react'
-import { computeCostBreakdown, computeConceptTotal, computeDiasPeriodo } from '../../utils/costBreakdown'
+import { computeCostBreakdown, computeConceptTotal, computeDiasPeriodo, getStoredRates } from '../../utils/costBreakdown'
 
 const formatCurrency = (value) => {
   if (!value || isNaN(value)) return '$0.00'
@@ -375,8 +375,9 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const unitRentUnit = useWatch({ control, name: 'unit_rent_unit' }) || 'dia'
   const unitRentQty = Number(useWatch({ control, name: 'unit_rent_qty' }) || 0)
 
-  const profitPct = Number(useWatch({ control, name: 'profit_pct' }) || 8)
-  const indirectPct = Number(useWatch({ control, name: 'indirect_pct' }) || 12)
+  const storedRates = useMemo(() => getStoredRates(), [])
+  const profitPct = Number(useWatch({ control, name: 'profit_pct' }) || storedRates.profit_pct)
+  const indirectPct = Number(useWatch({ control, name: 'indirect_pct' }) || storedRates.indirect_pct)
 
   /* Compute days from dates */
   const diasPeriodo = useMemo(() => computeDiasPeriodo(requestDate, deliveryDate), [requestDate, deliveryDate])
@@ -411,8 +412,8 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   ])
 
   const breakdown = useMemo(() =>
-    computeCostBreakdown(formValues, { diasPeriodo }),
-  [formValues, diasPeriodo])
+    computeCostBreakdown(formValues, { diasPeriodo, ivaRate: storedRates.iva_rate }),
+  [formValues, diasPeriodo, storedRates.iva_rate])
 
   const {
     concepts,
