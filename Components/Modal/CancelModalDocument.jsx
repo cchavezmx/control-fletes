@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { X, Ban, AlertTriangle } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -15,15 +15,21 @@ const REASONS = [
 
 export default function CancelModalDocument ({ open, onClose, data, refreshData }) {
   const [saving, setSaving] = useState(false)
+  const [reason, setReason] = useState('')
   const reasonRef = useRef(null)
 
   const isReadOnly = data?.isCancel_status
 
+  const syncReason = useCallback(() => {
+    setReason(reasonRef.current?.value || '')
+  }, [])
+
   useEffect(() => {
     if (open && reasonRef.current) {
       reasonRef.current.value = data?.isCancel_status || ''
+      syncReason()
     }
-  }, [open, data])
+  }, [open, data, syncReason])
 
   useEffect(() => {
     function onKey (e) {
@@ -41,7 +47,6 @@ export default function CancelModalDocument ({ open, onClose, data, refreshData 
 
   const updateOrderSubmit = async (e) => {
     e.preventDefault()
-    const reason = reasonRef.current?.value || ''
     if (!reason.trim()) return
     setSaving(true)
     await fetch(`${API}/flotilla/update/${data._id}?type=${data.type.toLowerCase()}`, {
@@ -97,7 +102,10 @@ export default function CancelModalDocument ({ open, onClose, data, refreshData 
                   key={r}
                   className="rc"
                   onClick={() => {
-                    if (reasonRef.current) reasonRef.current.value = r
+                    if (reasonRef.current) {
+                      reasonRef.current.value = r
+                      syncReason()
+                    }
                   }}
                   type="button"
                 >
@@ -114,6 +122,7 @@ export default function CancelModalDocument ({ open, onClose, data, refreshData 
             placeholder={isReadOnly ? '' : 'Describe el motivo de la cancelación…'}
             defaultValue=""
             readOnly={isReadOnly}
+            onChange={syncReason}
           />
         </div>
 
