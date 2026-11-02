@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import dayjs from 'dayjs'
@@ -53,6 +53,7 @@ export default function VehicleExitForm ({ vehicles = [] }) {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
     reset
   } = useForm({
@@ -104,10 +105,6 @@ export default function VehicleExitForm ({ vehicles = [] }) {
     } catch (error) {
       console.log('Formulario enviado:', formattedData)
     }
-  }
-
-  const handleDateChange = (field) => (value) => {
-    setValue(field, value ? value?.toISOString() : '')
   }
 
   const vehicleOptions = vehicles.map((v) => ({
@@ -165,33 +162,45 @@ export default function VehicleExitForm ({ vehicles = [] }) {
               key={field}
               className={`w-full h-10 rounded-md border px-3 text-sm ${errors[field] ? 'border-red-500' : 'border-gray-300'}`}
               placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-              value={watch(field) || ''}
-              onChange={(e) => setValue(field, e.target.value)}
+              {...register(field)}
             />
           ))}
 
-          <DatePicker
-            label="Fecha salida"
-            value={watch('fechaSalida') ? dayjs(watch('fechaSalida')) : null}
-            onChange={handleDateChange('fechaSalida')}
-            slotProps={{
-              textField: {
-                className: 'w-full',
-                error: !!errors.fechaSalida,
-                helperText: errors.fechaSalida?.message?.toString()
-              }
-            }}
+          <Controller
+            name="fechaSalida"
+            control={control}
+            rules={{ required: 'Campo requerido' }}
+            render={({ field }) => (
+              <DatePicker
+                label="Fecha salida"
+                value={field.value ? dayjs(field.value) : null}
+                onChange={(v) => field.onChange(v ? v.toISOString() : '')}
+                slotProps={{
+                  textField: {
+                    className: 'w-full',
+                    error: !!errors.fechaSalida,
+                    helperText: errors.fechaSalida?.message?.toString()
+                  }
+                }}
+              />
+            )}
           />
 
-          <DatePicker
-            label="Fecha llegada"
-            value={watch('fechaLlegada') ? dayjs(watch('fechaLlegada')) : null}
-            onChange={handleDateChange('fechaLlegada')}
-            slotProps={{
-              textField: {
-                className: 'w-full'
-              }
-            }}
+          <Controller
+            name="fechaLlegada"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Fecha llegada"
+                value={field.value ? dayjs(field.value) : null}
+                onChange={(v) => field.onChange(v ? v.toISOString() : '')}
+                slotProps={{
+                  textField: {
+                    className: 'w-full'
+                  }
+                }}
+              />
+            )}
           />
 
           <input
@@ -244,8 +253,7 @@ export default function VehicleExitForm ({ vehicles = [] }) {
               <select
                 key={name}
                 className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
-                value={watch(name) || ''}
-                onChange={(e) => setValue(name, e.target.value)}
+                {...register(name)}
               >
                 <option value="">{label}</option>
                 <option value="bueno">Bueno</option>
@@ -269,12 +277,18 @@ export default function VehicleExitForm ({ vehicles = [] }) {
               className="flex-1 h-2 rounded-lg appearance-none cursor-pointer bg-gray-200 accent-[#3f51b5]"
             />
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               min={0}
               max={100}
-              value={combustible}
-              onChange={(e) => setValue('combustibleSalida', Number(e.target.value))}
               className="w-20 h-10 rounded-md border border-gray-300 px-2 text-sm"
+              {...register('combustibleSalida', {
+                setValueAs: (v) => {
+                  const cleaned = String(v).replace(/[^\d]/g, '')
+                  const num = cleaned === '' ? 0 : Number(cleaned)
+                  return Math.min(100, Math.max(0, num))
+                }
+              })}
             />
           </div>
         </div>

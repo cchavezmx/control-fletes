@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import {
@@ -32,6 +32,7 @@ function Empresa ({ empresa, documents, vehicles }) {
   const [typeFilter, setTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [query, setQuery] = useState('')
+  const queryRef = useRef(null)
   const [sort, setSort] = useState({ key: 'folio', dir: 'desc' })
   const [loading, setLoading] = useState(false)
 
@@ -295,9 +296,10 @@ function Empresa ({ empresa, documents, vehicles }) {
             <div className="search-intecsa">
               <Search size={16} />
               <input
+                ref={queryRef}
                 type="text"
                 placeholder="Buscar por folio, asunto, conductor…"
-                value={query}
+                defaultValue=""
                 onChange={(e) => { setQuery(e.target.value); setPage(1) }}
               />
             </div>
@@ -310,7 +312,7 @@ function Empresa ({ empresa, documents, vehicles }) {
               <TableSkeleton />
             </div>
           ) : filteredRows.length === 0 ? (
-            <NoResults onClear={() => { setTypeFilter('all'); setStatusFilter('all'); setQuery(''); setPage(1) }} />
+            <NoResults onClear={() => { setTypeFilter('all'); setStatusFilter('all'); setQuery(''); if (queryRef.current) queryRef.current.value = ''; setPage(1) }} />
           ) : (
             <>
               <div className="table-wrap scroll">

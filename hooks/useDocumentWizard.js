@@ -21,7 +21,7 @@ export const DOCUMENT_SCHEMA = z.object({
   stops: z.array(z.string().optional()).optional(),
   route: z.string().optional(),
   recorrido_km: z.string().optional(),
-  kilometer_out: z.string().optional(),
+  kilometer_out: z.coerce.number().optional(),
   subtotal_travel: z.number({ invalid_type_error: 'El subtotal es obligatorio', required_error: 'El subtotal es obligatorio' }).min(0, 'Subtotal inválido'),
   fuel_level: z.number({ invalid_type_error: 'Nivel de combustible inválido' }).min(0).max(100),
   document_id: z.string().optional(),
@@ -31,26 +31,26 @@ export const DOCUMENT_SCHEMA = z.object({
   link_googlemaps: z.string().optional(),
   casetas: z.string().optional(),
   tarjeta_deposito: z.string().optional(),
-  casetas_amount: z.string().optional(),
+  casetas_amount: z.coerce.number().optional(),
   casetas_unit: z.string().optional(),
-  casetas_days: z.string().optional(),
+  casetas_days: z.coerce.number().optional(),
   casetas_notes: z.string().optional(),
   casetas_num: z.string().optional(),
-  operator_rate: z.string().optional(),
+  operator_rate: z.coerce.number().optional(),
   operator_unit: z.string().optional(),
-  operator_days: z.string().optional(),
+  operator_days: z.coerce.number().optional(),
   operator_notes: z.string().optional(),
-  per_diem_rate: z.string().optional(),
+  per_diem_rate: z.coerce.number().optional(),
   per_diem_unit: z.string().optional(),
-  per_diem_days: z.string().optional(),
+  per_diem_days: z.coerce.number().optional(),
   per_diem_notes: z.string().optional(),
-  gasoline_rate: z.string().optional(),
+  gasoline_rate: z.coerce.number().optional(),
   gasoline_unit: z.string().optional(),
-  gasoline_km: z.string().optional(),
+  gasoline_km: z.coerce.number().optional(),
   gasoline_notes: z.string().optional(),
-  unit_rent_amount: z.string().optional(),
+  unit_rent_amount: z.coerce.number().optional(),
   unit_rent_unit: z.string().optional(),
-  unit_rent_qty: z.string().optional(),
+  unit_rent_qty: z.coerce.number().optional(),
   unit_rent_notes: z.string().optional(),
   unit_rent_period: z.string().optional(),
   profit_pct: z.number({ invalid_type_error: 'Porcentaje de utilidad inválido' }).min(0).max(100),
@@ -109,6 +109,16 @@ const TEXT_FIELDS_TITLE = ['subject']
 const TEXT_FIELDS_TRIM = [
   'origin', 'destination', 'cargo_description',
   'document_id', 'tarjeta_deposito', 'link_googlemaps', 'notes'
+]
+
+// Campos numéricos del desglose que el backend legacy espera como strings
+// en el payload top-level; se mantienen como number en cost_breakdown.
+const CONCEPT_NUMERIC_FIELDS = [
+  'casetas_amount', 'casetas_days',
+  'operator_rate', 'operator_days',
+  'per_diem_rate', 'per_diem_days',
+  'gasoline_rate', 'gasoline_km',
+  'unit_rent_amount', 'unit_rent_qty'
 ]
 
 const cleanText = (val) => (val == null ? '' : String(val).replace(/\s+/g, ' ').trim())
@@ -322,6 +332,21 @@ const useDocumentWizard = ({ empresaId, listVehicles = [], onCancel, onSaved } =
     const breakdown = computeCostBreakdown(normalized)
     const profitAmount = breakdown.utilidad
     const indirectAmount = breakdown.indirectos
+
+    // El backend legacy espera los conceptos numéricos del top-level como strings,
+    // mientras que cost_breakdown los envía como numbers según el PDF spec.
+    // subtotal_travel debe viajar como string formateado para el PDF (legacy).
+    const formatMoney = (n) => {
+      const val = Number(n ?? 0)
+      if (Number.isNaN(val)) return '$0.00'
+      return new Intl.NumberFormat('es-MX', {
+        style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2
+      }).format(val)
+    }
+    for (const f of CONCEPT_NUMERIC_FIELDS) {
+      normalized[f] = normalized[f] != null ? String(normalized[f]) : ''
+    }
+    normalized.subtotal_travel = formatMoney(breakdown.subtotal)
 
     const cost_breakdown = {
       casetas_amount:   breakdown.concepts.casetas.rate,

@@ -1,56 +1,27 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getUrlByName, addFile } from '../firebase/client'
 import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
 import { ChevronDown } from 'lucide-react'
 import { getStoredRates, setStoredRates, DEFAULT_RATES } from '../utils/costBreakdown'
 
-/**
- * Input de porcentaje con estado local para evitar que el foco salte
- * mientras el usuario escribe. Solo notifica el valor numérico al padre.
- */
-const RateInput = ({ label, value, onChange, onBlur }) => {
-  const [raw, setRaw] = useState(String(value ?? ''))
+const cleanDecimal = (v) => String(v ?? '').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1')
 
-  useEffect(() => {
-    setRaw(String(value ?? ''))
-  }, [value])
-
-  const handleChange = useCallback((e) => {
-    const next = e.target.value
-      .replace(/[^\d.]/g, '')
-      .replace(/(\..*)\./g, '$1')
-    setRaw(next)
-
-    const num = next === '' ? 0 : Number(next)
-    if (!Number.isNaN(num)) {
-      onChange(num)
-    }
-  }, [onChange])
-
-  const handleBlur = useCallback(() => {
-    const num = raw === '' ? 0 : Number(raw)
-    setRaw(String(num))
-    onBlur?.(num)
-  }, [raw, onBlur])
-
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium">{label}</label>
-      <input
-        type="text"
-        inputMode="decimal"
-        min={0}
-        max={100}
-        step="0.01"
-        className="w-full h-10 rounded-md border border-gray-300 px-2 text-sm"
-        value={raw}
-        onChange={handleChange}
-        onBlur={handleBlur}
-      />
-    </div>
-  )
-}
+const RateInput = ({ label, defaultValue, inputRef }) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-sm font-medium">{label}</label>
+    <input
+      type="text"
+      inputMode="decimal"
+      className="w-full h-10 rounded-md border border-gray-300 px-2 text-sm"
+      defaultValue={defaultValue}
+      ref={inputRef}
+      onChange={(e) => {
+        e.target.value = cleanDecimal(e.target.value)
+      }}
+    />
+  </div>
+)
 
 const ItaUtils = () => {
   const [catalogo, setCatalogo] = useState('')
@@ -58,8 +29,14 @@ const ItaUtils = () => {
   const [file, setFile] = useState(null)
   const [rates, setRates] = useState(DEFAULT_RATES)
 
+  const profitRef = useRef(null)
+  const indirectRef = useRef(null)
+  const ivaRef = useRef(null)
+  const catalogRef = useRef(null)
+
   useEffect(() => {
-    setRates(getStoredRates())
+    const stored = getStoredRates()
+    setRates(stored)
   }, [])
 
   const handleChange = (event) => {
@@ -80,17 +57,20 @@ const ItaUtils = () => {
     addFile(file, catalogo).then((res) => {
       toast.success(res)
       setCatalogo('')
+      if (catalogRef.current) catalogRef.current.value = ''
       setFile(null)
     })
   }
 
-  const updateRate = (field, value) => {
-    setRates(prev => ({ ...prev, [field]: value }))
-  }
-
   const saveRates = (event) => {
     event.preventDefault()
-    setStoredRates(rates)
+    const next = {
+      profit_pct: Number(profitRef.current?.value ?? DEFAULT_RATES.profit_pct),
+      indirect_pct: Number(indirectRef.current?.value ?? DEFAULT_RATES.indirect_pct),
+      iva_rate: Number(ivaRef.current?.value ?? DEFAULT_RATES.iva_rate) / 100
+    }
+    setRates(next)
+    setStoredRates(next)
     toast.success('Márgenes e impuestos actualizados')
   }
 
@@ -98,6 +78,9 @@ const ItaUtils = () => {
     event.preventDefault()
     setRates(DEFAULT_RATES)
     setStoredRates(DEFAULT_RATES)
+    if (profitRef.current) profitRef.current.value = DEFAULT_RATES.profit_pct
+    if (indirectRef.current) indirectRef.current.value = DEFAULT_RATES.indirect_pct
+    if (ivaRef.current) ivaRef.current.value = DEFAULT_RATES.iva_rate * 100
     toast.success('Márgenes e impuestos restablecidos')
   }
 
@@ -117,8 +100,9 @@ const ItaUtils = () => {
             <div className="flex flex-col gap-3 w-full max-w-[700px] py-4">
               <label className="text-sm font-medium">Catálogo</label>
               <select
+                ref={catalogRef}
                 className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
-                value={catalogo}
+                defaultValue=""
                 onChange={handleChange}
               >
                 <option value="">Selecciona...</option>
@@ -178,20 +162,20 @@ const ItaUtils = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <RateInput
                   label="Utilidad (%)"
-                  value={rates.profit_pct}
-                  onChange={(v) => updateRate('profit_pct', v)}
+                  defaultValue={rates.profit_pct}
+                  inputRef={profitRef}
                 />
 
                 <RateInput
                   label="Indirectos (%)"
-                  value={rates.indirect_pct}
-                  onChange={(v) => updateRate('indirect_pct', v)}
+                  defaultValue={rates.indirect_pct}
+                  inputRef={indirectRef}
                 />
 
                 <RateInput
                   label="IVA (%)"
-                  value={rates.iva_rate * 100}
-                  onChange={(v) => updateRate('iva_rate', v / 100)}
+                  defaultValue={rates.iva_rate * 100}
+                  inputRef={ivaRef}
                 />
               </div>
 

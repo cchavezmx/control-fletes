@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, Ban, AlertTriangle } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -14,14 +14,14 @@ const REASONS = [
 ]
 
 export default function CancelModalDocument ({ open, onClose, data, refreshData }) {
-  const [reason, setReason] = useState('')
   const [saving, setSaving] = useState(false)
+  const reasonRef = useRef(null)
 
   const isReadOnly = data?.isCancel_status
 
   useEffect(() => {
-    if (open) {
-      setReason(data?.isCancel_status || '')
+    if (open && reasonRef.current) {
+      reasonRef.current.value = data?.isCancel_status || ''
     }
   }, [open, data])
 
@@ -41,6 +41,7 @@ export default function CancelModalDocument ({ open, onClose, data, refreshData 
 
   const updateOrderSubmit = async (e) => {
     e.preventDefault()
+    const reason = reasonRef.current?.value || ''
     if (!reason.trim()) return
     setSaving(true)
     await fetch(`${API}/flotilla/update/${data._id}?type=${data.type.toLowerCase()}`, {
@@ -94,8 +95,10 @@ export default function CancelModalDocument ({ open, onClose, data, refreshData 
               {REASONS.map(r => (
                 <button
                   key={r}
-                  className={`rc${reason === r ? ' on' : ''}`}
-                  onClick={() => setReason(r)}
+                  className="rc"
+                  onClick={() => {
+                    if (reasonRef.current) reasonRef.current.value = r
+                  }}
                   type="button"
                 >
                   {r}
@@ -105,11 +108,11 @@ export default function CancelModalDocument ({ open, onClose, data, refreshData 
           )}
 
           <textarea
+            ref={reasonRef}
             className="input-intecsa"
             style={{ minHeight: 100, resize: 'vertical' }}
             placeholder={isReadOnly ? '' : 'Describe el motivo de la cancelación…'}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            defaultValue=""
             readOnly={isReadOnly}
           />
         </div>

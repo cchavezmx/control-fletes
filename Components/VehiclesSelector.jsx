@@ -5,6 +5,7 @@ export default function VehiclesSelector ({ vehicleSelected, listVehicles, setVe
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const ref = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     function onDoc (e) {
@@ -13,6 +14,10 @@ export default function VehiclesSelector ({ vehicleSelected, listVehicles, setVe
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
+
+  useEffect(() => {
+    if (open && inputRef.current) inputRef.current.value = ''
+  }, [open])
 
   const selected = useMemo(() =>
     listVehicles.find(v => v.placas === vehicleSelected)
@@ -59,9 +64,10 @@ export default function VehiclesSelector ({ vehicleSelected, listVehicles, setVe
           <div className="vehicle-search">
             <Search size={16} className="vehicle-search-icon" />
             <input
+              ref={inputRef}
               autoFocus
               placeholder="Buscar…"
-              value={q}
+              defaultValue=""
               onChange={(e) => setQ(e.target.value)}
             />
           </div>

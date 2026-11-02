@@ -16,13 +16,13 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
   const [type, setType] = useState('')
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     defaultValues: {
-      ...prevData
+      ...prevData,
+      request_date: dayjs(prevData?.request_date || new Date()).format('YYYY-MM-DD'),
+      delivery_date: dayjs(prevData?.delivery_date || new Date()).format('YYYY-MM-DD')
     }
   })
   const [saveData, setSaveData] = useState(false)
 
-  const dateRequest = watch('request_date')
-  const dateDelivery = watch('delivery_date')
   const planWatchSelected = watch('plan')
 
   const [vehicleSelected, setVehicleSelected] = useState('')
@@ -62,7 +62,7 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
         <label className="text-sm font-medium">Lista de unidades</label>
         <select
           className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
-          value={vehicleSelected}
+          defaultValue=""
           onChange={(e) => setVehicleSelected(e.target.value)}
         >
           <option onClick={() => handledNewVehicle(true)} value="">Agregar nueva unidad 🚛</option>
@@ -133,7 +133,7 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
               <label className="text-sm font-medium">Tipo de documento</label>
               <select
                 className="w-full h-10 rounded-md border border-gray-300 bg-white px-2 text-sm"
-                value={type}
+                defaultValue=""
                 onChange={(e) => setType(e.target.value)}
               >
                 <option value="">Selecciona...</option>
@@ -165,7 +165,6 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
             <input
               className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               type="date"
-              value={dateRequest ? dayjs(dateRequest).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')}
               {...register('request_date', { required: true })}
             />
             {errors.request_date && <span className="text-xs text-red-600">Este campo es obligatorio</span>}
@@ -173,7 +172,6 @@ const DocumentoRelacionado = ({ open, close, empresaId, refreshData, listVehicle
             <input
               className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               type="date"
-              value={dateDelivery ? dayjs(dateDelivery).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')}
               {...register('delivery_date', { required: true })}
             />
             {errors.delivery_date && <span className="text-xs text-red-600">Este campo es obligatorio</span>}

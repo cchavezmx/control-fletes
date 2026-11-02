@@ -69,8 +69,15 @@ const NewPlan = ({ open, close, vehicleID, setPlanByVehicle }) => {
           <input
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
             placeholder="Precio"
-            type="number"
-            {...register('planPrice', { required: true })}
+            type="text"
+            inputMode="decimal"
+            {...register('planPrice', {
+              required: true,
+              setValueAs: (v) => {
+                const cleaned = String(v).replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1')
+                return cleaned === '' ? 0 : Number(cleaned)
+              }
+            })}
           />
           <div className="flex justify-between">
             <Button variant="outline" onClick={onClose}>Cancelar</Button>

@@ -457,9 +457,15 @@ const NewJobInlineForm = ({ stageName, onCreate, onCancel }) => {
   const [section, setSection] = useState('Global/UI')
   const [device, setDevice] = useState('Chrome Desktop')
   const [severity, setSeverity] = useState('Media')
+  const nameRef = useRef(null)
+  const sectionRef = useRef(null)
   const submit = () => {
-    if (!name.trim()) return
-    onCreate({ name: name.trim(), section, device, severity })
+    const nameValue = (nameRef.current?.value || '').trim()
+    const sectionValue = (sectionRef.current?.value || '').trim() || section
+    if (!nameValue) return
+    onCreate({ name: nameValue, section: sectionValue, device, severity })
+    if (nameRef.current) nameRef.current.value = ''
+    if (sectionRef.current) sectionRef.current.value = ''
     setName('')
     setSection('Global/UI')
     setDevice('Chrome Desktop')
@@ -469,8 +475,9 @@ const NewJobInlineForm = ({ stageName, onCreate, onCancel }) => {
     <tr className="border-b border-slate-100 bg-slate-50/40">
       <td className="px-4 py-2">
         <input
+          ref={nameRef}
           autoFocus
-          value={name}
+          defaultValue=""
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') submit()
@@ -482,7 +489,8 @@ const NewJobInlineForm = ({ stageName, onCreate, onCancel }) => {
       </td>
       <td className="px-4 py-2">
         <input
-          value={section}
+          ref={sectionRef}
+          defaultValue=""
           onChange={(e) => setSection(e.target.value)}
           placeholder="Componente"
           className="h-7 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:border-slate-400 focus:outline-none"
@@ -1012,9 +1020,14 @@ const AutomationBanner = () => (
 const NewStageModal = ({ open, onClose, onCreate }) => {
   const [name, setName] = useState('')
   const [color, setColor] = useState(STAGE_COLOR_PALETTE[0].class)
+  const nameRef = useRef(null)
 
   useEffect(() => {
-    if (open) { setName(''); setColor(STAGE_COLOR_PALETTE[0].class) }
+    if (open) {
+      if (nameRef.current) nameRef.current.value = ''
+      setName('')
+      setColor(STAGE_COLOR_PALETTE[0].class)
+    }
   }, [open])
 
   useEffect(() => {
@@ -1027,7 +1040,7 @@ const NewStageModal = ({ open, onClose, onCreate }) => {
   if (!open || typeof document === 'undefined') return null
 
   const submit = () => {
-    const trimmed = name.trim()
+    const trimmed = (nameRef.current?.value || '').trim()
     if (!trimmed) return
     onCreate({ name: trimmed, color })
     onClose()
@@ -1071,9 +1084,10 @@ const NewStageModal = ({ open, onClose, onCreate }) => {
               Nombre del stage
             </label>
             <input
+              ref={nameRef}
               id="stage-name"
               autoFocus
-              value={name}
+              defaultValue=""
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
               placeholder="Módulo: Reportes"
@@ -1156,9 +1170,12 @@ const QABoard = () => {
   const [items, setItems] = useState(INITIAL_ITEMS)
   const [view, setView] = useState('kanban')
   const [query, setQuery] = useState('')
+  const queryRef = useRef(null)
   const [severityFilter, setSeverityFilter] = useState('Todas')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const dateFromRef = useRef(null)
+  const dateToRef = useRef(null)
   const [toast, setToast] = useState(null)
 
   // Stages dinámicos
@@ -1301,7 +1318,12 @@ const QABoard = () => {
   }, [items, query, severityFilter, dateFrom, dateTo])
 
   const dateFilterActive = Boolean(dateFrom || dateTo)
-  const clearDateFilter = () => { setDateFrom(''); setDateTo('') }
+  const clearDateFilter = () => {
+    setDateFrom('')
+    setDateTo('')
+    if (dateFromRef.current) dateFromRef.current.value = ''
+    if (dateToRef.current) dateToRef.current.value = ''
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/60">
@@ -1374,8 +1396,9 @@ const QABoard = () => {
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
               <input
+                ref={queryRef}
                 type="text"
-                value={query}
+                defaultValue=""
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Buscar caso, componente, módulo…"
                 className="h-8 w-64 rounded-md border border-slate-200 bg-white px-8 pr-3 text-xs text-slate-700 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-300"
@@ -1386,8 +1409,9 @@ const QABoard = () => {
             <div className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600">
               <CalendarRange className="h-3.5 w-3.5 text-slate-400" />
               <input
+                ref={dateFromRef}
                 type="date"
-                value={dateFrom}
+                defaultValue=""
                 onChange={(e) => setDateFrom(e.target.value)}
                 max={dateTo || undefined}
                 className="h-6 w-[120px] bg-transparent text-xs font-medium text-slate-700 focus:outline-none"
@@ -1396,8 +1420,9 @@ const QABoard = () => {
               />
               <span className="text-slate-400">→</span>
               <input
+                ref={dateToRef}
                 type="date"
-                value={dateTo}
+                defaultValue=""
                 onChange={(e) => setDateTo(e.target.value)}
                 min={dateFrom || undefined}
                 className="h-6 w-[120px] bg-transparent text-xs font-medium text-slate-700 focus:outline-none"

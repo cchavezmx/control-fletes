@@ -27,8 +27,7 @@ const validPostalCode = (value) => {
 }
 
 const FormularioConAutocomplete = () => {
-  const { control, handleSubmit, setValue } = useForm()
-  const [address, setAddress] = useState('')
+  const { control, handleSubmit, setValue, register } = useForm()
   const [error, setError] = useState('')
   const [idResponse, setIdResponse] = useState('')
 
@@ -54,7 +53,6 @@ const FormularioConAutocomplete = () => {
   const handlePlaceChanged = () => {
     const place = autocompleteRef.current.getPlace()
     const formattedAddress = place?.formatted_address || ''
-    setAddress(formattedAddress)
     setValue('direccion', formattedAddress)
   }
 
@@ -92,7 +90,6 @@ const FormularioConAutocomplete = () => {
     setValue('numeroContacto_recibe', '')
     setValue('emailContacto', '')
     setValue('contacto_recibe_email', '')
-    setAddress('')
   }
 
   return (
@@ -151,20 +148,14 @@ const FormularioConAutocomplete = () => {
                 type="text"
                 placeholder="Escribe tu dirección"
                 className="w-full p-2.5 text-base border border-gray-300 rounded mb-4"
+                defaultValue=""
               />
             </Autocomplete>
 
-            <Controller
-              name="direccion"
-              control={control}
+            <input
+              type="hidden"
+              {...register('direccion')}
               defaultValue=""
-              render={({ field }) => (
-                <input
-                  {...field}
-                  type="hidden"
-                  value={address}
-                />
-              )}
             />
           </div>
 

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -14,24 +14,24 @@ import { toast } from 'react-toastify'
 const API = process.env.NEXT_PUBLIC_API
 
 const UpdateModal = ({ open, onClose, closeDrawer }) => {
-  const [newNamePlan, setNewNamePlan] = useState('')
   const [openModalDelete, setOpenModalDelete] = useState(false)
-  const [newDescriptionPlan, setNewDescriptionPlan] = useState('')
-  const [newPricePlan, setNewPricePlan] = useState('')
+  const nameRef = useRef(null)
+  const descRef = useRef(null)
+  const priceRef = useRef(null)
   const router = useRouter()
 
   useEffect(() => {
-    if (open.data) {
-      setNewNamePlan(open.data.planName)
-      setNewDescriptionPlan(open.data.planDescription)
-      setNewPricePlan(open.data.planPrice)
+    if (open.open && open.data) {
+      if (nameRef.current) nameRef.current.value = open.data.planName || ''
+      if (descRef.current) descRef.current.value = open.data.planDescription || ''
+      if (priceRef.current) priceRef.current.value = open.data.planPrice || ''
     }
     return () => {
-      setNewNamePlan('')
-      setNewDescriptionPlan('')
-      setNewPricePlan('')
+      if (nameRef.current) nameRef.current.value = ''
+      if (descRef.current) descRef.current.value = ''
+      if (priceRef.current) priceRef.current.value = ''
     }
-  }, [open.open])
+  }, [open.open, open.data])
 
   const updatePlanSubmit = async (e) => {
     e.preventDefault()
@@ -42,9 +42,9 @@ const UpdateModal = ({ open, onClose, closeDrawer }) => {
       },
       body: JSON.stringify({
         ...open?.data,
-        planName: newNamePlan,
-        planDescription: newDescriptionPlan,
-        planPrice: newPricePlan
+        planName: nameRef.current?.value || '',
+        planDescription: descRef.current?.value || '',
+        planPrice: priceRef.current?.value || ''
       })
     })
       .then(res => res.json())
@@ -82,16 +82,17 @@ const UpdateModal = ({ open, onClose, closeDrawer }) => {
 
   const ModalDeleteValidation = ({ name, open, onClose }) => {
     const [isConfirm, setIsConfirm] = useState(false)
-    const [namePlanDelete, setNamePlanDelete] = useState('')
+    const nameDeleteRef = useRef(null)
     const deleteConfirm = (e) => {
-      setNamePlanDelete(e.target.value)
+      setIsConfirm(e.target.value.trim() === name.trim())
     }
 
     useEffect(() => {
-      if (namePlanDelete.trim() === name.trim()) {
-        setIsConfirm(true)
+      if (open && nameDeleteRef.current) {
+        nameDeleteRef.current.value = ''
       }
-    }, [namePlanDelete])
+      setIsConfirm(false)
+    }, [open])
 
     return (
       <Dialog open={open} onOpenChange={onClose}>
@@ -102,10 +103,11 @@ const UpdateModal = ({ open, onClose, closeDrawer }) => {
           <p className="text-center text-sm font-bold">Para confirmar escriba el nombre del plan</p>
           <p className="text-center font-bold bg-red-400 text-white py-1 rounded">{name}</p>
           <input
+            ref={nameDeleteRef}
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm mt-2"
             placeholder="Escriba el nombre del plan"
-            value={namePlanDelete}
-            onChange={(e) => deleteConfirm(e)}
+            defaultValue=""
+            onChange={deleteConfirm}
           />
           <div className="flex flex-col gap-2 mt-4">
             <Button
@@ -130,22 +132,24 @@ const UpdateModal = ({ open, onClose, closeDrawer }) => {
         </DialogHeader>
         <form onSubmit={updatePlanSubmit} className="flex flex-col gap-4">
           <input
+            ref={nameRef}
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
             placeholder="Nombre del plan"
-            value={newNamePlan}
-            onChange={(e) => setNewNamePlan(e.target.value)}
+            defaultValue=""
           />
           <input
+            ref={descRef}
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
             placeholder="Descripción del plan"
-            value={newDescriptionPlan}
-            onChange={(e) => setNewDescriptionPlan(e.target.value)}
+            defaultValue=""
           />
           <input
+            ref={priceRef}
             className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
             placeholder="Costo del plan"
-            value={newPricePlan}
-            onChange={(e) => setNewPricePlan(e.target.value)}
+            type="text"
+            inputMode="decimal"
+            defaultValue=""
           />
           <div className="flex justify-between">
             <Button type="submit">Modificar</Button>

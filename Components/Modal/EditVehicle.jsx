@@ -15,7 +15,13 @@ const API = process.env.NEXT_PUBLIC_API
 const EditVehicles = (props) => {
   const { open, close, data } = props
 
-  const { register, handleSubmit, watch } = useForm({ defaultValues: { ...data } })
+  const { register, handleSubmit, watch } = useForm({
+    defaultValues: {
+      ...data,
+      expiration_card: getDateLoco(data?.expiration_card),
+      expiration_verify: getDateLoco(data?.expiration_verify)
+    }
+  })
 
   const dateExpCard = watch('expiration_card')
   const dateExpVeriy = watch('expiration_verify')
@@ -119,7 +125,6 @@ const EditVehicles = (props) => {
             <input
               className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               type="date"
-              value={getDateLoco(dateExpCard)}
               {...register('expiration_card', { required: false })}
             />
             {!data.expiration_card && <span className="text-xs text-red-600">Configura el vencimiento</span>}
@@ -129,7 +134,6 @@ const EditVehicles = (props) => {
             <input
               className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               type="date"
-              value={getDateLoco(dateExpVeriy)}
               {...register('expiration_verify', { required: false })}
             />
             {!data.expiration_verify && <span className="text-xs text-red-600">Configura el vencimiento</span>}

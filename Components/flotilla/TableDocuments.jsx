@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
-import { useCallback, useState, useMemo } from 'react'
+import { useCallback, useRef, useState, useMemo } from 'react'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
 import PlansDrawer from './PlansDrawer'
@@ -107,6 +107,7 @@ export default function TableDocuments ({ data: rows }) {
 
   /* ─── Filtros ─── */
   const [searchText, setSearchText] = useState('')
+  const searchRef = useRef(null)
   const [statusFilter, setStatusFilter] = useState('todos') // 'todos' | 'activo' | 'inactivo'
   const [typeFilter, setTypeFilter] = useState('todos')
   const [costCenterFilter, setCostCenterFilter] = useState('todos')
@@ -401,6 +402,7 @@ export default function TableDocuments ({ data: rows }) {
 
   const clearFilters = () => {
     setSearchText('')
+    if (searchRef.current) searchRef.current.value = ''
     setStatusFilter('todos')
     setTypeFilter('todos')
     setCostCenterFilter('todos')
@@ -439,13 +441,14 @@ export default function TableDocuments ({ data: rows }) {
             <div className="search-intecsa">
               <Search size={16} />
               <input
+                ref={searchRef}
                 type="text"
                 placeholder="Placas, modelo, serie o motor…"
-                value={searchText}
+                defaultValue=""
                 onChange={(e) => setSearchText(e.target.value)}
               />
               {searchText && (
-                <button onClick={() => setSearchText('')} className="iconbtn-intecsa" style={{ width: 22, height: 22 }} type="button">
+                <button onClick={() => { setSearchText(''); if (searchRef.current) searchRef.current.value = '' }} className="iconbtn-intecsa" style={{ width: 22, height: 22 }} type="button">
                   <X size={14} />
                 </button>
               )}

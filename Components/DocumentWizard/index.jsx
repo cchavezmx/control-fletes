@@ -36,6 +36,35 @@ const STEP_DESCRIPTIONS = [
   'Revisa los datos antes de guardar el documento.'
 ]
 
+/* ─── Select de plan usando register (no controlado) para evitar saltos de foco ─── */
+const PlanSelectInline = ({ register, planByVehicle, errors, handledNewPlan }) => {
+  const { onChange, ...rest } = register('plan', { required: true })
+
+  return (
+    <select
+      className={`select-intecsa ${errors.plan ? 'error' : ''}`}
+      {...rest}
+      onChange={(e) => {
+        if (e.target.value === '__new__') {
+          handledNewPlan(true)
+          return
+        }
+        onChange(e)
+      }}
+    >
+      <option value="">Selecciona un plan…</option>
+      {planByVehicle?.length > 0
+        ? planByVehicle.map(plan => (
+          <option key={plan._id} value={plan._id}>
+            {plan.planName}
+          </option>
+        ))
+        : <option value="" disabled>No hay planes para este vehículo</option>}
+      <option value="__new__">+ Crear nuevo plan</option>
+    </select>
+  )
+}
+
 export default function DocumentWizard (props) {
   const {
     empresaId,
@@ -136,27 +165,12 @@ export default function DocumentWizard (props) {
             {loadingPlans ? (
               <div className="skel" style={{ height: 40, borderRadius: 8 }} />
             ) : (
-              <select
-                className={`select-intecsa ${errors.plan ? 'error' : ''}`}
-                value={planWatchSelected || ''}
-                onChange={(e) => {
-                  if (e.target.value === '__new__') {
-                    handledNewPlan(true)
-                    return
-                  }
-                  setValue('plan', e.target.value, { shouldValidate: true })
-                }}
-              >
-                <option value="">Selecciona un plan…</option>
-                {planByVehicle?.length > 0
-                  ? planByVehicle.map(plan => (
-                    <option key={plan._id} value={plan._id}>
-                      {plan.planName}
-                    </option>
-                  ))
-                  : <option value="" disabled>No hay planes para este vehículo</option>}
-                <option value="__new__">+ Crear nuevo plan</option>
-              </select>
+              <PlanSelectInline
+                register={register}
+                planByVehicle={planByVehicle}
+                errors={errors}
+                handledNewPlan={handledNewPlan}
+              />
             )}
             {errors.plan && <span className="field-error">{errors.plan.message}</span>}
             <p className="help-text">Configuración de carga asociada.</p>
@@ -186,8 +200,7 @@ export default function DocumentWizard (props) {
           </label>
           <select
             className={`select-intecsa ${errors.client ? 'error' : ''}`}
-            value={watch('client') || ''}
-            onChange={(e) => setValue('client', e.target.value, { shouldValidate: true })}
+            {...register('client', { required: true })}
           >
             <option value="">Selecciona un cliente…</option>
             {
@@ -287,21 +300,21 @@ export default function DocumentWizard (props) {
       setValue('stops', next, { shouldValidate: false })
     }
 
-    const setStop = (idx, value) => {
-      const next = [...stopsValue]
-      next[idx] = value
-      setValue('stops', next, { shouldValidate: false })
-    }
-
     return (
       <div className="route-stops">
-        {stopsValue.map((stop, idx) => (
+        {stopsValue.map((_, idx) => (
           <div key={idx} className="route-stop-row">
-            <input
-              className="input-intecsa"
-              placeholder={`Parada ${idx + 1} (dirección completa)`}
-              value={stop || ''}
-              onChange={(e) => setStop(idx, e.target.value)}
+            <Controller
+              name={`stops.${idx}`}
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  className="input-intecsa"
+                  placeholder={`Parada ${idx + 1} (dirección completa)`}
+                  value={field.value || ''}
+                />
+              )}
             />
             <button
               type="button"
@@ -386,7 +399,18 @@ export default function DocumentWizard (props) {
         <div className="form-group">
           <label className="label-intecsa">Recorrido</label>
           <div style={{ position: 'relative' }}>
-            <input className="input-intecsa" placeholder="0" type="number" {...register('recorrido_km')} />
+            <input
+              className="input-intecsa"
+              placeholder="0"
+              type="text"
+              inputMode="decimal"
+              {...register('recorrido_km', {
+                setValueAs: (v) => {
+                  const cleaned = String(v).replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1')
+                  return cleaned === '' ? undefined : Number(cleaned)
+                }
+              })}
+            />
             <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: 'var(--muted-2)' }}>km</span>
           </div>
           <p className="help-text">Se autocompleta desde la ruta; puedes ajustarlo.</p>
@@ -396,7 +420,18 @@ export default function DocumentWizard (props) {
             KM de salida (odómetro) <span style={{ fontWeight: 500, color: 'var(--muted-2)' }}>(opcional)</span>
           </label>
           <div style={{ position: 'relative' }}>
-            <input className="input-intecsa" placeholder="0" type="number" {...register('kilometer_out')} />
+            <input
+              className="input-intecsa"
+              placeholder="0"
+              type="text"
+              inputMode="decimal"
+              {...register('kilometer_out', {
+                setValueAs: (v) => {
+                  const cleaned = String(v).replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1')
+                  return cleaned === '' ? undefined : Number(cleaned)
+                }
+              })}
+            />
             <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: 'var(--muted-2)' }}>km</span>
           </div>
         </div>

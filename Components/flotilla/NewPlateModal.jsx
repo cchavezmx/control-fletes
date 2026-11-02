@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,13 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
 function NewPlateModal ({ open, onClose, handledNewVehicle }) {
-  const [plate, setPlate] = useState('')
+  const plateRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
       setLoading(true)
-      await handledNewVehicle({ placas: plate.trim(), picture: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' })
+      await handledNewVehicle({ placas: (plateRef.current?.value || '').trim(), picture: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' })
     } catch (error) {
       console.log(error)
     } finally {
@@ -26,7 +26,7 @@ function NewPlateModal ({ open, onClose, handledNewVehicle }) {
 
   useEffect(() => {
     return () => {
-      setPlate('')
+      if (plateRef.current) plateRef.current.value = ''
     }
   }, [open])
 
@@ -40,11 +40,11 @@ function NewPlateModal ({ open, onClose, handledNewVehicle }) {
           <Separator className="mb-4" />
           <div className="flex flex-col items-center gap-4">
             <input
+              ref={plateRef}
               className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm"
               placeholder="ABC-1234"
               type="text"
-              value={plate}
-              onChange={(e) => setPlate(e.target.value)}
+              defaultValue=""
             />
             <div className="flex gap-2">
               <Button variant="destructive" onClick={onClose}>Cancelar</Button>

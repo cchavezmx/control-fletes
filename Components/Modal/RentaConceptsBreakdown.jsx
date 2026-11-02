@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import {
   ChevronDown, ChevronUp, User, Wallet, Fuel, Truck, CreditCard
@@ -32,7 +32,7 @@ const CONCEPTS = [
     daysField: 'casetas_days',
     unitField: 'casetas_unit',
     notesField: 'casetas_notes',
-    fixed: true // casetas no son por día; mantienen "Monto fijo"
+    fixed: true
   },
   {
     key: 'operador',
@@ -66,7 +66,7 @@ const CONCEPTS = [
     daysField: 'gasoline_km',
     unitField: 'gasoline_unit',
     notesField: 'gasoline_notes',
-    fixed: true // gasolina se carga manual como monto fijo, sin multiplicador
+    fixed: true
   },
   {
     key: 'renta',
@@ -81,53 +81,102 @@ const CONCEPTS = [
   }
 ]
 
-/* ─── Currency input with decimals ─── */
-const CurrencyInput = ({ value, onChange, placeholder = '0' }) => {
-  const [focused, setFocused] = useState(false)
+/* ─── Helpers ─── */
+const cleanDecimal = (v) => String(v ?? '').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1')
+const cleanInteger = (v) => String(v ?? '').replace(/[^\d]/g, '')
+
+/* ─── Inputs using react-hook-form register (no focus loss) ─── */
+const NumberField = ({ name, label, hint, prefix, suffix, placeholder, inputMode = 'decimal', allowDecimal = true }) => {
+  const { register, setValue } = useFormContext()
+
+  const { ref, ...rest } = register(name, {
+    setValueAs: (v) => {
+      const cleaned = allowDecimal ? cleanDecimal(v) : cleanInteger(v)
+      return cleaned === '' ? 0 : Number(cleaned)
+    }
+  })
 
   const handleChange = (e) => {
-    const raw = e.target.value
-      .replace(/[^\d.]/g, '')
-      .replace(/(\..*)\./g, '$1')
-    onChange(raw)
+    const cleaned = allowDecimal ? cleanDecimal(e.target.value) : cleanInteger(e.target.value)
+    e.target.value = cleaned
+    rest.onChange(e)
+    // Guardar string mientras escribe para no perder decimales a medio escribir
+    if (cleaned === '' || cleaned.endsWith('.')) {
+      setValue(name, cleaned, { shouldValidate: false, shouldDirty: true })
+    }
   }
 
-  // Format with thousands only when NOT focused (avoid cursor jumps while typing)
-  const formatForDisplay = (val) => {
-    if (!val) return ''
-    const [intPart, decPart] = String(val).split('.')
-    const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    return decPart != null ? `${intFormatted}.${decPart}` : intFormatted
+  const handleBlur = (e) => {
+    const cleaned = allowDecimal ? cleanDecimal(e.target.value) : cleanInteger(e.target.value)
+    e.target.value = cleaned
+    rest.onChange(e)
+    rest.onBlur(e)
   }
 
   return (
-    <div className="curr">
-      <span className="sym">$</span>
-      <input
-        type="text"
-        inputMode="decimal"
-        className="input-intecsa"
-        style={{ paddingLeft: 26, width: '100%' }}
-        placeholder={placeholder}
-        value={focused ? (value || '') : formatForDisplay(value)}
-        onChange={handleChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-      />
+    <div className="field">
+      {label && <label className="field-label">{label}</label>}
+      <div className="curr" style={{ position: 'relative' }}>
+        {prefix && <span className="sym">$</span>}
+        <input
+          type="text"
+          inputMode={inputMode}
+          placeholder={placeholder}
+          className="input-intecsa"
+          style={prefix ? { paddingLeft: 26, width: '100%' } : { width: '100%' }}
+          {...rest}
+          ref={ref}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+        {suffix && (
+          <span className="sym" style={{ left: 'auto', right: 13, fontSize: 13, color: 'var(--muted)' }}>
+            {suffix}
+          </span>
+        )}
+      </div>
+      {hint && <span className="field-hint">{hint}</span>}
     </div>
   )
 }
 
-/* ─── Field wrapper (label + input + hint) ─── */
-const Field = ({ label, hint, children, className = '' }) => (
-  <div className={`field ${className}`}>
-    {label && (
-      <label className="field-label">{label}</label>
-    )}
-    {children}
-    {hint && <span className="field-hint">{hint}</span>}
-  </div>
-)
+const PercentField = ({ name, label }) => {
+  const { register, setValue } = useFormContext()
+
+  const { ref, ...rest } = register(name, {
+    setValueAs: (v) => {
+      const cleaned = cleanDecimal(v)
+      return cleaned === '' ? 0 : Number(cleaned)
+    }
+  })
+
+  const handleChange = (e) => {
+    const cleaned = cleanDecimal(e.target.value)
+    e.target.value = cleaned
+    rest.onChange(e)
+    if (cleaned === '' || cleaned.endsWith('.')) {
+      setValue(name, cleaned, { shouldValidate: false, shouldDirty: true })
+    }
+  }
+
+  return (
+    <span className="bt-k">
+      {label}{' '}
+      <span className="pct-in">
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="0"
+          className="tnum"
+          {...rest}
+          ref={ref}
+          onChange={handleChange}
+        />
+        <span>%</span>
+      </span>
+    </span>
+  )
+}
 
 /* ─── Concept accordion item ─── */
 const ConceptItem = ({
@@ -151,31 +200,6 @@ const ConceptItem = ({
     ? 1
     : (qtyRaw !== '' && qtyRaw != null ? Number(qtyRaw) : (defaultDays || 1))
 
-  // Mantiene el input de cantidad como string controlado mientras el usuario escribe,
-  // para evitar que un parseo numérico agresivo trunque o cierre el campo.
-  const [qtyDraft, setQtyDraft] = useState(qtyRaw || '')
-  const qtyInputRef = useRef(qtyDraft)
-  qtyInputRef.current = qtyDraft
-
-  useEffect(() => {
-    if (qtyRaw !== qtyInputRef.current) {
-      setQtyDraft(qtyRaw || '')
-    }
-  }, [qtyRaw])
-
-  const handleQtyChange = (e) => {
-    const raw = e.target.value.replace(/[^\d]/g, '')
-    setQtyDraft(raw)
-    setField(concept.daysField, raw === '' ? '' : Number(raw))
-  }
-
-  const handleQtyBlur = () => {
-    if (qtyDraft === '' || qtyDraft == null) {
-      setQtyDraft(String(defaultDays || 1))
-      setField(concept.daysField, defaultDays || 1)
-    }
-  }
-
   const monto = computeConceptTotal({
     rate: rateRaw,
     unit,
@@ -186,8 +210,8 @@ const ConceptItem = ({
 
   const headSub = rate
     ? (isFijo
-        ? 'Monto fijo'
-        : `${formatCurrency(rate)} ${u.abbr} × ${qty} ${qty === 1 ? u.one : u.many}`)
+      ? 'Monto fijo'
+      : `${formatCurrency(rate)} ${u.abbr} × ${qty} ${qty === 1 ? u.one : u.many}`)
     : concept.subtitle
 
   const setField = (field, value) => {
@@ -199,9 +223,7 @@ const ConceptItem = ({
   return (
     <div className={`acc-item ${open ? 'open' : ''}`}>
       <button type="button" className="acc-head" onClick={onToggle}>
-        <span className="acc-ic">
-          <concept.icon size={16} />
-        </span>
+        <span className="acc-ic"><concept.icon size={16} /></span>
         <span className="acc-title-group">
           <span className="acc-title">{concept.title}</span>
           <span className="acc-sub">{headSub}</span>
@@ -214,65 +236,39 @@ const ConceptItem = ({
 
       {open && (
         <div className="acc-body">
-          {/* Unit selector — locked to "Por día" (fijo only for casetas) */}
-          <Field label="Unidad de cobro" className="full">
-            {concept.fixed ? (
-              <div className="unit-seg">
-                <button type="button" className="useg on" disabled>
-                  Monto fijo
-                </button>
-              </div>
-            ) : (
-              <div className="unit-seg">
-                <button type="button" className="useg on" disabled>
-                  Por día
-                </button>
-              </div>
-            )}
-          </Field>
+          <div className="field full">
+            <label className="field-label">Unidad de cobro</label>
+            <div className="unit-seg">
+              <button type="button" className="useg on" disabled>
+                {isFijo ? 'Monto fijo' : 'Por día'}
+              </button>
+            </div>
+          </div>
 
-          {/* Value + Quantity */}
-          <Field
+          <NumberField
+            name={concept.rateField}
             label={isFijo ? 'Monto' : `Valor ${u.label.toLowerCase()}`}
-          >
-            <CurrencyInput
-              value={String(rateRaw || '')}
-              onChange={(v) => {
-                setField(concept.rateField, v)
-                if (!isFijo && v && v !== '' && (qtyRaw === '' || qtyRaw == null)) {
-                  setField(concept.daysField, '1')
-                }
-              }}
-            />
-          </Field>
+            prefix
+            inputMode="decimal"
+            allowDecimal
+          />
 
           {!isFijo && (
-            <Field
+            <NumberField
+              name={concept.daysField}
               label={u.qty}
               hint={`Sugerido: ${suggest} ${suggest === 1 ? u.one : u.many}`}
-            >
-              <div className="curr">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  className="input-intecsa"
-                  style={{ paddingLeft: 12, paddingRight: 50, width: '100%' }}
-                  placeholder={String(suggest)}
-                  value={qtyRaw || ''}
-                  onChange={(e) => setField(concept.daysField, e.target.value.replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1'))}
-                />
-                <span className="sym" style={{ left: 'auto', right: 13, fontSize: 13, color: 'var(--muted)' }}>
-                  {u.many}
-                </span>
-              </div>
-            </Field>
+              suffix={u.many}
+              placeholder={String(suggest)}
+              inputMode="numeric"
+              allowDecimal={false}
+            />
           )}
 
-          {/* Notes — full width */}
-          <Field
-            label={<>Notas <span style={{ fontWeight: 500, color: 'var(--muted-2)' }}>(opcional)</span></>}
-            className="full"
-          >
+          <div className="field full">
+            <label className="field-label">
+              Notas <span style={{ fontWeight: 500, color: 'var(--muted-2)' }}>(opcional)</span>
+            </label>
             <input
               className="input-intecsa"
               style={{ height: 36, fontSize: 13 }}
@@ -280,9 +276,8 @@ const ConceptItem = ({
               value={notes}
               onChange={(e) => setField(concept.notesField, e.target.value)}
             />
-          </Field>
+          </div>
 
-          {/* Subtotal line — full width */}
           <div className="acc-line full">
             <span className="tnum">
               {isFijo
@@ -299,52 +294,7 @@ const ConceptItem = ({
 }
 
 /* ─── Billing totals panel ─── */
-const BillingTotals = ({ subtotal, utilidad, indirectos, base, iva, total, profitPct, indirectPct, setValue }) => {
-  /**
-   * Input de porcentaje con estado local para que el cursor no pierda foco
-   * mientras el usuario escribe. Se sincroniza con react-hook-form en cada
-   * cambio, pero el valor renderizado se controla localmente.
-   */
-  const PctInput = ({ value, onChange }) => {
-    const [raw, setRaw] = useState(String(value ?? ''))
-
-    useEffect(() => {
-      setRaw(String(value ?? ''))
-    }, [value])
-
-    const handleChange = useCallback((e) => {
-      const next = e.target.value
-        .replace(/[^\d.]/g, '')
-        .replace(/(\..*)\./g, '$1')
-      setRaw(next)
-
-      const num = next === '' ? 0 : Number(next)
-      if (!Number.isNaN(num)) {
-        onChange(num)
-      }
-    }, [onChange])
-
-    const handleBlur = useCallback(() => {
-      const num = raw === '' ? 0 : Number(raw)
-      setRaw(String(num))
-      onChange(num)
-    }, [raw, onChange])
-
-    return (
-      <span className="pct-in">
-        <input
-          className="tnum"
-          inputMode="numeric"
-          value={raw}
-          placeholder="0"
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-        <span>%</span>
-      </span>
-    )
-  }
-
+const BillingTotals = ({ subtotal, utilidad, indirectos, base, iva, total }) => {
   return (
     <div className="bill-totals">
       <div className="bt-row">
@@ -352,15 +302,11 @@ const BillingTotals = ({ subtotal, utilidad, indirectos, base, iva, total, profi
         <span className="bt-v tnum">{formatCurrency(subtotal)}</span>
       </div>
       <div className="bt-row adj">
-        <span className="bt-k">
-          Utilidad <PctInput value={profitPct} onChange={(v) => setValue('profit_pct', v, { shouldValidate: false })} />
-        </span>
+        <PercentField name="profit_pct" label="Utilidad" />
         <span className="bt-v tnum">{formatCurrency(utilidad)}</span>
       </div>
       <div className="bt-row adj">
-        <span className="bt-k">
-          Indirectos <PctInput value={indirectPct} onChange={(v) => setValue('indirect_pct', v, { shouldValidate: false })} />
-        </span>
+        <PercentField name="indirect_pct" label="Indirectos" />
         <span className="bt-v tnum">{formatCurrency(indirectos)}</span>
       </div>
       <div className="bt-row sub">
@@ -383,7 +329,6 @@ const BillingTotals = ({ subtotal, utilidad, indirectos, base, iva, total, profi
 const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const { control, setValue } = useFormContext()
 
-  /* Watch all concept fields */
   const casetasAmount = Number(useWatch({ control, name: 'casetas_amount' }) || 0)
   const casetasUnit = useWatch({ control, name: 'casetas_unit' }) || 'fijo'
   const casetasDays = Number(useWatch({ control, name: 'casetas_days' }) || 0)
@@ -408,7 +353,6 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
   const profitPct = Number(useWatch({ control, name: 'profit_pct' }) || storedRates.profit_pct)
   const indirectPct = Number(useWatch({ control, name: 'indirect_pct' }) || storedRates.indirect_pct)
 
-  /* Compute days from dates */
   const diasPeriodo = useMemo(() => computeDiasPeriodo(requestDate, deliveryDate), [requestDate, deliveryDate])
 
   const formValues = useMemo(() => ({
@@ -454,13 +398,7 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
     total
   } = breakdown
 
-  const casetasTotal = concepts.casetas.importe
-  const operatorTotal = concepts.operator.importe
-  const perDiemTotal = concepts.perDiem.importe
-  const gasolineTotal = concepts.gasoline.importe
-  const rentaTotal = concepts.unitRent.importe
-
-  /* Sync subtotal to form (always — even when 0, so backend receives a number) */
+  /* Sync subtotal to form */
   const prevSubtotal = useRef(subtotal)
   useEffect(() => {
     if (subtotal !== prevSubtotal.current) {
@@ -469,7 +407,6 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
     }
   }, [subtotal, setValue])
 
-  // allow multiple accordion sections to be open simultaneously
   const [openKeys, setOpenKeys] = useState(new Set())
   const toggleKey = (key) => {
     setOpenKeys(prev => {
@@ -512,9 +449,6 @@ const RentaConceptsBreakdown = ({ planName, requestDate, deliveryDate }) => {
         base={base}
         iva={iva}
         total={total}
-        profitPct={String(profitPct || '')}
-        indirectPct={String(indirectPct || '')}
-        setValue={setValue}
       />
     </div>
   )
