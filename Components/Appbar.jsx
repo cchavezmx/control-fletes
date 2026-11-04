@@ -28,7 +28,8 @@ import {
   Mailbox,
   UserCircle,
   MoreVertical,
-  Bug
+  Bug,
+  Tags
 } from 'lucide-react'
 
 const menuObject = [
@@ -36,6 +37,11 @@ const menuObject = [
     name: 'Unidades',
     icon: Truck,
     link: 'newvehicleslist'
+  },
+  {
+    name: 'Centros de costo',
+    icon: Tags,
+    link: 'mantenimiento/centros-costo'
   },
   {
     name: 'ITA-Utils',

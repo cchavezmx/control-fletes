@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import 'dayjs/locale/es'
+import useSWR from 'swr'
 import { Controller, FormProvider, useWatch } from 'react-hook-form'
 import NewVehicle from '../Modal/NewVehicle'
 import NewPlan from '../Modal/NewPlan'
@@ -14,6 +15,7 @@ import RentaConceptsBreakdown from '../Modal/RentaConceptsBreakdown'
 import FuelLevelSlider from '../Modal/FuelLevelSlider'
 import useDocumentWizard, { STEPS } from '../../hooks/useDocumentWizard'
 import EMPRESAS from '../../lib/empresas.json'
+import { CENTROS_COSTO_URL, getActiveCostCenters } from '../../lib/catalogoCentrosCosto'
 import VehiclesSelector from '../VehiclesSelector'
 import DatePickerIntecsa from '../DatePickerIntecsa'
 import Banner from '../Banner'
@@ -104,6 +106,13 @@ export default function DocumentWizard (props) {
   const [openNewVehicle, setOpenNewVehicle] = useState(false)
   const [newPlan, setNewPlan] = useState(false)
   const planWatchSelected = useWatch({ control, name: 'plan' })
+
+  const { data: catalogo } = useSWR(
+    CENTROS_COSTO_URL,
+    { dedupingInterval: 5 * 60 * 1000 } // cache 5 minutos
+  )
+
+  const costCenterOptions = getActiveCostCenters(catalogo)
 
   const handledNewVehicle = (event) => setOpenNewVehicle(event)
   const handledNewPlan = (event) => setNewPlan(event)
@@ -236,12 +245,21 @@ export default function DocumentWizard (props) {
           <label className="label-intecsa">
             Centro de costos <span style={{ fontWeight: 500, color: 'var(--muted-2)' }}>(opcional)</span>
           </label>
-          <select className="select-intecsa" {...register('cost_center')}>
-            <option value="">Selecciona…</option>
-            <option value="logistica">Logística</option>
-            <option value="operaciones">Operaciones</option>
-            <option value="comercial">Comercial</option>
-            <option value="administracion">Administración</option>
+          <select
+            className="select-intecsa"
+            {...register('cost_center')}
+            disabled={costCenterOptions.length === 0}
+          >
+            {costCenterOptions.length === 0 ? (
+              <option value="">Sin opciones disponibles</option>
+            ) : (
+              <>
+                <option value="">Selecciona…</option>
+                {costCenterOptions.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </>
+            )}
           </select>
         </div>
 

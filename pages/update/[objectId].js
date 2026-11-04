@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import dayjs from 'dayjs'
+import useSWR from 'swr'
 import {
   ArrowLeft, FileText, MapPin, CalendarDays, Receipt, Fuel, CreditCard, Save
 } from 'lucide-react'
 import EMPRESAS from '../../lib/empresas.json'
+import { CENTROS_COSTO_URL, getCostCenterOptionsForEdit } from '../../lib/catalogoCentrosCosto'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/router'
 
@@ -38,11 +40,23 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa, empresaId }
     : currentModel?.bussiness_cost
   const backEmpresaId = empresaId || bcId || ''
 
+  const { data: catalogo } = useSWR(
+    CENTROS_COSTO_URL,
+    { dedupingInterval: 5 * 60 * 1000 } // cache 5 minutos
+  )
+
+  const valorActual = currentModel?.cost_center || ''
+  const costCenterOptions = useMemo(
+    () => getCostCenterOptionsForEdit(catalogo, valorActual),
+    [catalogo, valorActual]
+  )
+
   const fmtDay = (d) => (d ? dayjs(d).format('YYYY-MM-DD') : '')
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
       ...currentModel,
+      cost_center: valorActual,
       request_date: fmtDay(currentModel?.request_date),
       delivery_date: fmtDay(currentModel?.delivery_date)
     }
@@ -125,6 +139,19 @@ const UpdateModel = ({ type, objectId, currentModel, currentEmpresa, empresaId }
           </Field>
           <Field label="Conductor">
             <input className={inputCls} placeholder="Nombre del conductor" {...register('driver')} />
+          </Field>
+          <Field label="Centro de costos">
+            <select className="select-intecsa" {...register('cost_center')}>
+              {costCenterOptions.length === 0 ? (
+                <option value="">Sin opciones disponibles</option>
+              ) : (
+                costCenterOptions.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} {!c.active && '(inactivo)'}
+                  </option>
+                ))
+              )}
+            </select>
           </Field>
           <Field label="Cliente destino" full>
             <select className="select-intecsa" {...register('client', { required: true })}>
