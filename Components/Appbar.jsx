@@ -39,12 +39,7 @@ const menuObject = [
     link: 'newvehicleslist'
   },
   {
-    name: 'Centros de costo',
-    icon: Tags,
-    link: 'mantenimiento/centros-costo'
-  },
-  {
-    name: 'ITA-Utils',
+    name: 'Configuración',
     icon: Settings,
     link: 'ita-utils'
   },
